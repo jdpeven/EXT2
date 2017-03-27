@@ -9,7 +9,15 @@ int main(int argc, char*argv[])
         devName = argv[1];
     mount_root();       //devName is a global so it doesn't need to be passed in
 
-
+    //Loop for commands
+    while(1)
+    {
+        //Get commands
+        //Use sscanf to break it into cmd an pathname
+        //use function pointers to call the specific functions
+        //if there is a path, decompose it using decompose()
+        //execute (usually by forking a child)
+    }
 
     printf("Hello\n");
     return 0;
