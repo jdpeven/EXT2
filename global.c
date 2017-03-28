@@ -26,6 +26,25 @@ char * devName = "diskimage"; //will be used as default for mounting the root
 char command[128];
 char cmd[64];
 char path[64];
-//There should be a command array like in our old homework
+
+/*int mkdir(char * s){}
+int rmdir(char * s){}
+int cd(char * s){}              //we will make cd soon so delete
+int pwd(char * s){}
+int creat(char * s){}
+int quit(char * s){}
+int help(char * s){}
+int link(char * s){}
+int unlink(char * s){}
+int symlink(char *s){}
+int stat(char *s){}
+int chmod(char *s){}
+int touch(char *s){}*/
+
+
+
+//char * CMD[] = {"mkdir","rmdir","ls", "cd", "pwd", "creat", "quit", "help", "link", "unlink", "symlink", "stat", "chmod", "touch", 0};
+//int (*fptr[ ])(char *) = {(int (*) ())mkdir,rmdir,ls,cd,pwd,creat,quit,help,link,unlink,symlink,stat,chmod,touch};
+
 
 #endif
