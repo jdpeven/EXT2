@@ -53,11 +53,11 @@ int mount_root()
     }
     super();
     gd();
-    printf("mount : %s  mounted on /", devName);
-    printf("nblocks = %d  bfree = %d   ninodes = %d\n", sp->s_blocks_count, sp->s_free_blocks_count, sp->s_inodes_count);
+    printf("mount : %s  mounted on /\n", devName);
+    printf("nblocks = %d  bfree = %d   ninodes = %d\n", sp->s_blocks_count, gp->bg_free_blocks_count, sp->s_inodes_count);
     root = iget(dev, 2);
     printf("Mounted root\n");
-    printf("Creating P0, P1");
+    printf("Creating P0, P1\n");
     proc[0].cwd = iget(dev, 2);             //p0
     proc[1].cwd = iget(dev, 2);             //p1
 
