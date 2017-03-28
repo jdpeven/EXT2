@@ -11,7 +11,9 @@ Name:
 Args:  -  -
        -  -
 Return: -
-Description: 
+Description: This function releases and unlocks a minode point- ed by mip. 
+            If the process is the last one to use the minode (refCount = 0), 
+            the INODE is written back to disk if it is dirty (modified).
 SampleRun:
 */
 int iput(MINODE *mip)  // dispose of a minode[] pointed by mip
@@ -99,6 +101,8 @@ SampleRun:
 */
 
 
+
+
 /*
 Name: getino
 Args: dev - int * - Final device number (mounting purposes)
@@ -119,19 +123,19 @@ int getino(int *dev, char *pathname)
     char buf[BLKSIZE];
     char name[BLKSIZE];
     INODE *ip;
-    MINODE *mip;
+    MINODE *mip;                        //This will be the "current" inode for traversal
 
     printf("getino: pathname=%s\n", pathname);
     if (strcmp(pathname, "/")==0)
         return 2;
 
-    if (pathname[0]=='/')
-        mip = iget(*dev, 2);
+    if (pathname[0]=='/')               //absolute pathname
+        mip = iget(*dev, 2);            //Gets the root inode
     else
-        mip = iget(running->cwd->dev, running->cwd->ino);
+        mip = iget(running->cwd->dev, running->cwd->ino);       //Gets cwd's MINODE
 
-    strcpy(buf, pathname);
-    decompose(buf, name, n, "/");
+    strcpy(buf, pathname);                                  
+    decompose(buf, name, &n, "/");                              //JP changed n->&n
 
     for (i=0; i < n; i++){
         printf("===========================================\n");
@@ -140,7 +144,7 @@ int getino(int *dev, char *pathname)
         ino = search(mip, name[i]);
 
         if (ino==0){
-            iput(mip);
+            iput(mip);                                          //put it back
             printf("name %s does not exist\n", name[i]);
             return 0;
         }
@@ -187,7 +191,7 @@ Name: search
 Args: mip - MINODE * -
       name - char * -
 Return: int -
-Description:
+Description: 
 SampleRun: 
 */
 int search(MINODE *mip, char *name)

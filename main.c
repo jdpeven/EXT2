@@ -4,6 +4,8 @@
 #include "mount_root.c"
 #include "init.c"
 #include "ls.c"
+#include "cd.c"
+#include "quit.c"
 
 int main(int argc, char*argv[])
 {
@@ -26,6 +28,12 @@ int main(int argc, char*argv[])
 
         if(strcmp(command, "ls") == 0)
             ls(path);
+        if(strcmp(command, "cd") == 0)
+            cd(path);
+        if(strcmp(command, "quit") == 0){
+            quit(path);
+            break;
+        }
 
         /*cmdIndex = findCmd(command);
         if(cmdIndex == -1)
