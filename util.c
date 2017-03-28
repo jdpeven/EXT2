@@ -11,7 +11,7 @@ Name:
 Args:  -  -
        -  -
 Return: -
-Description:
+Description: 
 SampleRun:
 */
 int iput(MINODE *mip)  // dispose of a minode[] pointed by mip
@@ -23,8 +23,11 @@ int iput(MINODE *mip)  // dispose of a minode[] pointed by mip
 Name: iget
 Args: dev - int - 
       get - ino - 
-Return: MINODE *
-Description:
+Return: MINODE * -
+Description: This function returns a pointer to the in- memory INODE of (dev, ino). 
+            The returned minode is unique, i.e. only one copy of the INODE exists in 
+            memory. In addition, the minode is locked for exclusive use until it is 
+            either released or unlocked. (KCW, pg 324)
 SampleRun:
 */
 MINODE * iget(int dev, int ino)
@@ -98,10 +101,16 @@ SampleRun:
 
 /*
 Name: getino
-Args: dev - int * -
-      pathname - char * -
-Return:
-Description:
+Args: dev - int * - Final device number (mounting purposes)
+      pathname - char * - The pathname of the file/directory "a/b/c"
+Return: int - The inode number of a pathname
+Description: getino() returns the inode number of a pathname. While traversing a 
+                pathname the device number may change if the pathname crosses mounting 
+                point(s). The parameter dev is used to record the final device number. 
+                Thus, getino() essentially returns the (dev, ino) of a pathname. 
+                The function uses token() to break up pathname into component strings. 
+                Then it calls search() to search for the component strings in successive 
+                directory minodes. (KCW, pg 324)
 SampleRun:
 */
 int getino(int *dev, char *pathname)
@@ -186,11 +195,30 @@ int search(MINODE *mip, char *name)
     // YOUR search function !!!
 }
 
+/*
+Name: get_block
+Args: fd - int - The open file descriptor
+      blk - int - The block number that you want
+      buf - char[] - What you're reading the block into
+Return: int - Maybe just an error code.
+Description: Will get the block (blk) and read it into buf.
+SampleRun: get_block(dev, 2, buf)
+            reads the GD into buf.
+*/
+
 int get_block(int fd, int blk, char buf[ ])
 {
   lseek(fd, (long)blk*BLKSIZE, 0);
   read(fd, buf, BLKSIZE);  
 }
+
+/*
+Name: findCmd
+Args: command - char* - the command we're looking for
+Return: int - the index of the command for the function pointer array
+Description: Will fix the if() else() or switch statement
+SampleRun: cmd = findCmd("ls");
+*/
 
 int findCmd(char * command)
 {
