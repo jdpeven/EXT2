@@ -54,7 +54,7 @@ int mount_root()
     super();
     gd();
     printf("mount : %s  mounted on /", devName);
-    printf("nblocks = %d  bfree = %d   ninodes = %d\n", sp->s_blocks_count, sp->s_free_blocks_count, s->s_inodes_count);
+    printf("nblocks = %d  bfree = %d   ninodes = %d\n", sp->s_blocks_count, sp->s_free_blocks_count, sp->s_inodes_count);
     root = iget(dev, 2);
     printf("Mounted root\n");
     printf("Creating P0, P1");
