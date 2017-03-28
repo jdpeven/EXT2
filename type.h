@@ -1,6 +1,7 @@
 #ifndef TYPE_H
 #define TYPE_H
 
+#include <ext2fs/ext2_fs.h>
 typedef unsigned char  u8;
 typedef unsigned short u16;
 typedef unsigned int   u32;
@@ -26,9 +27,9 @@ DIR   *dp;
 #define NPROC          4                //Max number of running Processes allowed
 
 typedef struct minode{
-  INODE* INODE;                         //it was yelling at me so I made this a pointer
+  INODE INODE;                         
   int dev, ino;
-  int refCount;
+  int refCount;                         //initialized to 0
   int dirty;
   int mounted;
   struct mntable *mptr;
