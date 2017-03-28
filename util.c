@@ -11,13 +11,70 @@ Name:
 Args:  -  -
        -  -
 Return: -
+Description: 
+SampleRun:
+*/
+
+
+/*
+Name: iput
+Args: mip - MINODE * - a pointer to an MINODE
+Return: int - Not really used
 Description: This function releases and unlocks a minode point- ed by mip. 
             If the process is the last one to use the minode (refCount = 0), 
             the INODE is written back to disk if it is dirty (modified).
 SampleRun:
 */
+
+
 int iput(MINODE *mip)  // dispose of a minode[] pointed by mip
 {
+    int ino, blk, offset;
+    char ibuf[BLKSIZE];
+    mip->refCount--;
+    if(mip->refCount > 0){           //Still being referenced
+        printf("dev=%d ino=%d refCount = %d\n", mip->refCount);
+        return;
+    }
+    if(!mip->dirty){                 //it hasn't been changed
+        printf("dev=%d ino=%d has not been changed, no need to rewrite\n");
+        return;
+    }
+
+    printf("iput: dev=%d ino=%d\n", mip->dev, mip->ino);
+    ino = mip->ino;
+    blk = inode_start + (ino-1)/8;
+    offset = (ino-1)%8;
+
+    get_block(mip->dev, blk, ibuf);
+    ip = (INODE *)ibuf + offset;
+
+    *ip = mip->INODE;
+
+    put_block(mip->dev, blk, ibuf);
+
+    /*
+    (1). mip->refCount--;
+ 
+    (2). if (mip->refCount > 0) return;
+        if (!mip->dirty)       return;
+ 
+    (3).   write INODE back to disk 
+
+    printf("iput: dev=%d ino=%d\n", mip->dev, mip->ino); 
+
+    Use mip->ino to compute 
+
+        blk containing this INODE
+        disp of INODE in blk
+
+        get_block(mip->dev, block, buf);
+
+        ip = (INODE *)buf + disp;
+        *ip = mip->INODE;
+
+        put_block(mip->dev, block, buf);
+    */
     return 0;
 }
 
@@ -215,6 +272,13 @@ int get_block(int fd, int blk, char buf[ ])
   lseek(fd, (long)blk*BLKSIZE, 0);
   read(fd, buf, BLKSIZE);  
 }
+
+int put_block(int fd, int blk, char buf[ ])
+{
+    lseek(fd, (long)blk*BLKSIZE, 0);
+    write(fd, buf, BLKSIZE);
+}
+
 
 /*
 Name: findCmd
