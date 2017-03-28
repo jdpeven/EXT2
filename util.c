@@ -4,60 +4,7 @@
 #include "global.c"
 #include "type.h"
 
-/*
-Name: 
-Args:  -  -
-       -  -
-Return: -
-Description:
-SampleRun:
-*/
 
-
-/*
-Name: getino
-Args: dev - int * -
-      pathname - char * -
-Return:
-Description:
-SampleRun:
-*/
-int getino(int *dev, char *pathname)
-{
-    int i, ino, blk, disp;
-    char buf[BLKSIZE];
-    INODE *ip;
-    MINODE *mip;
-
-    printf("getino: pathname=%s\n", pathname);
-    if (strcmp(pathname, "/")==0)
-        return 2;
-
-    if (pathname[0]=='/')
-        mip = iget(*dev, 2);
-    else
-        mip = iget(running->cwd->dev, running->cwd->ino);
-
-    strcpy(buf, pathname);
-    tokenize(buf); // n = number of token strings
-
-    for (i=0; i < n; i++){
-        printf("===========================================\n");
-        printf("getino: i=%d name[%d]=%s\n", i, i, kcwname[i]);
-    
-        ino = search(mip, name[i]);
-
-        if (ino==0){
-            iput(mip);
-            printf("name %s does not exist\n", name[i]);
-            return 0;
-        }
-        iput(mip);
-        mip = iget(*dev, ino);
-    }
-    return ino;
-    
-}
 
 /*
 Name: 
@@ -80,7 +27,7 @@ Return: MINODE *
 Description:
 SampleRun:
 */
-MINODE * iget(dev, ino)
+MINODE * iget(int dev, int ino)
 {
     /*search minode[] for an item with same (dev, ino)
     if(found){
@@ -100,6 +47,8 @@ MINODE * iget(dev, ino)
     char buf[BLKSIZE];
     MINODE *mip;
     INODE *ip;
+
+    //checking if we already have the inode in our MINODES
     for (i=0; i < NMINODE; i++)
     {
         mip = &minode[i];
@@ -111,6 +60,7 @@ MINODE * iget(dev, ino)
         }
     }
 
+    //If not... then we look for the first unuse Inode within MINODES and use that
     for (i=0; i < NMINODE; i++)
     {
         mip = &minode[i];
@@ -118,7 +68,8 @@ MINODE * iget(dev, ino)
         {
             printf("allocating NEW minode[%d] for [%d %d]\n", i, dev, ino);
             mip->refCount = 1;
-            mip->dev = dev; mip->ino = ino;  // assing to (dev, ino)
+            mip->dev = dev;
+            mip->ino = ino;  // assing to (dev, ino)
             mip->dirty = mip->mounted = mip->mptr = 0;
             // get INODE of ino into buf[ ]      
             blk  = (ino-1)/8 + inode_start;  // iblock = Inodes start block #
@@ -135,7 +86,61 @@ MINODE * iget(dev, ino)
     return 0;
 }
 
+/*
+Name: 
+Args:  -  -
+       -  -
+Return: -
+Description:
+SampleRun:
+*/
 
+
+/*
+Name: getino
+Args: dev - int * -
+      pathname - char * -
+Return:
+Description:
+SampleRun:
+*/
+int getino(int *dev, char *pathname)
+{
+    int i, ino, blk, disp, n;
+    char buf[BLKSIZE];
+    char name[BLKSIZE];
+    INODE *ip;
+    MINODE *mip;
+
+    printf("getino: pathname=%s\n", pathname);
+    if (strcmp(pathname, "/")==0)
+        return 2;
+
+    if (pathname[0]=='/')
+        mip = iget(*dev, 2);
+    else
+        mip = iget(running->cwd->dev, running->cwd->ino);
+
+    strcpy(buf, pathname);
+    decompose(buf, name, n, "/");
+
+    for (i=0; i < n; i++){
+        printf("===========================================\n");
+        printf("getino: i=%d name[%d]=%s\n", i, i, name[i]);
+    
+        ino = search(mip, name[i]);
+
+        if (ino==0){
+            iput(mip);
+            printf("name %s does not exist\n", name[i]);
+            return 0;
+        }
+        iput(mip);
+        mip = iget(*dev, ino);
+    }
+    return ino;
+    
+}
 
 /*
 Name: decompose
