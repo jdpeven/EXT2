@@ -139,7 +139,6 @@ int getino(int *dev, char *pathname)
         mip = iget(*dev, ino);
     }
     return ino;
-    
 }
 
 /*
@@ -191,6 +190,17 @@ int get_block(int fd, int blk, char buf[ ])
 {
   lseek(fd, (long)blk*BLKSIZE, 0);
   read(fd, buf, BLKSIZE);
+}
+
+int findCmd(char * command)
+{
+    int i = 0;
+    while(cmd[i]){
+        if (strcmp(command, cmd[i]) == 0)
+            return i;
+        i++;
+    }
+    return -1;
 }
 
 #endif
