@@ -2,6 +2,36 @@
 #include "type.h"
 #include "util.c"
 
+int super()
+{
+    char buf[BLKSIZE];
+    get_block(dev, 1, buf);
+    sp = (SUPER *)buf;
+    ninodes = sp->s_inodes_count;
+    nblocks = sp->s_blocks_count;
+    if(isEXT2())
+        printf("Valid EXT2FS\n");
+}
+
+int isEXT2()
+{
+    printf("s_magic = %x\n", sp->s_magic);
+    if (sp->s_magic != 0xEF53){
+        printf("NOT an EXT2 FS\n");
+        exit(1);
+    }
+}
+
+int gd()
+{
+    char buf[BLKSIZE];
+    get_block(dev, 2, buf);
+    gp = (GD *)buf;
+    bmap = gp->bg_block_bitmap;
+    imap = gp->bg_inode_bitmap;
+}
+
+
 int mount_root()
 {
     /*
@@ -19,7 +49,12 @@ int mount_root()
         printf("Error in opening file\n");
         return -1;
     }
-
-
-
+    super();
+    gd();
+    
+    root = iget(dev, 2);
+    proc[0].cwd = iget(dev, 2);             //p0
+    proc[1].cwd = iget(dev, 2);             //p1
+    
+    return 0;
 }

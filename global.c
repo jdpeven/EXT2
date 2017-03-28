@@ -15,10 +15,10 @@ MINODE minode[NMINODE];
 MINODE *root;
 PROC   proc[NPROC], *running;
 
-int dev;
-int nblocks;
-int ninodes;
-int bmap;
+int dev;                        //init
+int nblocks;                    //init
+int ninodes;                    //init
+int bmap;                       //init
 int imap;
 int inode_start;
 
