@@ -29,6 +29,8 @@ int gd()
     gp = (GD *)buf;
     bmap = gp->bg_block_bitmap;
     imap = gp->bg_inode_bitmap;
+    inode_start = gp->bg_inode_table;
+    printf("bmap = %d imap = %d iblock = %d\n", bmap, imap, inode_start);
 }
 
 
@@ -51,10 +53,13 @@ int mount_root()
     }
     super();
     gd();
-    
+    printf("mount : %s  mounted on /", devName);
+    printf("nblocks = %d  bfree = %d   ninodes = %d\n", sp->s_blocks_count, sp->s_free_blocks_count, s->s_inodes_count);
     root = iget(dev, 2);
+    printf("Mounted root\n");
+    printf("Creating P0, P1");
     proc[0].cwd = iget(dev, 2);             //p0
     proc[1].cwd = iget(dev, 2);             //p1
-    
+
     return 0;
 }

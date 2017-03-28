@@ -15,6 +15,11 @@ int main(int argc, char*argv[])
     //Loop for commands
     while(1)
     {
+        strcpy(command, "");
+        printf("P0 running: input command : ");
+        fgets(command, 128, stdin);
+        command[strcspn(command, "\n")] = 0;        //removes /n
+        sscanf("%s %s", )
         //Get commands
         //Use sscanf to break it into cmd an pathname
         //use function pointers to call the specific functions

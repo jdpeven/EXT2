@@ -19,11 +19,13 @@ int dev;                        //init
 int nblocks;                    //init
 int ninodes;                    //init
 int bmap;                       //init
-int imap;
-int inode_start;
+int imap;                       //init
+int inode_start;                //init
 
 char * devName = "diskimage"; //will be used as default for mounting the root
-
+char command[128];
+char cmd[64];
+char path[64];
 //There should be a command array like in our old homework
 
 #endif
