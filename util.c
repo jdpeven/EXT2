@@ -374,7 +374,43 @@ void printMinode(MINODE* mip)
     printf("refCount = %d ",mip->refCount);
     printf("dirty = %d ",mip->dirty);
     printf("mounted = %d\n",mip->mounted);
+}
 
+char * inoToName(MINODE*mip, int childIno, char **childname)
+{
+    char* cp;
+    int block0;
+    char dbuf[BLKSIZE], sbuf[BLKSIZE];
+    DIR* dp;
+    int i;
+    int ino = 0;
+
+    //printf("Searching for %s in dir %s", name, mip->INODE.name);
+
+    for(i = 0; i < 12; i++){            //might be deep in the file
+        block0 = mip->INODE.i_block[i];
+        get_block(mip->dev, block0, dbuf);
+        dp = (DIR*)dbuf;
+        cp = dbuf;
+        while(cp < &dbuf[BLKSIZE]){
+            strncpy(sbuf, dp->name, dp->name_len);                  //similar to strcpy but will stop based on third argument
+            sbuf[dp->name_len] = 0;
+            //printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
+            if(dp->inode == childIno){
+                strncpy(*childname, dp->name, dp->name_len);
+                //*childname[dp->name_len] = 0;
+                return;
+            }
+            cp += dp->rec_len;
+            dp = (DIR *)cp;
+        }
+        /*if(ino){
+            printf("Found '%s' with Ino [%d]\n", name, ino);
+        }
+        else
+            printf("Did not find '%s'", name);
+        return ino;*/
+    }
 }
 
 

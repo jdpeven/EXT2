@@ -67,7 +67,7 @@ int chdir(char * pathname)
     //otherwise
     iput(running->cwd);                             //(4)
     running->cwd = temp;                            //(3)
-
+                                         
     printf("running->cwd = %s\n", pathname);
     return 0;
     /*

@@ -3,6 +3,7 @@
 #include "global.c"
 #include "mount_root.c"
 #include "init.c"
+#include "pwd.c"
 #include "ls.c"
 #include "chdir.c"
 #include "quit.c"
@@ -42,6 +43,9 @@ int main(int argc, char*argv[])
         if(strcmp(cmd, "stat") == 0){
             struct stat mystat;
             stat(path, &mystat);
+        }
+        if(strcmp(cmd, "pwd") == 0){
+            pwd(path);
         }
         if(strcmp(cmd, "quit") == 0){
             quit(path);
