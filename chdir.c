@@ -4,29 +4,32 @@
 
 int chdir(char * pathname)
 {
-    MINODE *temp;
+    MINODE *temp = malloc(sizeof(MINODE));
     //printf("My device is currently %d\n", temp->dev);
 
     int ino;
 
     if(strcmp(pathname, "") == 0){          // cd to the root
         printf("No argument given, cd to root\n");
-        running->cwd = root;
+        copyMinodeptr(root, &running->cwd);
         //memcpy(&(*temp), &(*root), sizeof(MINODE));
         return 0;
     }
 
     if(pathname[0] == '/'){                  //absolute path
         printf("Absolute pathname, running->cwd = root\n");
-        temp = root;
+        copyMinodeptr(root, &temp);
+        //temp = root;
         //memcpy(&(*temp), &(*root), sizeof(MINODE));
         //*running->cwd = *root;
     }
     else
         temp = running->cwd;
+    
 
     printf("Attempting to CD into %s\n", pathname);
-    ino = getino(temp, pathname);
+    ino = getino(&temp->dev, pathname);
+    //printf("Now ino = %d\n", ino);
     temp = iget(temp->dev, ino);             //ASK KC IS THIS RIGHT  (1)
 
     if(S_ISREG(temp->INODE.i_mode)){                      //(2)

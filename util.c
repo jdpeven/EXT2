@@ -327,4 +327,25 @@ int findCmd(char * command)
     return -1;
 }
 
+void copyMinodeptr(MINODE * src, MINODE **dest)
+{
+    memcpy(&(*(*dest)).INODE, &(*src).INODE, sizeof(INODE));
+    memcpy(&(*(*dest)).dev, &(*src).dev, sizeof(int));
+    memcpy(&(*(*dest)).ino, &(*src).ino, sizeof(int));
+    memcpy(&(*(*dest)).refCount, &(*src).refCount, sizeof(int));
+    memcpy(&(*(*dest)).dirty, &(*src).dirty, sizeof(int));
+    memcpy(&(*(*dest)).mounted, &(*src).mounted, sizeof(int));
+   // memcpy(*dest->);
+
+    /*typedef struct minode{
+    INODE INODE;                         
+    int dev, ino;
+    int refCount;                         //initialized to 0
+    int dirty;
+    int mounted;
+    struct mntable *mptr;
+    }MINODE;*/
+}
+
+
 #endif
