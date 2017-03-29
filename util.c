@@ -4,8 +4,6 @@
 #include "global.c"
 #include "type.h"
 
-
-
 /*
 Name: 
 Args:  -  -
@@ -25,7 +23,6 @@ Description: This function releases and unlocks a minode point- ed by mip.
             the INODE is written back to disk if it is dirty (modified).
 SampleRun:
 */
-
 
 int iput(MINODE *mip)  // dispose of a minode[] pointed by mip
 {
@@ -149,18 +146,6 @@ MINODE * iget(int dev, int ino)
 }
 
 /*
-Name: 
-Args:  -  -
-       -  -
-Return: -
-Description:
-SampleRun:
-*/
-
-
-
-
-/*
 Name: getino
 Args: dev - int * - Final device number (mounting purposes)
       pathname - char * - The pathname of the file/directory "a/b/c"
@@ -174,6 +159,7 @@ Description: getino() returns the inode number of a pathname. While traversing a
                 directory minodes. (KCW, pg 324)
 SampleRun:
 */
+
 int getino(int *dev, char *pathname)
 {
     int i, ino, blk, disp, n;
@@ -187,7 +173,7 @@ int getino(int *dev, char *pathname)
         return 2;
 
     if (pathname[0]=='/')               //absolute pathname
-        mip = iget(*dev, 2);            //Gets the root inode
+        mip = iget(*dev, 2);            //Set the mip to the root
     else
         mip = iget(running->cwd->dev, running->cwd->ino);       //Gets cwd's MINODE
 
@@ -205,8 +191,8 @@ int getino(int *dev, char *pathname)
             printf("name %s does not exist\n", name[i]);
             return 0;
         }
-        iput(mip);
-        mip = iget(*dev, ino);
+        iput(mip);                                              //This is the "close parenthesis" of the iget from the check 4 lines above the for loop
+        mip = iget(*dev, ino);                                  //This is the open parenthesis for the next loops of the for so the iput will put back this one
     }
     return ino;
 }
@@ -226,6 +212,7 @@ Sample run:
     pathArr = ["a", "b", "c"]
     count = 3
 */
+
 void decompose(char * input, char ** output, int * count, char * delimeter)
 {
     char * token;
@@ -245,15 +232,45 @@ void decompose(char * input, char ** output, int * count, char * delimeter)
 
 /*
 Name: search
-Args: mip - MINODE * -
-      name - char * -
-Return: int -
-Description: 
-SampleRun: 
+Args: mip - MINODE * - the current MINODE
+      name - char * - the name we're looking for in that MINODE
+Return: int - found inode value
+Description: will search through the given inode for the name, and return the names inode
+SampleRun: int ino = search(cwd, "X");
 */
 int search(MINODE *mip, char *name)
 {
-    // YOUR search function !!!
+    char* cp;
+    int block0;
+    char dbuf[BLKSIZE], sbuf[BLKSIZE];
+    DIR* dp;
+    int i;
+    int ino = 0;
+
+    //printf("Searching for %s in dir %s", name, mip->INODE.name);
+
+    for(i = 0; i < 12; i++){            //might be deep in the file
+        block0 = mip->INODE.i_block[i];
+        get_block(mip->dev, block0, dbuf);
+        dp = (DIR*)dbuf;
+        cp = dbuf;
+        while(cp < &dbuf[BLKSIZE]){
+            strncpy(sbuf, dp->name, dp->name_len);                  //similar to strcpy but will stop based on third argument
+            sbuf[dp->name_len] = 0;
+            printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
+            if(strcmp(name, sbuf) == 0){
+                ino = dp->inode;
+            }
+            cp += dp->rec_len;
+            dp = (DIR *)cp;
+        }
+        if(ino){
+            printf("Found '%s' with Ino [%d]\n", name, ino);
+        }
+        else
+            printf("Did not find '%s'", name);
+        return ino;
+    }
 }
 
 /*
@@ -272,6 +289,17 @@ int get_block(int fd, int blk, char buf[ ])
   lseek(fd, (long)blk*BLKSIZE, 0);
   read(fd, buf, BLKSIZE);  
 }
+
+/*
+Name: put_block
+Args: fd - int - The open file descriptor
+      blk - int - The block number that you want to write to
+      buf - char[] - What you're writing to the block
+Return: int - Maybe just an error code.
+Description: Will get the block (blk) and write buf to it.
+SampleRun: put_block(dev, 2, buf)
+            write buf into GD.
+*/
 
 int put_block(int fd, int blk, char buf[ ])
 {

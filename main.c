@@ -4,7 +4,7 @@
 #include "mount_root.c"
 #include "init.c"
 #include "ls.c"
-#include "cd.c"
+#include "chdir.c"
 #include "quit.c"
 #include "statFile.c"
 
@@ -21,21 +21,27 @@ int main(int argc, char*argv[])
     while(1)
     {
         strcpy(command, "");
+        strcpy(cmd, "");
+        strcpy(cmd, "");
         printf("P0 running: input command : ");
         fgets(command, 128, stdin);
+        
         command[strcspn(command, "\n")] = 0;        //removes /n
         
         sscanf(command, "%s %s %s", cmd, path);
 
-        if(strcmp(command, "ls") == 0)
+        printf("cmd = %s, pathname = %s\n", cmd, path);
+
+        if(strcmp(cmd, "ls") == 0)
             ls(path);
-        if(strcmp(command, "cd") == 0)
-            cd(path);
-        if(strcmp(command, "stat") == 0){
+        if(strcmp(cmd, "cd") == 0){
+            chdir(path);
+        }
+        if(strcmp(cmd, "stat") == 0){
             struct stat mystat;
             stat(path, &mystat);
         }
-        if(strcmp(command, "quit") == 0){
+        if(strcmp(cmd, "quit") == 0){
             quit(path);
             break;
         }

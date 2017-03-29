@@ -2,7 +2,7 @@
 
 int pwd(char * pathname)
 {
-
+        
    /*Write this function as a recursive fucnction, which
    1. if wd is already the root:
          print /; return;
