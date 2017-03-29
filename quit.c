@@ -4,6 +4,11 @@
 
 int quit()
 {
-    //iput all DIRTY minodes before shutdown
+    /*int i;
+    MINODE *mip;
+    for (i=0; irefCount > 0)
+        iput(mip);
+    }
+    exit(0);*/
     return 0;
 }

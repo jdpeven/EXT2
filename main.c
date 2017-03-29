@@ -6,6 +6,7 @@
 #include "ls.c"
 #include "cd.c"
 #include "quit.c"
+#include "statFile.c"
 
 int main(int argc, char*argv[])
 {
@@ -30,6 +31,10 @@ int main(int argc, char*argv[])
             ls(path);
         if(strcmp(command, "cd") == 0)
             cd(path);
+        if(strcmp(command, "stat") == 0){
+            struct stat mystat;
+            stat(path, &mystat);
+        }
         if(strcmp(command, "quit") == 0){
             quit(path);
             break;
