@@ -10,6 +10,24 @@ int chdir(char * pathname)
 
     int ino;
 
+    if(strcmp(pathname, ".") == 0){
+        printf("CD to the same directory, kinda pointless but hey man you do you\n");
+        return 0;
+    }
+
+    if(strcmp(pathname, "..") == 0){
+        printf("CD to the parent directory, getting ino of '..'\n");
+        ino = getino(&(running->cwd->dev), "..");
+        printf("'..' Ino = %d\n", ino);
+        temp = iget(running->cwd->dev, ino);
+
+        iput(running->cwd);                             //(4)
+        running->cwd = temp;
+
+        printf("running->cwd = %s\n", pathname);
+        return 0;
+    }
+
     if(strcmp(pathname, "") == 0){          // cd to the root
         printf("No argument given, cd to root\n");
         running->cwd = iget(root->dev, 2);
@@ -39,8 +57,8 @@ int chdir(char * pathname)
 
     printf("Attempting to CD into %s\n", pathname);
     ino = getino(&(running->cwd->dev), pathname);
-    //printf("Now ino = %d\n", ino);
-    temp = iget(temp->dev, ino);             //ASK KC IS THIS RIGHT  (1)
+    printf("Now ino = %d\n", ino);
+    temp = iget(running->cwd->dev, ino);             //ASK KC IS THIS RIGHT  (1)
 
     if(S_ISREG(temp->INODE.i_mode)){                      //(2)
         printf("Cannot cd into non-dir file\n");
@@ -50,7 +68,7 @@ int chdir(char * pathname)
     iput(running->cwd);                             //(4)
     running->cwd = temp;                            //(3)
 
-    printf("running->cwd = %s", pathname);
+    printf("running->cwd = %s\n", pathname);
     return 0;
     /*
     (1) Get inode of pathname into a minode             done

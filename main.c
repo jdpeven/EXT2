@@ -22,7 +22,7 @@ int main(int argc, char*argv[])
     {
         strcpy(command, "");
         strcpy(cmd, "");
-        strcpy(cmd, "");
+        strcpy(path, "");
         printf("Printing cwd details\n");
         printMinode(proc[0].cwd);
         printf("P0 running: input command : ");

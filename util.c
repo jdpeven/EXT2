@@ -13,7 +13,43 @@ Description:
 SampleRun:
 */
 
+/*
+Name: decompose
+Args: input - char* - for input to be decomposed
+      output - char** - string array to be returned
+      count - int * - number of elements in output
+      delimeter - char * - what you want to split on
+Return = void (all done with pointers)
+Description: Will split a string based on a delimeter
+        Useful for decomposing a path /a/b/c -> [a, b, c]
+Sample run:
+    path = "/a/b/c"
+    decompose(path, pathArr, &count, "/");
+    pathArr = ["a", "b", "c"]
+    count = 3
+*/
 
+void decompose(char * input, char ** output, int * count, char * delimeter)
+{
+    char * token;
+    //char * output[80];
+    int i;
+    token = strtok(input, delimeter);
+    i = 0;
+    while(token != NULL)
+    {
+        output[i] = token;
+        token = strtok(NULL, delimeter);
+        i++;
+    }
+    *count = i;
+    output[i] = NULL;
+    printf("%s decomposed into: [", input);
+    for(i = 0; i < *count; i++){
+        printf("%s][", output[i]);
+    }
+    printf("'/0']\n");
+}
 /*
 Name: iput
 Args: mip - MINODE * - a pointer to an MINODE
@@ -163,8 +199,8 @@ SampleRun:
 int getino(int *dev, char *pathname)
 {
     int i, ino, blk, disp, n;
-    char buf[BLKSIZE];
-    char name[BLKSIZE];
+    char buff[128];
+    char *name[80];
     INODE *ip;
     MINODE *mip;                        //This will be the "current" inode for traversal
 
@@ -185,9 +221,17 @@ int getino(int *dev, char *pathname)
         printf("CWD: dev = %d, ino = %d\n", running->cwd->dev, running->cwd->ino);
         mip = iget(running->cwd->dev, running->cwd->ino);       //Gets cwd's MINODE
     }
+    
+    //buff = 
 
-    strcpy(buf, pathname);                                  
-    decompose(buf, name, &n, "/");                              //JP changed n->&n
+    strcpy(buff, pathname);  
+    //printf("buff = %s\n", buff);                  
+    decompose(buff, name, &n, "/");                              //JP changed n->&n
+    //printf("pls no crash\n");
+    /*for(i = 0; i < n; i++)
+    {
+        printf("%d: %s", i, name[i]);
+    }*/
 
     for (i=0; i < n; i++){
         printf("===========================================\n");
@@ -204,39 +248,6 @@ int getino(int *dev, char *pathname)
         mip = iget(*dev, ino);                                  //This is the open parenthesis for the next loops of the for so the iput will put back this one
     }
     return ino;
-}
-
-/*
-Name: decompose
-Args: input - char* - for input to be decomposed
-      output - char** - string array to be returned
-      count - int * - number of elements in output
-      delimeter - char * - what you want to split on
-Return = void (all done with pointers)
-Description: Will split a string based on a delimeter
-        Useful for decomposing a path /a/b/c -> [a, b, c]
-Sample run:
-    path = "/a/b/c"
-    decompose(path, pathArr, &count, "/");
-    pathArr = ["a", "b", "c"]
-    count = 3
-*/
-
-void decompose(char * input, char ** output, int * count, char * delimeter)
-{
-    char * token;
-    //char * output[80];
-    int i;
-    token = strtok(input, delimeter);
-    i = 0;
-    while(token != NULL)
-    {
-        output[i] = token;
-        token = strtok(NULL, delimeter);
-        i++;
-    }
-    *count = i;
-    output[i] = NULL;
 }
 
 /*
