@@ -2,6 +2,9 @@
 #include "util.c"
 #include "type.h"
 
+
+
+
 void printPermissions(int ino)
 {
     MINODE * mip = iget(running->cwd->dev, ino);
@@ -28,6 +31,10 @@ int ls (char * pathname)
 
         return;
     }
+    if(pathname[0] == '/')
+        dev = root->dev;
+    else
+        dev = running->cwd->dev;
     
 
 }

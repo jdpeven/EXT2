@@ -21,7 +21,8 @@ int chdir(char * pathname)
         printf("'..' Ino = %d\n", ino);
         temp = iget(running->cwd->dev, ino);
 
-        iput(running->cwd);                             //(4)
+        iput(running->cwd);
+        iput(temp);                             //(4)
         running->cwd = temp;
 
         printf("running->cwd = %s\n", pathname);

@@ -8,6 +8,7 @@
 #include "chdir.c"
 #include "quit.c"
 #include "statFile.c"
+#include "iget_iput_getino.c"
 
 int main(int argc, char*argv[])
 {

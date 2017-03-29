@@ -2,6 +2,7 @@
 #include "type.h"
 #include "util.c"
 
+
 int super()
 {
     char buf[BLKSIZE];

@@ -4,7 +4,6 @@
 
 void rpwd(MINODE * mip)
 {
-   //printf("farts");
    MINODE * parent;
    char * myname = malloc(sizeof(char) * 128);
    int parentIno, selfIno;
