@@ -2,10 +2,34 @@
 #include "util.c"
 #include "type.h"
 
+void printPermissions(int ino)
+{
+    MINODE * mip = iget(running->cwd->dev, ino);
+    printf( (S_ISDIR(mip->INODE.i_mode)) ? "d" : "-");
+    printf( (mip->INODE.i_mode & S_IRUSR) ? "r" : "-");
+    printf( (mip->INODE.i_mode & S_IWUSR) ? "w" : "-");
+    printf( (mip->INODE.i_mode & S_IXUSR) ? "x" : "-");
+    printf( (mip->INODE.i_mode & S_IRGRP) ? "r" : "-");
+    printf( (mip->INODE.i_mode & S_IWGRP) ? "w" : "-");
+    printf( (mip->INODE.i_mode & S_IXGRP) ? "x" : "-");
+    printf( (mip->INODE.i_mode & S_IROTH) ? "r" : "-");
+    printf( (mip->INODE.i_mode & S_IWOTH) ? "w" : "-");
+    printf( (mip->INODE.i_mode & S_IXOTH) ? "x" : "-");
+    iput(mip);
+}
+
+
 int ls (char * pathname)
 {
-    //if no pathname, cwd
+    MINODE * temp;                              //will be set to the MINODE from pathname
     printf("This is being ls-ed\n");
+    if(strcmp(pathname, "")==0){                //ls this file
+        
+
+        return;
+    }
+    
+
 }
 
 
