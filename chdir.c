@@ -5,30 +5,40 @@
 int chdir(char * pathname)
 {
     MINODE *temp = malloc(sizeof(MINODE));
+    int dev;
     //printf("My device is currently %d\n", temp->dev);
 
     int ino;
 
     if(strcmp(pathname, "") == 0){          // cd to the root
         printf("No argument given, cd to root\n");
-        copyMinodeptr(root, &running->cwd);
+        running->cwd = iget(root->dev, 2);
+        iput(root);                         //balancing the iget
+        //copyMinodeptr(root, &running->cwd);
         //memcpy(&(*temp), &(*root), sizeof(MINODE));
         return 0;
     }
-
+    /*
     if(pathname[0] == '/'){                  //absolute path
         printf("Absolute pathname, running->cwd = root\n");
-        copyMinodeptr(root, &temp);
+        temp = iget(root->dev, root->ino);
+        iput(root);                                         //will just decriment the refCount
+        //copyMinodeptr(root, &temp);
         //temp = root;
         //memcpy(&(*temp), &(*root), sizeof(MINODE));
         //*running->cwd = *root;
     }
-    else
-        temp = running->cwd;
-    
+    else{
+        temp = iget(running->cwd->dev, running->cwd->ino);
+        iput(running->cwd);                                 //will just decriment the refCount
+    }
+        //temp = running->cwd;
+    printf("Now printing temps details\n");
+    printMinode(temp);
+    */
 
     printf("Attempting to CD into %s\n", pathname);
-    ino = getino(&temp->dev, pathname);
+    ino = getino(&(running->cwd->dev), pathname);
     //printf("Now ino = %d\n", ino);
     temp = iget(temp->dev, ino);             //ASK KC IS THIS RIGHT  (1)
 

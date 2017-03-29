@@ -114,7 +114,7 @@ MINODE * iget(int dev, int ino)
         if (mip->dev == dev && mip->ino == ino)
         {
             mip->refCount++;
-            printf("found [%d %d] as minode[%d] in core\n", dev, ino, i);
+            printf("found [%d %d] as minode[%d] in the minode array\n", dev, ino, i);
             return mip;
         }
     }
@@ -168,14 +168,23 @@ int getino(int *dev, char *pathname)
     INODE *ip;
     MINODE *mip;                        //This will be the "current" inode for traversal
 
-    printf("getino: pathname=%s\n", pathname);
-    if (strcmp(pathname, "/")==0)
+    printf("getino: dev = %d pathname=%s\n",*dev, pathname);
+    //printf("Dev = %d\n",*dev);
+    //printf("pls no crash\n");
+    if (strcmp(pathname, "/")==0){
+        printf("Searching for root, returning 2\n");
         return 2;
+    }
 
-    if (pathname[0]=='/')               //absolute pathname
+    if (pathname[0]=='/'){               //absolute pathname
+        printf("Absolute pathname, mip = root\n");
         mip = iget(*dev, 2);            //Set the mip to the root
-    else
+    }
+    else{
+        printf("Relative to CWD, getting its MINODE\n");
+        printf("CWD: dev = %d, ino = %d\n", running->cwd->dev, running->cwd->ino);
         mip = iget(running->cwd->dev, running->cwd->ino);       //Gets cwd's MINODE
+    }
 
     strcpy(buf, pathname);                                  
     decompose(buf, name, &n, "/");                              //JP changed n->&n
@@ -345,6 +354,16 @@ void copyMinodeptr(MINODE * src, MINODE **dest)
     int mounted;
     struct mntable *mptr;
     }MINODE;*/
+}
+
+void printMinode(MINODE* mip)
+{
+    printf("dev = %d ", mip->dev);
+    printf("ino = %d ",mip->ino);
+    printf("refCount = %d ",mip->refCount);
+    printf("dirty = %d ",mip->dirty);
+    printf("mounted = %d\n",mip->mounted);
+
 }
 
 

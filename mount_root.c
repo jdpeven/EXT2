@@ -57,14 +57,16 @@ int mount_root()
     printf("nblocks = %d  bfree = %d   ninodes = %d\n", sp->s_blocks_count, gp->bg_free_blocks_count, sp->s_inodes_count);
     
     root = iget(dev, 2);
-    root->dev = dev;        printf("root->dev = %d\n",dev);
-    root->ino = 2;          printf("root->ino = %d\n",2);
-    root->refCount = 1;     printf("root->refCount = %d\n",1);        
-    root->dirty = 0;        printf("root->dirty = %d\n",0);
-    root->mounted = 0;      printf("root->mounted = %d\n",0);
+    root->dev = dev;        
+    root->ino = 2;          
+    root->refCount = 1;             
+    root->dirty = 0;        
+    root->mounted = 0;      
     //mnttable?
 
     printf("Mounted root\n");
+    printf("Printing root values\n");
+    printMinode(root);
     printf("Creating P0, P1\n");
     proc[0].cwd = iget(dev, 2);             //p0
     proc[1].cwd = iget(dev, 2);             //p1
