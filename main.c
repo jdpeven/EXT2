@@ -37,19 +37,22 @@ int main(int argc, char*argv[])
 
         if(strcmp(cmd, "ls") == 0)
             ls(path);
-        if(strcmp(cmd, "cd") == 0){
+        else if(strcmp(cmd, "cd") == 0){
             chdir(path);
         }
-        if(strcmp(cmd, "stat") == 0){
+        else if(strcmp(cmd, "stat") == 0){
             struct stat mystat;
-            stat(path, &mystat);
+            statFile(path, &mystat);
         }
-        if(strcmp(cmd, "pwd") == 0){
+        else if(strcmp(cmd, "pwd") == 0){
             pwd(path);
         }
-        if(strcmp(cmd, "quit") == 0){
+        else if(strcmp(cmd, "quit") == 0){
             quit(path);
             break;
+        }
+        else{
+            printf("COMMAND NOT FOUND\n");
         }
 
         /*cmdIndex = findCmd(command);
