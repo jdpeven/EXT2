@@ -18,21 +18,45 @@ void printPermissions(int ino)
     printf( (mip->INODE.i_mode & S_IROTH) ? "r" : "-");
     printf( (mip->INODE.i_mode & S_IWOTH) ? "w" : "-");
     printf( (mip->INODE.i_mode & S_IXOTH) ? "x" : "-");
+    printf(" ");
     iput(mip);
 }
 
 
 int ls (char * pathname)
 {
+    int inodeToFind;
+    int block0, i;
+    char* cp;
+    char dbuf[BLKSIZE], sbuf[BLKSIZE];
+    DIR* dp;
     MINODE * temp;                              //will be set to the MINODE from pathname
     printf("This is being ls-ed\n");
     if(strcmp(pathname, "")==0){                //ls this file
-        
-
         return;
     }
     if(pathname[0] == '/')
+    {
         dev = root->dev;
+        inodeToFind = getino(&dev, "/");
+        temp = iget(dev, inodeToFind);
+        
+        block0 = temp->INODE.i_block[0];
+        get_block(temp->dev, block0, dbuf);
+        dp = (DIR*)dbuf;
+        cp = dbuf;
+        while (cp < &dbuf[BLKSIZE])
+        {
+            //printPermissions(dp->inode); NOT WORKING idk why.
+            strncpy(sbuf, dp->name, dp->name_len);
+            printf("%d|%s|\n", dp->inode, sbuf);
+            cp += dp->rec_len;
+            dp = (DIR*)cp;
+        }
+
+        //printPermissions(inodeToFind);
+        printf("\n");
+    }
     else
         dev = running->cwd->dev;
     
