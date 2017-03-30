@@ -49,6 +49,7 @@ int ls (char * pathname)
         {
             //printPermissions(dp->inode); NOT WORKING idk why.
             strncpy(sbuf, dp->name, dp->name_len);
+            sbuf[dp->name_len] = 0;
             printf("%d|%s|\n", dp->inode, sbuf);
             cp += dp->rec_len;
             dp = (DIR*)cp;
