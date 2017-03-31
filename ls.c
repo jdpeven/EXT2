@@ -4,8 +4,6 @@
 #include "time.h"
 
 
-
-
 void printPermissions(int ino)
 {
     MINODE * mip = iget(running->cwd->dev, ino);

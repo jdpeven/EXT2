@@ -10,6 +10,7 @@ int mymkdir(char * pathname)
     int size, i, parentIno = 0, childIno = 0;
     char shortPath[128];
     char pathSacrifice[128];                   //making a copy of pathname which will be detroyed in "decompose"
+    
     if(strcmp(pathname, "")==0){
         printf("Filename not provided, returning -1\n");
         return -1;
@@ -40,7 +41,6 @@ int mymkdir(char * pathname)
         }
         parent = iget(running->cwd->dev, parentIno);
     }
-
 
     if(S_ISREG(parent->INODE.i_mode)){                      
         printf("Cannot mkdir in non-dir file\n");
