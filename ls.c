@@ -1,6 +1,7 @@
 #include "global.c"
 #include "util.c"
 #include "type.h"
+#include "time.h"
 
 
 
@@ -18,17 +19,16 @@ void printPermissions(int ino)
     printf( (mip->INODE.i_mode & S_IROTH) ? "r" : "-");
     printf( (mip->INODE.i_mode & S_IWOTH) ? "w" : "-");
     printf( (mip->INODE.i_mode & S_IXOTH) ? "x" : "-");
-    printf(" ");
     iput(mip);
 }
 
 
 int ls (char * pathname)
 {
-    int inodeToFind;
-    int block0, i;
+    int inodeToFind, block0, i;
     char* cp;
     char dbuf[BLKSIZE], sbuf[BLKSIZE];
+    INODE* ip;
     DIR* dp;
     MINODE * temp;                              //will be set to the MINODE from pathname
     printf("This is being ls-ed\n");
@@ -50,7 +50,11 @@ int ls (char * pathname)
             //printPermissions(dp->inode); NOT WORKING idk why.
             strncpy(sbuf, dp->name, dp->name_len);
             sbuf[dp->name_len] = 0;
-            printf("%d|%s|\n", dp->inode, sbuf);
+            ip = iget(dev, dp->inode);
+
+            printPermissions(dp->inode);
+            printf("   %d   %.13s\t%d\t%s\n", ip->i_links_count, 
+                ctime(&ip->i_ctime), ip->i_size, sbuf);
             cp += dp->rec_len;
             dp = (DIR*)cp;
         }
