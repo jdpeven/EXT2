@@ -9,6 +9,7 @@
 #include "quit.c"
 #include "statFile.c"
 #include "iget_iput_getino.c"
+#include "mkdir_creat.c"
 
 int main(int argc, char*argv[])
 {
@@ -50,6 +51,10 @@ int main(int argc, char*argv[])
         }
         else if(strcmp(cmd, "quit") == 0){
             quit(path);
+            break;
+        }
+        else if(strcmp(cmd, "mkdir") == 0){
+            mymkdir(path);
             break;
         }
         else{

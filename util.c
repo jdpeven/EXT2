@@ -91,7 +91,7 @@ int search(MINODE *mip, char *name)
             printf("Found '%s' with Ino [%d]\n", name, ino);
         }
         else
-            printf("Did not find '%s'", name);
+            printf("Did not find '%s'\n", name);
         return ino;
     }
 }

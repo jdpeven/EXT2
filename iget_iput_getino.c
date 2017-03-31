@@ -22,7 +22,7 @@ int iput(MINODE *mip)  // dispose of a minode[] pointed by mip
     char ibuf[BLKSIZE];
     mip->refCount--;
     if(mip->refCount > 0){           //Still being referenced
-        printf("dev=%d ino=%d refCount = %d\n", mip->refCount);
+        printf("dev=%d ino=%d refCount = %d\n",mip->dev, mip->ino, mip->refCount);
         return;
     }
     if(!mip->dirty){                 //it hasn't been changed
