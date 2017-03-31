@@ -31,39 +31,44 @@ int ls (char * pathname)
     INODE* ip;
     DIR* dp;
     MINODE * temp;                              //will be set to the MINODE from pathname
-    printf("This is being ls-ed\n");
+    //printf("This is being ls-ed\n");
     if(strcmp(pathname, "")==0){                //ls this file
-        return;
+        temp = iget(running->cwd->dev, running->cwd->ino);
     }
-    if(pathname[0] == '/')
-    {
+
+    else if(strcmp(pathname, "/")==0){
         dev = root->dev;
         inodeToFind = getino(&dev, "/");
         temp = iget(dev, inodeToFind);
-        
-        block0 = temp->INODE.i_block[0];
-        get_block(temp->dev, block0, dbuf);
-        dp = (DIR*)dbuf;
-        cp = dbuf;
-        while (cp < &dbuf[BLKSIZE])
-        {
-            //printPermissions(dp->inode); NOT WORKING idk why.
-            strncpy(sbuf, dp->name, dp->name_len);
-            sbuf[dp->name_len] = 0;
-            ip = iget(dev, dp->inode);
-
-            printPermissions(dp->inode);
-            printf("   %d   %.13s\t%d\t%s\n", ip->i_links_count, 
-                ctime(&ip->i_ctime), ip->i_size, sbuf);
-            cp += dp->rec_len;
-            dp = (DIR*)cp;
-        }
-
-        //printPermissions(inodeToFind);
-        printf("\n");
     }
-    else
-        dev = running->cwd->dev;
+    else{
+        inodeToFind = getino(&(running->cwd->dev),pathname);
+        temp = iget((running->cwd->dev), inodeToFind);
+    }
+
+    block0 = temp->INODE.i_block[0];
+    get_block(temp->dev, block0, dbuf);
+    dp = (DIR*)dbuf;
+    cp = dbuf;
+    while (cp < &dbuf[BLKSIZE])
+    {
+        //printPermissions(dp->inode); NOT WORKING idk why.
+        strncpy(sbuf, dp->name, dp->name_len);
+        sbuf[dp->name_len] = 0;
+        ip = iget(dev, dp->inode);
+
+        printPermissions(dp->inode);
+        printf("   %d   %.13s\t%d\t%s\n", ip->i_links_count, 
+            ctime(&ip->i_ctime), ip->i_size, sbuf);
+        cp += dp->rec_len;
+        dp = (DIR*)cp;
+        iput(ip);
+    }
+    iput(temp);
+        //printPermissions(inodeToFind);
+    printf("\n");
+    /*else
+        dev = running->cwd->dev;*/
     
 
 }

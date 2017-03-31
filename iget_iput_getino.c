@@ -22,15 +22,15 @@ int iput(MINODE *mip)  // dispose of a minode[] pointed by mip
     char ibuf[BLKSIZE];
     mip->refCount--;
     if(mip->refCount > 0){           //Still being referenced
-        printf("dev=%d ino=%d refCount = %d\n",mip->dev, mip->ino, mip->refCount);
+        ////printf("dev=%d ino=%d refCount = %d\n",mip->dev, mip->ino, mip->refCount);
         return;
     }
     if(!mip->dirty){                 //it hasn't been changed
-        printf("dev=%d ino=%d has not been changed, no need to rewrite\n");
+        ////printf("dev=%d ino=%d has not been changed, no need to rewrite\n");
         return;
     }
 
-    printf("iput: dev=%d ino=%d\n", mip->dev, mip->ino);
+    ////printf("iput: dev=%d ino=%d\n", mip->dev, mip->ino);
     ino = mip->ino;
     blk = inode_start + (ino-1)/8;
     offset = (ino-1)%8;
@@ -106,7 +106,7 @@ MINODE * iget(int dev, int ino)
         if (mip->dev == dev && mip->ino == ino)
         {
             mip->refCount++;
-            printf("found [%d %d] as minode[%d] in the minode array\n", dev, ino, i);
+            ////printf("found [%d %d] as minode[%d] in the minode array\n", dev, ino, i);
             return mip;
         }
     }
@@ -117,7 +117,7 @@ MINODE * iget(int dev, int ino)
         mip = &minode[i];
         if (mip->refCount == 0)
         {
-            printf("allocating NEW minode[%d] for [%d %d]\n", i, dev, ino);
+            ////printf("allocating NEW minode[%d] for [%d %d]\n", i, dev, ino);
             mip->refCount = 1;
             mip->dev = dev;
             mip->ino = ino;  // assing to (dev, ino)
@@ -160,21 +160,21 @@ int getino(int *dev, char *pathname)
     INODE *ip;
     MINODE *mip;                        //This will be the "current" inode for traversal
 
-    printf("getino: dev = %d pathname=%s\n",*dev, pathname);
+    ////printf("getino: dev = %d pathname=%s\n",*dev, pathname);
     //printf("Dev = %d\n",*dev);
     //printf("pls no crash\n");
     if (strcmp(pathname, "/")==0){
-        printf("Searching for root, returning 2\n");
+        ////printf("Searching for root, returning 2\n");
         return 2;
     }
 
     if (pathname[0]=='/'){               //absolute pathname
-        printf("Absolute pathname, mip = root\n");
+        ////printf("Absolute pathname, mip = root\n");
         mip = iget(*dev, 2);            //Set the mip to the root
     }
     else{
-        printf("Relative to CWD, getting its MINODE\n");
-        printf("CWD: dev = %d, ino = %d\n", running->cwd->dev, running->cwd->ino);
+        ////printf("Relative to CWD, getting its MINODE\n");
+        ////printf("CWD: dev = %d, ino = %d\n", running->cwd->dev, running->cwd->ino);
         mip = iget(running->cwd->dev, running->cwd->ino);       //Gets cwd's MINODE
     }
     
@@ -190,14 +190,14 @@ int getino(int *dev, char *pathname)
     }*/
 
     for (i=0; i < n; i++){
-        printf("===========================================\n");
-        printf("getino: i=%d name[%d]=%s\n", i, i, name[i]);
+        ////printf("===========================================\n");
+        ////printf("getino: i=%d name[%d]=%s\n", i, i, name[i]);
     
         ino = search(mip, name[i]);
 
         if (ino==0){
             iput(mip);                                          //put it back
-            printf("name %s does not exist\n", name[i]);
+            ////printf("name %s does not exist\n", name[i]);
             return 0;
         }
         iput(mip);                                              //This is the "close parenthesis" of the iget from the check 4 lines above the for loop
