@@ -2,7 +2,37 @@
 #include "util.c"
 #include "allocate_deallocate.c"
 #include "type.h"
+#include "ls.c"
 
+childls(MINODE * mip)
+{
+    char * cp;
+    char dbuf[1024], sbuf[1024];
+    int block0;
+    DIR *ddp;
+
+    printf("Printing file details for the newly allocated directory\n");
+    //ADD MOST DETAILS
+
+    block0 = mip->INODE.i_block[0];
+    get_block(mip->dev, block0, dbuf);
+    ddp = (DIR*)dbuf;
+    cp = dbuf;
+    while (cp < &dbuf[BLKSIZE])
+    {
+        //printPermissions(dp->inode); NOT WORKING idk why.
+        strncpy(sbuf, ddp->name, ddp->name_len);
+        sbuf[ddp->name_len] = 0;
+        ip = iget(dev, ddp->inode);
+
+        printPermissions(ddp->inode);
+        printf("   %d   %.13s\t%d\t%s\n", ip->i_links_count, 
+            ctime(&ip->i_ctime), ip->i_size, sbuf);
+        cp += ddp->rec_len;
+        ddp = (DIR*)cp;
+        iput(ip);
+    }
+}
 
 enterChild(MINODE * pmip, int ino, char * basename)
 {
@@ -105,8 +135,10 @@ kmkdir(MINODE * pmip, char * basename)
     mdp->inode = pmip->ino;
     mdp->name_len = 2;
     mdp->rec_len = BLKSIZE - 4*((8+strlen(".")+3)/4);           //whatever is left over after the "."
-
+    
     put_block(pmip->dev, bno, buf);
+
+    childls(mip);
 
     enterChild(pmip, ino, basename);
 }

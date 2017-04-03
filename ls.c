@@ -1,3 +1,7 @@
+#ifndef LS_C
+#define LS_C
+
+
 #include "global.c"
 #include "util.c"
 #include "type.h"
@@ -108,3 +112,5 @@ int main(int argc, char **argv)
     return 0;
 }
 */
+
+#endif
