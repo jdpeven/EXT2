@@ -166,9 +166,13 @@ kmkdir(MINODE * pmip, char * basename)
 int mymkdir(char * pathname)
 {
     MINODE *parent = malloc(sizeof(MINODE));
-    char * decomp[80];
-    char newDirName[128];
+    char * parentPath = malloc(sizeof(char)*128); 
+    char * childName = malloc(sizeof(char)*128);
+
+    //char * decomp[80];
+    //char newDirName[128];
     int size, i, parentIno = 0, childIno = 0;
+    int dev;
     char shortPath[128];
     char pathSacrifice[128];                   //making a copy of pathname which will be detroyed in "decompose"
     int needLength = 0;
@@ -181,13 +185,25 @@ int mymkdir(char * pathname)
         printf("Filename not provided, returning -1\n");
         return -1;
     }
+    if(pathname[0] == '/')
+        dev = root->dev;
+    else
+        dev = running->cwd->dev;
+    
 
-    strcpy(pathSacrifice, pathname);                    //pathSacrifice = "/a/b/c"
-    strcpy(shortPath, "");                              //Clears out shortpath
-    decompose(pathname, decomp, &size, "/");            //decomp = ["a","b","c"]
-    strcpy(newDirName, decomp[size-1]);                 //newDirName = "c"
+    //strcpy(pathSacrifice, pathname);                    //pathSacrifice = "/a/b/c"
+    //strcpy(shortPath, "");                              //Clears out shortpath
+    //decompose(pathname, decomp, &size, "/");            //decomp = ["a","b","c"]
+    //strcpy(newDirName, decomp[size-1]);                 //newDirName = "c"
 
-    if(size == 1 && pathname[0] != '/' ){                                        //creating a dir relative to cwd
+    strcpy(pathSacrifice, pathname); 
+    parentPath = dirname(pathSacrifice);
+    strcpy(pathSacrifice, pathname); 
+    childName = basename(pathSacrifice);
+
+    printf("DirName = %s, Pathname = %s\n", parentPath, childName);
+
+    /*if(size == 1 && pathname[0] != '/' ){                                        //creating a dir relative to cwd
         parent = iget(running->cwd->dev, running->cwd->ino);
     }
     else{                                               //Not relative to cwd
@@ -206,8 +222,8 @@ int mymkdir(char * pathname)
             return -1;
         }
         parent = iget(running->cwd->dev, parentIno);
-    }
-
+    }*/
+/*
     if(S_ISREG(parent->INODE.i_mode)){                      
         printf("Cannot mkdir in non-dir file\n");
         return -1;
@@ -227,10 +243,7 @@ int mymkdir(char * pathname)
 
     kmkdir(parent, newDirName);
 
-    parent->INODE.i_links_count++;
-    parent->INODE.i_atime = time(0L);
-    parent->dirty = 1;
-    iput(parent);
+*/
     return 0;
 }
 
