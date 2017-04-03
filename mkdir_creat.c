@@ -104,7 +104,7 @@ kmkdir(MINODE * pmip, char * basename)
     strcpy(mdp->name, "..");
     mdp->inode = pmip->ino;
     mdp->name_len = 2;
-    mdp->rec_len = 4*((8+strlen("..")+3)/4);
+    mdp->rec_len = BLKSIZE - 4*((8+strlen(".")+3)/4);           //whatever is left over after the "."
 
     put_block(pmip->dev, bno, buf);
 

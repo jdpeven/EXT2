@@ -14,6 +14,7 @@
 int main(int argc, char*argv[])
 {
     int cmdIndex, error;
+    system("/home/parallels/Homework/cpts-360-lab7/shcopy");
     init();
     printf("Initialization complete\n");
     if(argc < 1)       //"a.out diskimage"
