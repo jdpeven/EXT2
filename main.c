@@ -29,7 +29,7 @@ int main(int argc, char*argv[])
         strcpy(path, "");
         printf("Printing cwd details\n");
         printMinode(proc[0].cwd);
-        printf("P0 running: input command : ");
+        printf("P0 running: input command [ls,cd,stat,pwd,mkdir,quit]: ");
         fgets(command, 128, stdin);
         
         command[strcspn(command, "\n")] = 0;        //removes /n

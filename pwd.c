@@ -6,7 +6,7 @@ void rpwd(MINODE * mip)
 {
    MINODE * parent;
    char * myname = malloc(sizeof(char) * 128);
-   int parentIno, selfIno;
+   int parentIno, selfIno, nameLen;
    if((mip->dev == root->dev) && (mip->ino == root->ino)){
            printf("/");
            return;
@@ -16,8 +16,10 @@ void rpwd(MINODE * mip)
    parent = iget(mip->dev,parentIno);
    rpwd(parent);
    inoToName(parent, selfIno, &myname);
-   printf(myname);
+   nameLen = strlen(myname);
+   printf("%.*s",nameLen, myname);
    printf("/");
+   iput(parent);
 }
 
 int pwd(char * pathname)

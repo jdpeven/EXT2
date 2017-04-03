@@ -120,7 +120,7 @@ kmkdir(MINODE * pmip, char * basename)
     ip->i_size = BLKSIZE;
     ip->i_links_count = 2;
     ip->i_atime = ip->i_ctime = ip->i_mtime = time(0L);            //THIS IS RELEVANT FOR TOUCH
-    ip->i_blocks = 2;
+    ip->i_blocks = 2;                           //for some reason counts every 512 bytes
     ip->i_block[0] = bno;
     for(i = 1; i < 15; i++)
         ip->i_block[i] = 0;
@@ -133,6 +133,7 @@ kmkdir(MINODE * pmip, char * basename)
     mdp->inode = ino;
     mdp->name_len = 1;
     mdp->rec_len = 4*((8+strlen(".")+3)/4);
+    
     cp += mdp->rec_len;
     mdp = (DIR *)cp;
     strcpy(mdp->name, "..");
@@ -208,6 +209,8 @@ int mymkdir(char * pathname)
 
     kmkdir(parent, newDirName);
 
+    parent->INODE.i_links_count++;
+    parent->INODE.i_atime = time(0L);
     parent->dirty = 1;
     iput(parent);
     return 0;
