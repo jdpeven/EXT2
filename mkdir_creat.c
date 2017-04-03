@@ -1,34 +1,37 @@
 #include "global.c"
 #include "util.c"
+#include "allocate_deallocate.c"
 #include "type.h"
 
 
 enterChild(MINODE * pmip, int ino, char * basename)
 {
-    int needLength;
+    int needLength, remainLength;
     int parentBlockNum = 0;
-    char bbuf[BLKSIZE];
-    char * cp
+    char bbuf[BLKSIZE], sbuf[BLKSIZE];
+    char * cp;
 
     printf("Entering enterChild\n");
 
     needLength = 4*((8+strlen(basename)+3)/4);
     //Now actually adding the dir to the block
-    while(parent->INODE.i_block[parentBlockNum+1] != 0)             //finding last non-empty block
+    while(pmip->INODE.i_block[parentBlockNum+1] != 0)             //finding last non-empty block
         parentBlockNum++;
-    printf("First available block is at index [%d] with Block # [%d]\n",parentBlockNum, parent->INODE.i_block[parentBlockNum]);
+    printf("First available block is at index [%d] with Block # [%d]\n",parentBlockNum, pmip->INODE.i_block[parentBlockNum]);
 
-    getblock(parent->dev, parent->INODE.i_block[parentBlockNum],bbuf);
+    get_block(pmip->dev, pmip->INODE.i_block[parentBlockNum],bbuf);
 
     dp = (DIR *)bbuf;
     cp = bbuf;
 
     if(dp->inode != 0)                              //not the first entry in that dirblock
     {
-        printf("Step to last data entry in block: [%d]\n", parent->INODE.i_block[parentBlockNum]);
+        printf("Step to last data entry in block: [%d]\n", pmip->INODE.i_block[parentBlockNum]);
 
         while(cp + dp->rec_len < bbuf[BLKSIZE])
         {
+            strncpy(sbuf, dp->name, dp->name_len);                  //similar to strcpy but will stop based on third argument
+            sbuf[dp->name_len] = 0;
             printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);//printing info
             if(dp->rec_len == 4*((8+dp->name_len+3)/4))             //normal entries
             {
@@ -72,17 +75,17 @@ kmkdir(MINODE * pmip, char * basename)
     
     printf("Entering kmkdir\n");
 
-    ino = ialloc(pmip->cwd->dev);
-    bno = balloc(pmip->cwd->dev);
-    mip = iget(pmip->cwd->dev, ino);
+    ino = ialloc(pmip->dev);
+    bno = balloc(pmip->dev);
+    mip = iget(pmip->dev, ino);
 
     INODE * ip = &mip->INODE;
     ip->i_mode = 0x41ED;
     ip->i_uid = running->uid;
-    ip->i_gid = running->gid;
+    ip->i_gid = running->pid;                               //MAYBE WRONG
     ip->i_size = BLKSIZE;
     ip->i_links_count = 2;
-    ip->i_atime = i_ctime = i_mtime = time(0L);            //THIS IS RELEVANT FOR TOUCH
+    ip->i_atime = ip->i_ctime = ip->i_mtime = time(0L);            //THIS IS RELEVANT FOR TOUCH
     ip->i_blocks = 2;
     ip->i_block[0] = bno;
     for(i = 0; i < 15; i++)
@@ -103,7 +106,7 @@ kmkdir(MINODE * pmip, char * basename)
     mdp->name_len = 2;
     mdp->rec_len = 4*((8+strlen("..")+3)/4);
 
-    putblock(pmip->cwd->dev, bno, buf);
+    put_block(pmip->dev, bno, buf);
 
     enterChild(pmip, ino, basename);
 }

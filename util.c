@@ -217,4 +217,90 @@ char * inoToName(MINODE*mip, int childIno, char **childname)
 }
 
 
+int tst_bit(char *buf, int bit)
+{
+  int i, j;
+  i = bit / 8;  j = bit % 8;
+  if (buf[i] & (1 << j))
+     return 1;
+  return 0;
+}
+
+int set_bit(char *buf, int bit)
+{
+  int i, j;
+  i = bit/8; j=bit%8;
+  buf[i] |= (1 << j);
+}
+
+int clr_bit(char *buf, int bit)
+{
+  int i, j;
+  i = bit/8; j=bit%8;
+  buf[i] &= ~(1 << j);
+}
+
+int decFreeInodes(int dev)
+{
+  char buff[BLKSIZE];
+
+  // dec free inodes count in SUPER and GD
+  get_block(dev, 1, buff);
+  sp = (SUPER *)buff;
+  sp->s_free_inodes_count--;
+  put_block(dev, 1, buff);
+
+  get_block(dev, 2, buff);
+  gp = (GD *)buff;
+  gp->bg_free_inodes_count--;
+  put_block(dev, 2, buff);
+}
+
+int incFreeInodes(int dev)
+{
+  char buff[BLKSIZE];
+
+  get_block(dev, 1, buff);
+  sp = (SUPER *)buff;
+  sp->s_free_inodes_count++;
+  put_block(dev, 1, buff);
+
+  get_block(dev, 2, buff);
+  gp = (GD *)buff;
+  gp->bg_free_inodes_count++;
+  put_block(dev, 2, buff);
+}
+
+int decFreeBlocks(int dev)
+{
+  char buff[BLKSIZE];
+
+  // dec free inodes count in SUPER and GD
+  get_block(dev, 1, buff);
+  sp = (SUPER *)buff;
+  sp->s_free_blocks_count--;
+  put_block(dev, 1, buff);
+
+  get_block(dev, 2, buff);
+  gp = (GD *)buff;
+  gp->bg_free_blocks_count--;
+  put_block(dev, 2, buff);
+}
+
+int incFreeBlocks(int dev)
+{
+  char buff[BLKSIZE];
+
+  get_block(dev, 1, buff);
+  sp = (SUPER *)buff;
+  sp->s_free_blocks_count++;
+  put_block(dev, 1, buff);
+
+  get_block(dev, 2, buff);
+  gp = (GD *)buff;
+  gp->bg_free_blocks_count++;
+  put_block(dev, 2, buff);
+}
+
+
 #endif

@@ -9,7 +9,7 @@ int ialloc()
   char buf[BLKSIZE];
 
   // read inode_bitmap block
-  get_block(fd, imapNum, buf);
+  get_block(running->cwd->dev, imap, buf);
   //printf("The file we're messing with is %d\n", fd);
 
   for (i=0; i < ninodes; i++){
@@ -19,11 +19,11 @@ int ialloc()
        //printBitMap(buf); 
        set_bit(buf,i);                              //say that it isn't empty anymore
        //printBitMap(buf);
-       decFreeInodes(fd);                          //tell the fd that there is one less free inode
+       decFreeInodes(running->cwd->dev);                          //tell the fd that there is one less free inode
                                                     //This function will get the superBlock/GroupDescriptor and decriment free inodes count in both
                                                     //function is in helpers.c
       
-       put_block(fd, imapNum, buf);                //dev = fd, imapNum = gp->bg_inode_bitmap, buf = new edited imap 
+       put_block(running->cwd->dev, imap, buf);                //dev = fd, imapNum = gp->bg_inode_bitmap, buf = new edited imap 
        
        //get_block(fd, imapNum, buf);               //we're getting the bitmap we just "put"
        //printBitMap(buf);    
@@ -88,7 +88,7 @@ int balloc()
   char buf[BLKSIZE];
 
   // read inode_bitmap block
-  get_block(fd, bmapNum, buf);
+  get_block(running->cwd->dev, bmap, buf);
   //printf("The file we're messing with is %d\n", fd);
 
   for (i=0; i < nblocks; i++){
@@ -98,11 +98,11 @@ int balloc()
        //printBitMap(buf); 
        set_bit(buf,i);                              //say that it isn't empty anymore
        //printBitMap(buf);
-       decFreeBlocks(fd);                          //tell the fd that there is one less free inode
+       decFreeBlocks(running->cwd->dev);                          //tell the fd that there is one less free inode
                                                     //This function will get the superBlock/GroupDescriptor and decriment free inodes count in both
                                                     //function is in helpers.c
       
-       put_block(fd, bmapNum, buf);                //dev = fd, imapNum = gp->bg_inode_bitmap, buf = new edited imap 
+       put_block(running->cwd->dev, bmap, buf);                //dev = fd, imapNum = gp->bg_inode_bitmap, buf = new edited imap 
        
        //get_block(fd, imapNum, buf);               //we're getting the bitmap we just "put"
        //printBitMap(buf);    
@@ -163,18 +163,20 @@ ballocHelper()
 
 idealloc(int dev, int ino)
 {
-    get_block(dev, imapNum, buf); //this will get the inode bitmap from the dev
+    char buf[BLKSIZE];
+    get_block(dev, imap, buf); //this will get the inode bitmap from the dev
     clr_bit(buf, (ino-1));           //this may be an off by one error
     incFreeInodes(dev);
-    put_block(dev, imapNum, buf);
+    put_block(dev, imap, buf);
     printf("Inode #%d deallocated\n", ino);
 }
 
 bdealloc(int dev, int block)
 {
-    get_block(dev, bmapNum, buf); //this will get the inode bitmap from the dev
+    char buf[BLKSIZE];
+    get_block(dev, bmap, buf); //this will get the inode bitmap from the dev
     clr_bit(buf, (block-1));           //this may be an off by one error
     incFreeBlocks(dev);
-    put_block(dev, bmapNum, buf);
+    put_block(dev, bmap, buf);
     printf("Block #%d deallocated\n", block);
 }
