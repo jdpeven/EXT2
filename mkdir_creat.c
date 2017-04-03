@@ -75,9 +75,13 @@ enterChild(MINODE * pmip, int ino, char * basename)
                                                                             //dirblock
                 {
                     printf("Need to allocate new dir block\n");
+                    parentBlockNum++;
+                    pmip->INODE.i_block[parentBlockNum] = balloc();
+                    pmip->INODE.i_size += 1024;
+                    pmip->INODE.i_blocks += 2;
+                    get_block(pmip->dev,pmip->INODE.i_block[parentBlockNum], bbuf);
+                    dp = (DIR *)bbuf;
                     break;
-                    //TODO
-                    //that
                 }
                 //otherwise it will fit into this block
                 remainLength = dp->rec_len - (4*((8+dp->name_len+3)/4));
@@ -85,6 +89,17 @@ enterChild(MINODE * pmip, int ino, char * basename)
                 
                 cp+=dp->rec_len;        //getting ready to add the new entry
                 dp = (DIR *)cp;
+                break;
+            }
+            if(cp + dp->rec_len > &bbuf[BLKSIZE])
+            {
+                printf("Need to allocate new block\n");
+                parentBlockNum++;
+                pmip->INODE.i_block[parentBlockNum] = balloc();
+                pmip->INODE.i_size += 1024;
+                pmip->INODE.i_blocks += 2;
+                get_block(pmip->dev,pmip->INODE.i_block[parentBlockNum], bbuf);
+                dp = (DIR *)bbuf;
                 break;
             }
         }
@@ -206,6 +221,9 @@ int mymkdir(char * pathname)
 
     printf("Ready to make directory [%s], Parent path [%s]\n", newDirName, shortPath);
     printf("Parent MINODE loaded into 'parent'\n");
+
+    printf("Printing parents block information\n");
+    printBlocks(&(parent->INODE));
 
     kmkdir(parent, newDirName);
 
