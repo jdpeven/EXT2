@@ -88,7 +88,7 @@ kmkdir(MINODE * pmip, char * basename)
     ip->i_atime = ip->i_ctime = ip->i_mtime = time(0L);            //THIS IS RELEVANT FOR TOUCH
     ip->i_blocks = 2;
     ip->i_block[0] = bno;
-    for(i = 0; i < 15; i++)
+    for(i = 1; i < 15; i++)
         ip->i_block[i] = 0;
     mip->dirty = 1;
     iput(mip);
