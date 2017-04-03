@@ -12,7 +12,7 @@ childls(MINODE * mip)
     DIR *ddp;
 
     printf("Printing file details for the newly allocated directory\n");
-    //ADD MOST DETAILS
+    //ADD OTHER DETAILS
 
     block0 = mip->INODE.i_block[0];
     get_block(mip->dev, block0, dbuf);
@@ -41,7 +41,7 @@ enterChild(MINODE * pmip, int ino, char * basename)
     char bbuf[BLKSIZE], sbuf[BLKSIZE];
     char * cp;
 
-    printf("Entering enterChild\n");
+    printf("Starting enterChild with name %s\n", basename);
 
     needLength = 4*((8+strlen(basename)+3)/4);
     //Now actually adding the dir to the block
@@ -58,7 +58,7 @@ enterChild(MINODE * pmip, int ino, char * basename)
     {
         printf("Step to last data entry in block: [%d]\n", pmip->INODE.i_block[parentBlockNum]);
 
-        while(cp + dp->rec_len < bbuf[BLKSIZE])
+        while(cp < &bbuf[BLKSIZE])
         {
             strncpy(sbuf, dp->name, dp->name_len);                  //similar to strcpy but will stop based on third argument
             sbuf[dp->name_len] = 0;
@@ -82,6 +82,9 @@ enterChild(MINODE * pmip, int ino, char * basename)
                 //otherwise it will fit into this block
                 remainLength = dp->rec_len - (4*((8+dp->name_len+3)/4));
                 dp->rec_len = (4*((8+dp->name_len+3)/4));
+                
+                cp+=dp->rec_len;        //getting ready to add the new entry
+                dp = (DIR *)cp;
                 break;
             }
         }
@@ -91,6 +94,7 @@ enterChild(MINODE * pmip, int ino, char * basename)
     dp->inode = ino;
     dp->rec_len = remainLength;
     dp->name_len = strlen(basename);
+    put_block(pmip->dev, pmip->INODE.i_block[parentBlockNum],bbuf);
 }
 
 kmkdir(MINODE * pmip, char * basename)
