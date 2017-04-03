@@ -214,7 +214,6 @@ int mymkdir(char * pathname)
     parent->dirty = 1;
     iput(parent);
     return 0;
-
 }
 
 /************* Algorithm of Insert_dir_entry ***************** 

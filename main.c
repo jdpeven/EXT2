@@ -10,6 +10,7 @@
 #include "statFile.c"
 #include "iget_iput_getino.c"
 #include "mkdir_creat.c"
+#include "rmdir_rm.c"
 
 int main(int argc, char*argv[])
 {
@@ -56,6 +57,9 @@ int main(int argc, char*argv[])
         }
         else if(strcmp(cmd, "mkdir") == 0){
             mymkdir(path);
+        }
+        else if(strcmp(cmd, "rmdir") == 0){
+            myrmdir(path);
         }
         else{
             printf("COMMAND NOT FOUND\n");

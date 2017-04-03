@@ -1,3 +1,6 @@
+#ifndef ALLOCATE_DEALLOCATE_C
+#define ALLOCATE_DEALLOCATE_C
+
 #include "global.c"
 #include "util.c"
 #include "type.h"
@@ -180,3 +183,5 @@ bdealloc(int dev, int block)
     put_block(dev, bmap, buf);
     printf("Block #%d deallocated\n", block);
 }
+
+#endif

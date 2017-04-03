@@ -17,7 +17,7 @@ void rpwd(MINODE * mip)
    rpwd(parent);
    inoToName(parent, selfIno, &myname);
    nameLen = strlen(myname);
-   printf("%.*s",nameLen, myname);
+   printf("%.*s",nameLen, myname);                              //still funky
    printf("/");
    iput(parent);
 }
