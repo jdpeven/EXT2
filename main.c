@@ -55,7 +55,6 @@ int main(int argc, char*argv[])
         }
         else if(strcmp(cmd, "mkdir") == 0){
             mymkdir(path);
-            break;
         }
         else{
             printf("COMMAND NOT FOUND\n");
