@@ -332,4 +332,25 @@ int nameToIno(MINODE * mip, char * name)
     }
 }
 
+
+/*
+Name: truncate
+Args: mip - MINODE * - the MINODE you're truncating
+Return: int - Maybe just an error code.
+Description: Will deallocate all blocks that this MINODE has
+SampleRun: tuncate(root)
+            we fucked
+*/
+int truncate(MINODE *mip)
+{
+    int i;
+    for(i = 0; i < 15; i++)
+    {
+        if(mip->INODE.i_block[i] != 0)
+        {
+            bdealloc(mip->dev, mip->INODE.i_block[i]);
+        }
+    }
+}
+
 #endif

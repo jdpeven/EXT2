@@ -95,6 +95,93 @@ int mylink(char * oldFile, char * newFile)
     return;
 }
 
+int unlink(char * filename)
+{
+    int nino, ndev;
+    int pino, pdev;
+    MINODE * mip = malloc(sizeof(MINODE));
+    MINODE * pmip = malloc(sizeof(MINODE));
+    char pathSacrifice[128];
+
+///(1)
+
+    strcpy(pathSacrifice, filename);
+
+    if(filename[0] == '/'){              //absolute
+        pdev = root->dev;
+        ndev = root->dev;
+        nino = getino(&ndev, filename); 
+        pino = getino(&pdev, dirname(pathSacrifice));
+    }
+    else{
+        pdev = running->cwd->dev;
+        ndev = running->cwd->dev;
+        nino = getino(&ndev, filename); 
+        pino = getino(&pdev, dirname(pathSacrifice));
+    }
+    
+    if(nino == 0)
+    {
+        printf("File not found, returning\n");
+        return -1;
+    }
+
+    mip = iget(dev, nino);               //now mip has the file you want
+
+    if(S_ISDIR(mip->INODE.i_mode)){                      
+        printf("Cannot unlink a dir\n");
+        return -1;
+    }
+
+    printf("Ready to unlink [%s]\n", filename);
+
+    //(2)
+    mip = iget(ndev, nino);
+    pmip = iget(pdev, pino);
+
+    //rm_child(pmip, mip->ino, basename(filename))  //needs to be added once rmdir is done
+    pmip->dirty = 1;
+    iput(pmip);
+
+    //(3) decriment INODE's link count
+    mip->INODE.i_links_count--;
+    if(mip->INODE.i_links_count > 0)
+    {
+        mip->dirty = 1;
+        iput(mip);
+    }
+    //(4) if it's not a symbolic link
+    if(!S_ISLNK(mip->INODE.i_mode)){                //if it is just a normal file                 
+        truncate(mip);
+        idealloc(ndev, nino);
+    }
+    iput(mip);
+    return;
+}
+
+/*
+unlink(char *filename)
+{ 
+    1. get filenmae's minode:
+        ino = getino(&dev, filename); mip = iget(dev, ino);
+        check it's a REG or SLINK file
+   2. remove basename from parent DIR
+      rm_child(pmip, mip->ino, basename);
+      pmip->dirty = 1;
+      iput(pmip);
+   3. // decrement INODE's link_count
+      mip->INODE.i_links_count--;
+      if (mip->INODE.i_links_count > 0){
+      mip->dirty = 1; iput(mip);
+}
+4. if (!SLINK file) // assume:SLINK file has no data block
+      truncate(mip); // deallocate all data blocks
+      deallocate INODE;
+      iput(mip);
+}
+
+*/
+
 
 
 #endif
