@@ -5,18 +5,24 @@
 void rpwd(MINODE * mip)
 {
    MINODE * parent;
+   int i;
+   //char myname[128];
    char * myname = malloc(sizeof(char) * 128);
    int parentIno, selfIno, nameLen;
    if((mip->dev == root->dev) && (mip->ino == root->ino)){
            printf("/");
            return;
    }   
-   parentIno = getino(&(mip->dev), "..");
-   selfIno = getino(&(mip->dev), ".");
+   parentIno = nameToIno(mip, "..");
+   selfIno = nameToIno(mip, ".");
    parent = iget(mip->dev,parentIno);
    rpwd(parent);
    inoToName(parent, selfIno, &myname);
    nameLen = strlen(myname);
+   /*for(i = 0; i < nameLen; i++){
+           putchar(myname);
+           myname++;
+   }*/
    printf("%.*s",nameLen, myname);                              //still funky
    printf("/");
    iput(parent);

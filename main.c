@@ -30,7 +30,7 @@ int main(int argc, char*argv[])
         strcpy(path, "");
         printf("Printing cwd details\n");
         printMinode(proc[0].cwd);
-        printf("P0 running: input command [ls,cd,stat,pwd,mkdir,quit]: ");
+        printf("P0 running: input command [ls,cd,stat,pwd,mkdir,creat,quit]: ");
         fgets(command, 128, stdin);
         
         command[strcspn(command, "\n")] = 0;        //removes /n
@@ -56,7 +56,10 @@ int main(int argc, char*argv[])
             break;
         }
         else if(strcmp(cmd, "mkdir") == 0){
-            mymkdir(path);
+            mymkdirCreat(path, "mkdir");
+        }
+        else if(strcmp(cmd, "creat") == 0){
+            mymkdirCreat(path, "creat");
         }
         else if(strcmp(cmd, "rmdir") == 0){
             myrmdir(path);

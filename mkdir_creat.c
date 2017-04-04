@@ -97,6 +97,32 @@ enterChild(MINODE * pmip, int ino, char * basename)
     put_block(pmip->dev, pmip->INODE.i_block[parentBlockNum],bbuf);
 }
 
+kcreat(MINODE * pmip, char * basename)
+{
+    int ino, bno, i;
+    MINODE * mip = malloc(sizeof(MINODE));
+    printf("Entering kcreat\n");
+    ino = ialloc(pmip->dev);
+    bno = balloc(pmip->dev);
+    mip = iget(pmip->dev, ino);
+
+    INODE * ip = &mip->INODE;
+    ip->i_mode = 0x81A4;
+    ip->i_uid = running->uid;
+    ip->i_gid = running->pid;                               //MAYBE WRONG
+    ip->i_size = 0;
+    ip->i_links_count = 1;
+    ip->i_atime = ip->i_ctime = ip->i_mtime = time(0L);            //THIS IS RELEVANT FOR TOUCH
+    ip->i_blocks = 0;                           //I'd imagine this is 0
+    ip->i_block[0] = bno;
+    for(i = 1; i < 15; i++)
+        ip->i_block[i] = 0;
+    mip->dirty = 1;
+    iput(mip);
+
+    enterChild(pmip, ino, basename);
+}
+
 kmkdir(MINODE * pmip, char * basename)
 {
     int ino, bno, i;
@@ -148,7 +174,7 @@ kmkdir(MINODE * pmip, char * basename)
     enterChild(pmip, ino, basename);
 }
 
-int mymkdir(char * pathname)
+int mymkdirCreat(char * pathname, char * type)
 {
     MINODE *parent = malloc(sizeof(MINODE));
     char * decomp[80];
@@ -163,7 +189,7 @@ int mymkdir(char * pathname)
     int remainLength;               //for the new length remaining in a dir block
 
     if(strcmp(pathname, "")==0){
-        printf("Filename not provided, returning -1\n");
+        printf("Name not provided, returning -1\n");
         return -1;
     }
 
@@ -194,7 +220,7 @@ int mymkdir(char * pathname)
     }
 
     if(S_ISREG(parent->INODE.i_mode)){                      
-        printf("Cannot mkdir in non-dir file\n");
+        printf("Cannot %s in non-dir file\n", type);
         return -1;
     }
 
@@ -204,13 +230,20 @@ int mymkdir(char * pathname)
         return -1;
     }
 
-    printf("Ready to make directory [%s], Parent path [%s]\n", newDirName, shortPath);
+    printf("Ready to %s [%s], Parent path [%s]\n",type, newDirName, shortPath);
     printf("Parent MINODE loaded into 'parent'\n");
 
-    kmkdir(parent, newDirName);
+    if(strcmp(type, "mkdir") == 0)
+    {
+        kmkdir(parent, newDirName);
+        parent->INODE.i_links_count++;
+    }
+    else
+    {
+        kcreat(parent, newDirName);
+    }
 
-    parent->INODE.i_links_count++;
-    parent->INODE.i_atime = time(0L);
+    parent->INODE.i_atime = time(0L);                               //Touched by an angel
     parent->dirty = 1;
     iput(parent);
     return 0;
