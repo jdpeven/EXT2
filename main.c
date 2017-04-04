@@ -12,10 +12,14 @@
 #include "mkdir_creat.c"
 #include "rmdir_rm.c"
 #include "link_unlink.c"
+#include "symlink_readlink.c"
+#include "touch.c"
 
 int main(int argc, char*argv[])
 {
     int cmdIndex, error;
+    char linkName[128];
+    int linkSize;
     system("/home/parallels/Homework/cpts-360-lab7/shcopy");            //sh copy syscall
     init();
     printf("Initialization complete\n");
@@ -32,7 +36,7 @@ int main(int argc, char*argv[])
         strcpy(path2, "");
         printf("\nPrinting cwd details\n");
         printMinode(proc[0].cwd);
-        printf("P0 running: input command [ls,cd,stat,pwd,mkdir,creat,link,quit]: ");
+        printf("P0 running: input command [ls,cd,stat,pwd,mkdir,creat,link,unlink,symlink,readlink,touch,quit]: ");
         fgets(command, 128, stdin);
         
         command[strcspn(command, "\n")] = 0;        //removes /n
@@ -65,6 +69,18 @@ int main(int argc, char*argv[])
         }
         else if(strcmp(cmd, "link") == 0){
             mylink(path, path2);
+        }
+        else if(strcmp(cmd, "unlink") == 0){
+            unlink(path);
+        }
+        else if(strcmp(cmd, "symlink") == 0){
+            symlink(path, path2);
+        }
+        else if(strcmp(cmd, "readlink") == 0){
+            linkSize = readlink(path, linkName);            //maybe &linkName, arrays are weird
+        }
+        else if(strcmp(cmd, "touch") == 0){
+            touch(path);
         }
         else if(strcmp(cmd, "rmdir") == 0){
             myrmdir(path);

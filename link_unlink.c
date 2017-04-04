@@ -20,7 +20,7 @@ int mylink(char * oldFile, char * newFile)
         printf("Incorrect number of filenames provided\n");
         return;
     }
-    printf("Stat Old = %s, New = %s\n", oldFile, newFile);
+    printf("Link Old = %s, New = %s\n", oldFile, newFile);
 
     if(oldFile[0] == '/')                       //absolute path
     {
