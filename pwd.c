@@ -29,7 +29,6 @@ int pwd(char * pathname)
            printf("/\n");
            return;
    }
-   
    MINODE * temp = running->cwd;
    /*printMinode(running->cwd);
    printMinode(temp);*/

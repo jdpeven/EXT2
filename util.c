@@ -215,37 +215,7 @@ char * inoToName(MINODE*mip, int childIno, char **childname)
         return ino;*/
     }
 }
-/*
-int nameToIno(MINODE * mip, char * name)
-{
-    char* cp;
-    int block0;
-    char dbuf[BLKSIZE], sbuf[BLKSIZE];
-    DIR* dp;
-    int i;
-    int ino = 0;
 
-    //printf("Searching for %s in dir %s", name, mip->INODE.name);
-
-    for(i = 0; i < 12; i++){            //might be deep in the file
-        block0 = mip->INODE.i_block[i];
-        get_block(mip->dev, block0, dbuf);
-        dp = (DIR*)dbuf;
-        cp = dbuf;
-        while(cp < &dbuf[BLKSIZE]){
-            strncpy(sbuf, dp->name, dp->name_len);                  //similar to strcpy but will stop based on third argument
-            sbuf[dp->name_len] = 0;
-            //printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
-            if(dp->inode == childIno){
-                strncpy(*childname, dp->name, dp->name_len);
-                //*childname[dp->name_len] = 0;
-                return;
-            }
-            cp += dp->rec_len;
-            dp = (DIR *)cp;
-        }
-}
-*/
 
 int tst_bit(char *buf, int bit)
 {
@@ -332,25 +302,35 @@ int incFreeBlocks(int dev)
   put_block(dev, 2, buff);
 }
 
-printBlocks(INODE * inodeptr)
+/*
+int nameToIno(MINODE * mip, char * name)
 {
+    char* cp;
+    int block0;
+    char dbuf[BLKSIZE], sbuf[BLKSIZE];
+    DIR* dp;
     int i;
-    for(i = 0; i < 15; i++)
-        printf("block[%d] = %d\n", i, inodeptr->i_block[i]);
+    int ino = 0;
 
-    printf("=========== Direct Blocks ===========\n");
-    for(i = 0; i < 12; i++){
-        if(inodeptr->i_block[i] == 0)
-            break;
-        printf("%d ", inodeptr->i_block[i]);
-    }
-    printf("\n");
-    printf("=========== Indirect Blocks =========\n");
-    if(inodeptr->i_block[12] != 0)
-        printf("%d\n", inodeptr->i_block[12]);
-    printf("=========== Double Indirect Blocks ==========\n");
-    if(inodeptr->i_block[13] != 0)
-        printf("%d\n", inodeptr->i_block[13]);
+    //printf("Searching for %s in dir %s", name, mip->INODE.name);
+
+    for(i = 0; i < 12; i++){            //might be deep in the file
+        block0 = mip->INODE.i_block[i];
+        get_block(mip->dev, block0, dbuf);
+        dp = (DIR*)dbuf;
+        cp = dbuf;
+        while(cp < &dbuf[BLKSIZE]){
+            strncpy(sbuf, dp->name, dp->name_len);                  //similar to strcpy but will stop based on third argument
+            sbuf[dp->name_len] = 0;
+            //printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
+            if(dp->inode == childIno){
+                strncpy(*childname, dp->name, dp->name_len);
+                //*childname[dp->name_len] = 0;
+                return;
+            }
+            cp += dp->rec_len;
+            dp = (DIR *)cp;
+        }
 }
-
+*/
 #endif
