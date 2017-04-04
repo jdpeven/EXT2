@@ -223,7 +223,7 @@ int mymkdir(char * pathname)
         }
         parent = iget(running->cwd->dev, parentIno);
     }*/
-/*
+
     if(S_ISREG(parent->INODE.i_mode)){                      
         printf("Cannot mkdir in non-dir file\n");
         return -1;
@@ -243,7 +243,6 @@ int mymkdir(char * pathname)
 
     kmkdir(parent, newDirName);
 
-*/
     return 0;
 }
 
