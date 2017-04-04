@@ -5,10 +5,10 @@
 int quit()
 {
     int i, dirty = 0;
-    MINODE *mip;
+    //MINODE *mip;
     for (i=0; i < 100; i++){
         if(minode[i].dirty > 0){
-            iput(mip);
+            iput(&minode[i]);
             dirty++;
         }
     }

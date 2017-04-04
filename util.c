@@ -217,7 +217,6 @@ char * inoToName(MINODE*mip, int childIno, char **childname)
     }
 }
 
-
 int tst_bit(char *buf, int bit)
 {
   int i, j;

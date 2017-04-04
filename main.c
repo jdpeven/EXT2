@@ -11,6 +11,7 @@
 #include "iget_iput_getino.c"
 #include "mkdir_creat.c"
 #include "rmdir_rm.c"
+#include "link_unlink.c"
 
 int main(int argc, char*argv[])
 {
@@ -28,16 +29,17 @@ int main(int argc, char*argv[])
         strcpy(command, "");
         strcpy(cmd, "");
         strcpy(path, "");
-        printf("Printing cwd details\n");
+        strcpy(path2, "");
+        printf("\nPrinting cwd details\n");
         printMinode(proc[0].cwd);
-        printf("P0 running: input command [ls,cd,stat,pwd,mkdir,creat,quit]: ");
+        printf("P0 running: input command [ls,cd,stat,pwd,mkdir,creat,link,quit]: ");
         fgets(command, 128, stdin);
         
         command[strcspn(command, "\n")] = 0;        //removes /n
         
-        sscanf(command, "%s %s %s", cmd, path);
+        sscanf(command, "%s %s %s %s", cmd, path, path2);
 
-        printf("cmd = %s, pathname = %s\n", cmd, path);
+        printf("cmd = %s, path = %s, path2 = %s\n", cmd, path, path2);
 
         if(strcmp(cmd, "ls") == 0)
             ls(path);
@@ -60,6 +62,9 @@ int main(int argc, char*argv[])
         }
         else if(strcmp(cmd, "creat") == 0){
             mymkdirCreat(path, "creat");
+        }
+        else if(strcmp(cmd, "link") == 0){
+            mylink(path, path2);
         }
         else if(strcmp(cmd, "rmdir") == 0){
             myrmdir(path);

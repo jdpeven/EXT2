@@ -28,6 +28,6 @@ int statFile(char * pathname, struct stat *mystat)
     printf("uid=%d   gid=%d   nlink=%d\n",temp->INODE.i_uid, temp->INODE.i_gid, temp->INODE.i_links_count);
     printf("size=%d time= %s\n",temp->INODE.i_size, ctime(&temp->INODE.i_ctime));
 
-
+    iput(temp);
     return 0;
 }

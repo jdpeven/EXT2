@@ -1,3 +1,6 @@
+#ifndef MKDIR_CREAT_C
+#define MKDIR_CREAT_C
+
 #include "global.c"
 #include "util.c"
 #include "allocate_deallocate.c"
@@ -266,3 +269,4 @@ trim last entry's rec_len to ideal_len;
 }  }  increase DIR's size by BLKSSIZE;
      }  write block to disk;
 (5). mark DIR's minode modified for write back;*/
+#endif
