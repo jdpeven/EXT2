@@ -74,15 +74,13 @@ myrmdir(char * pathname)
         printf("> No such dir exists\n");
         return -1;
     }
-    else
-    {
-        printf("Ready to remove dir <%s>, Parent path <%s>\n", dirToRemove, shortPath);
-        krmdir(parent, dirToRemove);
+    
+    printf("Ready to remove dir <%s>, Parent path <%s>\n", dirToRemove, shortPath);
+    krmdir(parent, dirToRemove);
 
-        parent->INODE.i_links_count--;
-        parent->INODE.i_atime = time(0L);
-        parent->dirty = 1;
-        iput(parent);                           //overwrite with new data
-        return 0;                               //success
-    }
+    parent->INODE.i_links_count--;
+    parent->INODE.i_atime = time(0L);
+    parent->dirty = 1;
+    iput(parent);                           //overwrite with new data
+    return 0;                               //success
 }
