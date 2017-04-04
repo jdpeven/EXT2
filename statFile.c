@@ -15,6 +15,11 @@ int statFile(char * pathname, struct stat *mystat)
         return 0;
     }
     ino = getino(&(running->cwd->dev),pathname);
+    if(ino == 0)
+    {
+        printf("Stat could not find file/directory not found, returning\n");
+        return -1;
+    }
     temp = iget((running->cwd->dev), ino);
 
     printf("\n********** stat **********\n");
