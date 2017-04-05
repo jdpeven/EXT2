@@ -32,7 +32,7 @@ void rmChild (MINODE* parent, char* dirToRemove)
     //Getting the first block, and scanning for dirToRemove
     while (i < 12 && foundflag == 0)
     {
-        get_block(running->cwd->dev, parent->INODE.i_block[0], buf);
+        get_block(running->cwd->dev, parent->INODE.i_block[i], buf);
         cp = buf;
         foundDir = (DIR*)buf;
         
@@ -88,6 +88,8 @@ void rmChild (MINODE* parent, char* dirToRemove)
         parent->INODE.i_size -= 1024;
     }
     
+    put_block(running->cwd->dev, parent->INODE.i_block[ithBlock], buf);
+
 }
 
 krmdir (MINODE* parent, char* dirToRemove, int inoToRemove)
