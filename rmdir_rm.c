@@ -4,10 +4,42 @@
 #include "type.h"
 #include "ls.c"
 
+void rmChild (MINODE* parent, char* dirToRemove)
+{
+    DIR* foundDir = malloc(sizeof(DIR));
+    char buf[BLKSIZE];
+    char* cp;
+    int i = 0, foundflag = 0;
+
+    printf("Entering rmChild\n");
+
+    //Getting the first block, and scanning for dirToRemove
+    while (i < 12 && foundflag == 0)
+    {
+        printf("while loop iteration: %d\n", i);
+        get_block(running->cwd->dev, parent->INODE.i_block[0], buf);
+        cp = buf;
+        foundDir = (DIR*)buf;
+        
+        while (cp < &buf[BLKSIZE])
+        {
+            if (strcmp(foundDir->name, dirToRemove))
+            {
+                foundDir = (DIR*)(cp += foundDir->rec_len);
+            }
+            printf("found!\n");
+            foundflag = 1;
+            break;
+        }
+        i++;
+    }
+    
+}
+
 DIR* openDir (char* nameOfDir, MINODE* curINODE)
 {
     DIR* foundDir = malloc(sizeof(DIR));
-    char blockBuf[1024];
+    char blockBuf[BLKSIZE];
     get_block(running->cwd->dev, curINODE->INODE.i_block[0], blockBuf);
 
     foundDir = (DIR*)blockBuf;
@@ -70,6 +102,7 @@ krmdir (MINODE* parent, char* dirToRemove, int inoToRemove)
     iput(inodeToRemove);
 
     //remove the childs entry from the parent dir
+    rmChild(parent, dirToRemove);
 
     //decrementing link count, touching time fields, marking dirty
     parent->INODE.i_links_count--;
