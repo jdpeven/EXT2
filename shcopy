@@ -1,4 +1,0 @@
-#!/bin/bash
-echo "Creating new diskimage"
-cp /home/parallels/Homework/cpts-360-lab7/backup/diskimage /home/parallels/Homework/cpts-360-lab7
-echo "Done creating new diskimage"

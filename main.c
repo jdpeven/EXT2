@@ -15,7 +15,7 @@
 int main(int argc, char*argv[])
 {
     int cmdIndex, error;
-    system("/home/parallels/Homework/cpts-360-lab7/shcopy");            //sh copy syscall
+    system("/home/parallels/Homework/cpts-360-lab7/shcopy.sh");            //sh copy syscall
     init();
     printf("Initialization complete\n");
     if(argc < 1)       //"a.out diskimage"
