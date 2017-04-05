@@ -45,32 +45,41 @@ int ls (char * pathname)
     }
     else{
         inodeToFind = getino(&(running->cwd->dev),pathname);
+        if (inodeToFind == 0)
+        {
+            printf("DIR %s not found\n", pathname);
+            return;
+        }
         temp = iget((running->cwd->dev), inodeToFind);
     }
 
-    block0 = temp->INODE.i_block[0];
-    get_block(temp->dev, block0, dbuf);
-    dp = (DIR*)dbuf;
-    cp = dbuf;
-    while (cp < &dbuf[BLKSIZE])
+    i = 0;
+    while (temp->INODE.i_block[i] != 0)
     {
-        //printPermissions(dp->inode); NOT WORKING idk why.
-        strncpy(sbuf, dp->name, dp->name_len);
-        sbuf[dp->name_len] = 0;
-        ip = iget(dev, dp->inode);
+        block0 = temp->INODE.i_block[i];
+        get_block(temp->dev, block0, dbuf);
+        dp = (DIR*)dbuf;
+        cp = dbuf;
+        while (cp < &dbuf[BLKSIZE])
+        {
+            //printPermissions(dp->inode); NOT WORKING idk why.
+            strncpy(sbuf, dp->name, dp->name_len);
+            sbuf[dp->name_len] = 0;
+            ip = iget(dev, dp->inode);
 
-        printPermissions(dp->inode);
-        printf("   %d   %.13s\t%d\t%s\n", ip->i_links_count, 
-            ctime(&ip->i_ctime), ip->i_size, sbuf);
-        cp += dp->rec_len;
-        dp = (DIR*)cp;
-        iput(ip);
+            printPermissions(dp->inode);
+            printf("   %d   %.13s\t%d\t%s\n", ip->i_links_count, 
+                ctime(&ip->i_ctime), ip->i_size, sbuf);
+            cp += dp->rec_len;
+            dp = (DIR*)cp;
+            iput(ip);
+        }
+        i++;
     }
+
     iput(temp);
-        //printPermissions(inodeToFind);
+
     printf("\n");
-    /*else
-        dev = running->cwd->dev;*/
     
 
 }

@@ -48,7 +48,7 @@ void ipwd(MINODE * mip)
         parent = iget(mip->dev,parentIno);
         //rpwd(parent);
         inoToName(parent, selfIno, &myname);
-        strcpy(stack+index, myname);
+        strncpy(stack+index, myname, strlen(myname));
         iput(mip);
         mip = parent;
         index++;
