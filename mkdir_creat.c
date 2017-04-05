@@ -39,9 +39,9 @@ childls(MINODE * mip)
 
 enterChild(MINODE * pmip, int ino, char * basename)
 {
-    int needLength, remainLength;
+    int needLength, remainLength, newblock;
     int parentBlockNum = 0;
-    char bbuf[BLKSIZE], sbuf[BLKSIZE];
+    char bbuf[BLKSIZE], sbuf[BLKSIZE], newbuf[BLKSIZE];
     char * cp;
 
     printf("Starting enterChild with name %s\n", basename);
@@ -61,7 +61,7 @@ enterChild(MINODE * pmip, int ino, char * basename)
     {
         printf("Step to last data entry in block: [%d]\n", pmip->INODE.i_block[parentBlockNum]);
 
-        while(cp < &bbuf[BLKSIZE])
+        while(cp + dp->rec_len < &bbuf[BLKSIZE])
         {
             strncpy(sbuf, dp->name, dp->name_len);                  //similar to strcpy but will stop based on third argument
             sbuf[dp->name_len] = 0;
@@ -73,15 +73,6 @@ enterChild(MINODE * pmip, int ino, char * basename)
             }
             else                                        //we've reached the end
             {
-                if((4*((8+dp->name_len+3)/4)) + needLength > dp->rec_len)   //if the actual size of the current last inode is greater than
-                                                                            //what it needs AND our new file, then we need to allocate a new
-                                                                            //dirblock
-                {
-                    printf("Need to allocate new dir block\n");
-                    break;
-                    //TODO
-                    //that
-                }
                 //otherwise it will fit into this block
                 remainLength = dp->rec_len - (4*((8+dp->name_len+3)/4));
                 dp->rec_len = (4*((8+dp->name_len+3)/4));
@@ -90,6 +81,20 @@ enterChild(MINODE * pmip, int ino, char * basename)
                 dp = (DIR *)cp;
                 break;
             }
+        }
+        if((4*((8+dp->name_len+3)/4)) + needLength > dp->rec_len)   //if the actual size of the current last inode is greater than
+                                                                            //what it needs AND our new file, then we need to allocate a new
+                                                                            //dirblock
+        {
+            printf("Need to allocate new dir block\n");
+            parentBlockNum++;
+            newblock = balloc();
+            pmip->INODE.i_block[parentBlockNum] = newblock;
+            printf("Block # [%d] has been allocated in i_block[%d]", newblock, parentBlockNum);
+            dp = (DIR*)bbuf;
+            remainLength = 1024;
+            //TODO
+            //that
         }
     }
     //else, first entry in datablock, dp is already pointing to the right location
