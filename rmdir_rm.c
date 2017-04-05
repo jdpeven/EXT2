@@ -4,9 +4,38 @@
 #include "type.h"
 #include "ls.c"
 
-krmdir (MINODE* parent, char* dirToRemove)
+DIR* openDir (char* nameOfDir, MINODE* curINODE)
 {
+    printf("in openDir: current inode# = %d\n", curINODE->INODE.i_size);
+    
+}
 
+krmdir (MINODE* parent, char* dirToRemove, int inoToRemove)
+{
+    uid_t uid = getuid(), euid = geteuid();
+    MINODE* inodeToRemove = malloc(sizeof(MINODE));
+    DIR* lastDir = malloc(sizeof(DIR));
+
+    printf("# Entering krmdir\n");
+
+    if (uid < 0 || uid != euid)                 //Checking to see if you are super user
+    {
+        printf("# Incorrect priveledges\n");
+        return -1;
+    }
+
+    inodeToRemove = iget(running->cwd->dev, inoToRemove);
+    
+    if (inodeToRemove->INODE.i_links_count > 2)
+    {
+        printf("# DIR is not empty\n");
+        return -1;
+    }
+    //TODO: Check if busy... no fucking idea what that means...
+    //Check to see if '..'s size is big, if it is it is the last dirent
+    //AKA we CAN remove
+    //printf("rec leng boi: %d\n", 
+    dirToRemove = openDir("..", inodeToRemove);
 }
 
 myrmdir(char * pathname)
@@ -25,7 +54,7 @@ myrmdir(char * pathname)
     }
 
     decompose(pathname, splitPath, &size, "/"); //splitting the path by '/'
-    strcpy(dirToRemove, splitPath[size-1];
+    strcpy(dirToRemove, splitPath[size-1]);
 
     for (i = 0; i < size; i++)                  //printing the returned array
     {
@@ -69,16 +98,17 @@ myrmdir(char * pathname)
     }
 
     inoToRemove = search(parent, dirToRemove); //looking for the ino of the dir to remove
+
     if (inoToRemove <= 0)
     {
         printf("> No such dir exists\n");
         return -1;
     }
-    
-    printf("Ready to remove dir <%s>, Parent path <%s>\n", dirToRemove, shortPath);
-    krmdir(parent, dirToRemove);
 
-    parent->INODE.i_links_count--;
+    printf("Ready to remove dir <%s>, Parent path <%s>\n", dirToRemove, shortPath);
+    krmdir(parent, dirToRemove, inoToRemove);
+
+    //parent->INODE.i_links_count--;
     parent->INODE.i_atime = time(0L);
     parent->dirty = 1;
     iput(parent);                           //overwrite with new data
