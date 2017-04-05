@@ -4,38 +4,6 @@
 #include "type.h"
 #include "ls.c"
 
-void rmChild (MINODE* parent, char* dirToRemove)
-{
-    DIR* foundDir = malloc(sizeof(DIR));
-    char buf[BLKSIZE];
-    char* cp;
-    int i = 0, foundflag = 0;
-
-    printf("Entering rmChild\n");
-
-    //Getting the first block, and scanning for dirToRemove
-    while (i < 12 && foundflag == 0)
-    {
-        printf("while loop iteration: %d\n", i);
-        get_block(running->cwd->dev, parent->INODE.i_block[0], buf);
-        cp = buf;
-        foundDir = (DIR*)buf;
-        
-        while (cp < &buf[BLKSIZE])
-        {
-            if (strcmp(foundDir->name, dirToRemove))
-            {
-                foundDir = (DIR*)(cp += foundDir->rec_len);
-            }
-            printf("found!\n");
-            foundflag = 1;
-            break;
-        }
-        i++;
-    }
-    
-}
-
 DIR* openDir (char* nameOfDir, MINODE* curINODE)
 {
     DIR* foundDir = malloc(sizeof(DIR));
@@ -49,6 +17,77 @@ DIR* openDir (char* nameOfDir, MINODE* curINODE)
     }
 
     return foundDir;
+}
+
+void rmChild (MINODE* parent, char* dirToRemove)
+{
+    DIR* foundDir = malloc(sizeof(DIR));
+    DIR* prevDir = malloc(sizeof(DIR));
+    char buf[BLKSIZE];
+    char* cp;
+    int i = 0, foundflag = 0, ithBlock;
+
+    printf("Entering rmChild\n");
+
+    //Getting the first block, and scanning for dirToRemove
+    while (i < 12 && foundflag == 0)
+    {
+        get_block(running->cwd->dev, parent->INODE.i_block[0], buf);
+        cp = buf;
+        foundDir = (DIR*)buf;
+        
+        while (cp < &buf[BLKSIZE])
+        {
+            if (strcmp(foundDir->name, dirToRemove))
+            {
+                prevDir = foundDir;
+                foundDir = (DIR*)(cp += foundDir->rec_len);
+            }
+            else
+            {
+                foundflag = 1;
+                ithBlock = i;
+                break;
+            }
+        }
+        i++;
+    }
+
+    printf("NAME: %s, REC: %d\n", foundDir->name, foundDir->rec_len);
+
+    //check to see if the rec_len > ideal length. If so, it is the last dirent
+    if (foundDir->rec_len > 4*((8+strlen(foundDir->name)+4)/4))
+    {
+        printf("number of blocks %d\n", parent->INODE.i_blocks);
+        //increasing the 2nd to last dir's rec_len by the last dir's rec_len
+        prevDir->rec_len += foundDir->rec_len;
+        printf("number of blocks %d\n", parent->INODE.i_blocks);
+        printf("prevdir: NAME: %s, rec_len: %d\n", prevDir->name, prevDir->rec_len);
+        ////PROBLEM i am not removing the dir from the parent block
+        foundDir = 0;
+    }
+    else if (foundDir->rec_len == 1024)
+    {
+        //only dir in the dir, so we need to completely deallocate the block
+        //Moving the nonzero blocks up
+        for (i = ithBlock; i < 11; i++)
+        {
+            if (parent->INODE.i_block[i+1] != 0)
+            {
+                parent->INODE.i_block[i] = parent->INODE.i_block[i+1];
+                parent->INODE.i_block[i+1] = 0;
+            }
+            else
+            {
+                //once we find the first 0 block, then we can stop
+                break;
+            }
+        }
+
+        //Make the size of the parent inode 1 block less
+        parent->INODE.i_size -= 1024;
+    }
+    
 }
 
 krmdir (MINODE* parent, char* dirToRemove, int inoToRemove)
@@ -80,7 +119,7 @@ krmdir (MINODE* parent, char* dirToRemove, int inoToRemove)
     lastDir = openDir("..", inodeToRemove);
 
     //if ..'s rec_len == 12, not empty
-    if (lastDir->rec_len == 12)                 
+    if (strcmp(lastDir->name, ".."))                 
     {
         printf("# DIR is not empty\n");
         return -1;
