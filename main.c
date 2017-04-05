@@ -20,7 +20,7 @@ int main(int argc, char*argv[])
     int cmdIndex, error;
     char linkName[128];
     int linkSize;
-    system("/home/parallels/Homework/cpts-360-lab7/shcopy");            //sh copy syscall
+    system("./shcopy");            //sh copy syscall
     init();
     printf("Initialization complete\n");
     if(argc < 1)       //"a.out diskimage"
