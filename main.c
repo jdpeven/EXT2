@@ -18,8 +18,8 @@
 int main(int argc, char*argv[])
 {
     int cmdIndex, error;
-    char linkName[128];
-    int linkSize;
+    char linkName[60];
+    int linkSize = 0;
     system("./shcopy.sh");            //sh copy syscall
     init();
     printf("Initialization complete\n");
@@ -78,6 +78,12 @@ int main(int argc, char*argv[])
         }
         else if(strcmp(cmd, "readlink") == 0){
             linkSize = readlink(path, linkName);            //maybe &linkName, arrays are weird
+            if(linkSize != 0){
+                printf("\n[%d] bytes read into buffer = [%s]\n", linkSize, linkName);
+            }
+            else{
+                printf("Error with readlink\n");
+            }
         }
         else if(strcmp(cmd, "touch") == 0){
             touch(path);

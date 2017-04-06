@@ -12,6 +12,7 @@ int symlink(char * oldFile, char * newFile)
     int odev, ndev, pdev;
     int nbno;                                       //block number for newly allocated INODE
 
+    
     MINODE * omip = malloc(sizeof(MINODE));
     MINODE * pmip = malloc(sizeof(MINODE));             //for the parent of the new file
     MINODE * nmip = malloc(sizeof(MINODE));             //because we're actually creating a file this time
@@ -95,12 +96,9 @@ int symlink(char * oldFile, char * newFile)
     ip->i_links_count = 1;
     ip->i_atime = ip->i_ctime = ip->i_mtime = time(0L);            //THIS IS RELEVANT FOR TOUCH
     ip->i_blocks = 0;                           //I'd imagine this is 0
-    //WHAT THE FUCK IS ip->i_block[0]?? how does it store the linked file's name. If it allocates a block for this I'm going
-    //to punch something
+    
+    strcpy((char*)ip->i_block, oldFile);
 
-    /*ip->i_block[0] = bno;
-    for(i = 1; i < 15; i++)
-        ip->i_block[i] = 0;*/
     nmip->dirty = 1;
     iput(nmip);
 
@@ -159,11 +157,14 @@ int readlink(char * filename, char * buffer)
     }
 
     //2. copy target filename in INODE.i_block into a buffer;
+    strcpy(buffer, (char *)mip->INODE.i_block);
     //3. return strlen((char *)mip ->INODE.i_block);
-    //how tho
 
-
+    /*free(omip);
+    free(nmip);
+    free(pmip);*/
     iput(mip);
+    return(strlen((char *)mip->INODE.i_block));
 }
 
 #endif
