@@ -36,7 +36,7 @@ int main(int argc, char*argv[])
         strcpy(path, "");
         strcpy(path2, "");
         printf("\nPrinting cwd details\n");
-        printMinode(proc[0].cwd);
+        printMinode(running->cwd);
         printf("P0 running: input command [ls,cd,stat,pwd,mkdir,creat,link,unlink,symlink,readlink,touch,quit]: ");
         fgets(command, 128, stdin);
         

@@ -19,13 +19,17 @@ DIR* openDir (char* nameOfDir, MINODE* curINODE)
     return foundDir;
 }
 
-void rmChild (MINODE* parent, char* dirToRemove)
+MINODE* rmChild (MINODE* parent, char* dirToRemove)
 {
     DIR* foundDir = malloc(sizeof(DIR));
     DIR* prevDir = malloc(sizeof(DIR));
+    DIR* nextDir = malloc(sizeof(DIR));
+    DIR* curDir = malloc(sizeof(DIR));
     char buf[BLKSIZE];
     char* cp;
-    int i = 0, foundflag = 0, ithBlock;
+    char* finalcp;
+    int i = 0, foundflag = 0, ithBlock, removedRL, sumRL = 0, adhelp = 0;
+    int foundino;
 
     printf("Entering rmChild\n");
 
@@ -34,6 +38,7 @@ void rmChild (MINODE* parent, char* dirToRemove)
     {
         get_block(running->cwd->dev, parent->INODE.i_block[i], buf);
         cp = buf;
+        finalcp = buf;
         foundDir = (DIR*)buf;
         
         while (cp < &buf[BLKSIZE])
@@ -54,6 +59,8 @@ void rmChild (MINODE* parent, char* dirToRemove)
     }
 
     printf("NAME: %s, REC: %d\n", foundDir->name, foundDir->rec_len);
+    printf("SUMRL = %d\n", sumRL);
+    printf("estimated %d\n",  4*((8+strlen(foundDir->name)+4)/4));
 
     //check to see if the rec_len > ideal length. If so, it is the last dirent
     if (foundDir->rec_len > 4*((8+strlen(foundDir->name)+4)/4))
@@ -63,8 +70,66 @@ void rmChild (MINODE* parent, char* dirToRemove)
         prevDir->rec_len += foundDir->rec_len;
         printf("number of blocks %d\n", parent->INODE.i_blocks);
         printf("prevdir: NAME: %s, rec_len: %d\n", prevDir->name, prevDir->rec_len);
-        ////PROBLEM i am not removing the dir from the parent block
-        foundDir = 0;
+    }
+    else if (foundDir->rec_len == 4*((8+strlen(foundDir->name)+4)/4))
+    {
+        printf("Removing from the middle\n");
+        //Storing the rec_len of our dir, we will add it to the final dirent
+        removedRL = foundDir->rec_len;
+        
+        printf("\nGoing through dirs...\n");
+        nextDir = (DIR*)cp;
+        printf("reclen: %d name: %s\n", nextDir->rec_len, nextDir->name);
+        while(nextDir->rec_len == 4*((8+strlen(nextDir->name)+4)/4))
+        {
+            //cp = (DIR*)(cp + nextDir->rec_len);
+            nextDir = (DIR*)(cp += nextDir->rec_len);
+            printf("reclen: %d name: %s\n", nextDir->rec_len, nextDir->name);
+        }
+
+        printf("last dirs rec: %d -> ", nextDir->rec_len);
+        //nextDir->rec_len += removedRL;
+        printf("%d\n", nextDir->rec_len);
+
+        printf("adhelp = %d, sumRL = %d\n", adhelp, sumRL);
+        
+        while (strcmp(((DIR*)(finalcp+sumRL))->name, dirToRemove))
+        {
+            printf("we are fucking with: %s\n", ((DIR*)(finalcp+sumRL))->name);
+            sumRL += ((DIR*)(finalcp+sumRL))->rec_len;
+        }
+        printf("we are fucking with: %s\n", ((DIR*)(finalcp+sumRL))->name);
+
+        adhelp = sumRL + ((DIR*)(finalcp+sumRL))->rec_len;
+        
+        curDir = ((DIR*)(finalcp+sumRL));
+        nextDir = ((DIR*)(finalcp+adhelp));
+        //printf("current dir: name: %s recLen: %d\n", curDir->name, curDir->rec_len);
+        while (nextDir->rec_len == 4*((8+strlen(((DIR*)(finalcp+adhelp))->name)+4)/4))
+        {  
+            printf("current dir: name: [%s] recLen: %d\n", curDir->name, curDir->rec_len);
+            printf("next dir: name: [%s] recLen: %d\n\n", nextDir->name, nextDir->rec_len);
+            curDir->inode = nextDir->inode;
+            curDir->rec_len = nextDir->rec_len;
+            curDir->name_len = nextDir->name_len;
+            curDir->file_type = nextDir->file_type;
+            strcpy(curDir->name, nextDir->name);
+
+            adhelp += ((DIR*)(finalcp+sumRL))->rec_len;
+            curDir = ((DIR*)(finalcp+sumRL+curDir->rec_len));
+            nextDir = ((DIR*)(finalcp+adhelp));
+        }
+        printf("OUT current dir: name: [%s] recLen: %d\n", curDir->name, curDir->rec_len);
+        printf("next dir: name: [%s] recLen: %d\n", nextDir->name, nextDir->rec_len);
+        curDir->inode = nextDir->inode;
+        curDir->rec_len = nextDir->rec_len + removedRL;
+        curDir->name_len = nextDir->name_len;
+        curDir->file_type = nextDir->file_type;
+        strcpy(curDir->name, nextDir->name);
+        
+        
+        put_block(running->cwd->dev, parent->INODE.i_block[ithBlock], finalcp);
+        return parent;
     }
     else if (foundDir->rec_len == 1024)
     {
@@ -89,24 +154,24 @@ void rmChild (MINODE* parent, char* dirToRemove)
     }
     
     put_block(running->cwd->dev, parent->INODE.i_block[ithBlock], buf);
-
+    return parent;
 }
 
 krmdir (MINODE* parent, char* dirToRemove, int inoToRemove)
 {
-    uid_t uid = getuid(), euid = geteuid();
+    int uid = running->uid;
     MINODE* inodeToRemove = malloc(sizeof(MINODE));
     DIR* lastDir = malloc(sizeof(DIR));
     int i;
 
     printf("# Entering krmdir\n");
 
-    //Permission check
-    if (uid < 0 || uid != euid)                 
+    //Permission check LEVEL 3
+    /*if (uid < 0 || uid != euid)                 
     {
         printf("# Incorrect priveledges\n");
         return -1;
-    }
+    }*/
 
     inodeToRemove = iget(running->cwd->dev, inoToRemove);
     
@@ -116,7 +181,12 @@ krmdir (MINODE* parent, char* dirToRemove, int inoToRemove)
         return -1;
     }
     //TODO: Check if busy... no fucking idea what that means...
-
+    if (inodeToRemove->refCount > 1)
+    {
+        printf("# DIR is busy\n");
+        return -1;
+    }
+    
     //getting the dir '..'
     lastDir = openDir("..", inodeToRemove);
 
@@ -143,7 +213,7 @@ krmdir (MINODE* parent, char* dirToRemove, int inoToRemove)
     iput(inodeToRemove);
 
     //remove the childs entry from the parent dir
-    rmChild(parent, dirToRemove);
+    parent = rmChild(parent, dirToRemove);
 
     //decrementing link count, touching time fields, marking dirty
     parent->INODE.i_links_count--;
@@ -167,6 +237,11 @@ myrmdir(char * pathname)
     if (!strcmp(pathname, ""))
     {
         printf("> No pathname specified.\n");
+        return -1;
+    }
+    if (!strcmp(pathname, "/"))
+    {
+        printf("> Can't remove root\n");
         return -1;
     }
 

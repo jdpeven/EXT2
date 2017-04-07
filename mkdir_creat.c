@@ -173,7 +173,8 @@ kmkdir(MINODE * pmip, char * basename)
     put_block(pmip->dev, bno, buf);
 
     childls(mip);
-
+    printf("Printing newly created dir details\n");
+    printMinode(mip);
     enterChild(pmip, ino, basename);
 }
 

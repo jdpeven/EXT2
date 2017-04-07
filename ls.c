@@ -68,8 +68,8 @@ int ls (char * pathname)
             ip = iget(dev, dp->inode);
 
             printPermissions(dp->inode);
-            printf("   %d   %.13s\t%d\t%s\n", ip->i_links_count, 
-                ctime(&ip->i_ctime), ip->i_size, sbuf);
+            printf("   %d   %.13s\t%d\t%d\t%s\n", ip->i_links_count, 
+                ctime(&ip->i_ctime), ip->i_size, dp->rec_len, sbuf);
             cp += dp->rec_len;
             dp = (DIR*)cp;
             iput(ip);

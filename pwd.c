@@ -2,7 +2,7 @@
 #include "util.c"
 #include "type.h"
 
-void rpwd(MINODE * mip)
+/*void rpwd(MINODE * mip)
 {
    MINODE * parent;
    int i;
@@ -19,14 +19,14 @@ void rpwd(MINODE * mip)
    rpwd(parent);
    inoToName(parent, selfIno, &myname);
    nameLen = strlen(myname);
-   /*for(i = 0; i < nameLen; i++){
+   for(i = 0; i < nameLen; i++){
            putchar(myname);
            myname++;
-   }*/
+   }
    printf("%.*s",nameLen, myname);                              //still funky
    printf("/");
    iput(parent);
-}
+}*/
 
 void ipwd(MINODE * mip)
 {
@@ -35,7 +35,7 @@ void ipwd(MINODE * mip)
    char * myname = malloc(sizeof(char) * 128);
    int parentIno, selfIno, nameLen;
    int index = 0;
-   char ** stack = (char*)malloc(16*sizeof(char *));
+   char ** stack = (char*)malloc(16*sizeof(char *));          //assuming path wont have more that 16 elements
    //char myname[128];
    while(1)
    {
@@ -50,6 +50,7 @@ void ipwd(MINODE * mip)
         inoToName(parent, selfIno, &myname);
         strncpy(stack+index, myname, strlen(myname));
         iput(mip);
+        //iput(parent);                   //no idea if this is what i need to do
         mip = parent;
         index++;
    }
@@ -59,13 +60,6 @@ void ipwd(MINODE * mip)
    {
         printf("%s/", stack + index);
    }
-   
-   /*for(i = 0; i < nameLen; i++){
-           putchar(myname);
-           myname++;
-   }*/
-   //printf("%.*s",nameLen, myname);                              //still funky
-   //printf("/");
    iput(parent);
 }
 

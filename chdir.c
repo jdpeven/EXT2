@@ -69,12 +69,12 @@ int chdir(char * pathname)
 
     if(S_ISREG(temp->INODE.i_mode)){                      //(2)
         printf("Cannot cd into non-dir file\n");
+        iput(temp);                     //putting it back
         return 0;
     }
     //otherwise
     iput(running->cwd);                             //(4)
-    running->cwd = temp;                            //(3)
-                                         
+    running->cwd = temp;                            //(3)                      
     printf("running->cwd = %s\n", pathname);
     return 0;
     /*
