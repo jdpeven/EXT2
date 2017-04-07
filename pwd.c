@@ -5,20 +5,67 @@
 void rpwd(MINODE * mip)
 {
    MINODE * parent;
+   int i;
+   //char myname[128];
    char * myname = malloc(sizeof(char) * 128);
    int parentIno, selfIno, nameLen;
    if((mip->dev == root->dev) && (mip->ino == root->ino)){
            printf("/");
            return;
    }   
-   parentIno = getino(&(mip->dev), "..");
-   selfIno = getino(&(mip->dev), ".");
+   parentIno = nameToIno(mip, "..");
+   selfIno = nameToIno(mip, ".");
    parent = iget(mip->dev,parentIno);
    rpwd(parent);
    inoToName(parent, selfIno, &myname);
    nameLen = strlen(myname);
+   /*for(i = 0; i < nameLen; i++){
+           putchar(myname);
+           myname++;
+   }*/
    printf("%.*s",nameLen, myname);                              //still funky
    printf("/");
+   iput(parent);
+}
+
+void ipwd(MINODE * mip)
+{
+   MINODE * parent;
+   int i;
+   char * myname = malloc(sizeof(char) * 128);
+   int parentIno, selfIno, nameLen;
+   int index = 0;
+   char ** stack = (char*)malloc(16*sizeof(char *));
+   //char myname[128];
+   while(1)
+   {
+        if((mip->dev == root->dev) && (mip->ino == root->ino)){
+           strcpy(stack + index,"/");
+           break;
+        }
+        parentIno = nameToIno(mip, "..");
+        selfIno = nameToIno(mip, ".");
+        parent = iget(mip->dev,parentIno);
+        //rpwd(parent);
+        inoToName(parent, selfIno, &myname);
+        strncpy(stack+index, myname, strlen(myname));
+        iput(mip);
+        mip = parent;
+        index++;
+   }
+   printf("/");                         //always will have root
+   index--;
+   for( ; index >= 0; index --)          //index > 0 because stack[0] == '/'
+   {
+        printf("%s/", stack + index);
+   }
+   
+   /*for(i = 0; i < nameLen; i++){
+           putchar(myname);
+           myname++;
+   }*/
+   //printf("%.*s",nameLen, myname);                              //still funky
+   //printf("/");
    iput(parent);
 }
 
@@ -32,8 +79,10 @@ int pwd(char * pathname)
    MINODE * temp = running->cwd;
    /*printMinode(running->cwd);
    printMinode(temp);*/
-   rpwd(temp);
+   //////rpwd(temp);
+   ipwd(temp);
    printf("\n");
+   iput(temp);
         
    /*Write this function as a recursive fucnction, which
    1. if wd is already the root:

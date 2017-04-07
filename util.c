@@ -201,6 +201,7 @@ char * inoToName(MINODE*mip, int childIno, char **childname)
             //printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
             if(dp->inode == childIno){
                 strncpy(*childname, dp->name, dp->name_len);
+                //strcat(*childname, "\n");
                 //*childname[dp->name_len] = 0;
                 return;
             }
@@ -215,7 +216,6 @@ char * inoToName(MINODE*mip, int childIno, char **childname)
         return ino;*/
     }
 }
-
 
 int tst_bit(char *buf, int bit)
 {
@@ -302,7 +302,7 @@ int incFreeBlocks(int dev)
   put_block(dev, 2, buff);
 }
 
-/*
+
 int nameToIno(MINODE * mip, char * name)
 {
     char* cp;
@@ -323,14 +323,34 @@ int nameToIno(MINODE * mip, char * name)
             strncpy(sbuf, dp->name, dp->name_len);                  //similar to strcpy but will stop based on third argument
             sbuf[dp->name_len] = 0;
             //printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
-            if(dp->inode == childIno){
-                strncpy(*childname, dp->name, dp->name_len);
-                //*childname[dp->name_len] = 0;
-                return;
+            if(strcmp(sbuf, name) == 0){
+                return dp->inode;
             }
             cp += dp->rec_len;
             dp = (DIR *)cp;
         }
+    }
 }
+
+
+/*
+Name: truncate
+Args: mip - MINODE * - the MINODE you're truncating
+Return: int - Maybe just an error code.
+Description: Will deallocate all blocks that this MINODE has
+SampleRun: tuncate(root)
+            we fucked
 */
+int truncate(MINODE *mip)
+{
+    int i;
+    for(i = 0; i < 15; i++)
+    {
+        if(mip->INODE.i_block[i] != 0)
+        {
+            bdealloc(mip->dev, mip->INODE.i_block[i]);
+        }
+    }
+}
+
 #endif

@@ -26,6 +26,7 @@ char * devName = "diskimage"; //will be used as default for mounting the root
 char command[128];
 char cmd[64];
 char path[64];
+char path2[64];
 
 /*int mkdir(char * s){}
 int rmdir(char * s){}

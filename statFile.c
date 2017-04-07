@@ -15,6 +15,11 @@ int statFile(char * pathname, struct stat *mystat)
         return 0;
     }
     ino = getino(&(running->cwd->dev),pathname);
+    if(ino == 0)
+    {
+        printf("Stat could not find file/directory not found, returning\n");
+        return -1;
+    }
     temp = iget((running->cwd->dev), ino);
 
     printf("\n********** stat **********\n");
@@ -23,6 +28,6 @@ int statFile(char * pathname, struct stat *mystat)
     printf("uid=%d   gid=%d   nlink=%d\n",temp->INODE.i_uid, temp->INODE.i_gid, temp->INODE.i_links_count);
     printf("size=%d time= %s\n",temp->INODE.i_size, ctime(&temp->INODE.i_ctime));
 
-
+    iput(temp);
     return 0;
 }
