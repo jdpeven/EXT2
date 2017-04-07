@@ -58,6 +58,12 @@ int chdir(char * pathname)
 
     printf("Attempting to CD into %s\n", pathname);
     ino = getino(&(running->cwd->dev), pathname);
+    if(ino == 0)
+    {
+        printf("File not found, cannot CD\n");
+        //no need to iput() because never really called iget()
+        return -1;
+    }
     printf("Now ino = %d\n", ino);
     temp = iget(running->cwd->dev, ino);             //ASK KC IS THIS RIGHT  (1)
 
