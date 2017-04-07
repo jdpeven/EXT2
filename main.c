@@ -21,6 +21,7 @@ int main(int argc, char*argv[])
     char linkName[60];
     int linkSize = 0;
     system("./shcopy.sh");            //sh copy syscall
+
     init();
     printf("Initialization complete\n");
     if(argc < 1)       //"a.out diskimage"
