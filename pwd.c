@@ -49,7 +49,7 @@ void ipwd(MINODE * mip)
         //rpwd(parent);
         inoToName(parent, selfIno, &myname);
         strncpy(stack+index, myname, strlen(myname));
-        iput(mip);
+        iput(parent);
         //iput(parent);                   //no idea if this is what i need to do
         mip = parent;
         index++;
@@ -76,7 +76,7 @@ int pwd(char * pathname)
    //////rpwd(temp);
    ipwd(temp);
    printf("\n");
-   iput(temp);
+   //iput(temp);
         
    /*Write this function as a recursive fucnction, which
    1. if wd is already the root:

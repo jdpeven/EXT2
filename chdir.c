@@ -22,7 +22,7 @@ int chdir(char * pathname)
         temp = iget(running->cwd->dev, ino);
 
         iput(running->cwd);
-        iput(temp);                             //(4)
+        //iput(temp);                             //(4)
         running->cwd = temp;
 
         printf("running->cwd = %s\n", pathname);
@@ -32,7 +32,8 @@ int chdir(char * pathname)
     if(strcmp(pathname, "") == 0){          // cd to the root
         printf("No argument given, cd to root\n");
         running->cwd = iget(root->dev, 2);
-        iput(root);                         //balancing the iget
+        iput(running->cwd);
+        //iput(root);                         //balancing the iget
         //copyMinodeptr(root, &running->cwd);
         //memcpy(&(*temp), &(*root), sizeof(MINODE));
         return 0;
