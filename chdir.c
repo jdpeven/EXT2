@@ -6,8 +6,6 @@ int chdir(char * pathname)
 {
     MINODE *temp = malloc(sizeof(MINODE));
     int dev;
-    //printf("My device is currently %d\n", temp->dev);
-
     int ino;
 
     if(strcmp(pathname, ".") == 0){
@@ -17,7 +15,8 @@ int chdir(char * pathname)
 
     if(strcmp(pathname, "..") == 0){
         printf("CD to the parent directory, getting ino of '..'\n");
-        ino = getino(&(running->cwd->dev), "..");
+        ino = nameToIno(running->cwd, "..");
+        //ino = getino(&(running->cwd->dev), ".."); //it might not be the same device
         printf("'..' Ino = %d\n", ino);
         temp = iget(running->cwd->dev, ino);
 
@@ -31,11 +30,8 @@ int chdir(char * pathname)
 
     if(strcmp(pathname, "") == 0){          // cd to the root
         printf("No argument given, cd to root\n");
-        running->cwd = iget(root->dev, 2);
         iput(running->cwd);
-        //iput(root);                         //balancing the iget
-        //copyMinodeptr(root, &running->cwd);
-        //memcpy(&(*temp), &(*root), sizeof(MINODE));
+        running->cwd = iget(root->dev, 2);
         return 0;
     }
     /*

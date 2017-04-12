@@ -203,6 +203,7 @@ int getino(int *dev, char *pathname)
         iput(mip);                                              //This is the "close parenthesis" of the iget from the check 4 lines above the for loop
         mip = iget(*dev, ino);                                  //This is the open parenthesis for the next loops of the for so the iput will put back this one
     }
+    iput(mip);                          //MAYBE MAYBE MAYBE
     return ino;
 }
 
