@@ -174,6 +174,12 @@ krmdir (MINODE* parent, char* dirToRemove, int inoToRemove)
     }*/
 
     inodeToRemove = iget(running->cwd->dev, inoToRemove);
+
+    if(S_ISREG(inodeToRemove->INODE.i_mode))
+    {
+        printf("> Cannot call rmdir on a file, try \"rm\".\n");
+        return -1;
+    }
     
     if (inodeToRemove->INODE.i_links_count > 2)
     {
