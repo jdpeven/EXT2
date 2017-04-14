@@ -1,3 +1,6 @@
+#ifndef RM_C
+#define RM_C
+
 #include "global.c"
 #include "util.c"
 #include "allocate_deallocate.c"
@@ -156,3 +159,4 @@ myrm(char * pathname)
     }
     return 0;
 }
+#endif

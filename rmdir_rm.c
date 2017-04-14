@@ -1,3 +1,6 @@
+#ifndef RMDIR_RM_C 
+#define RMDIR_RM_C
+
 #include "global.c"
 #include "util.c"
 #include "allocate_deallocate.c"
@@ -322,3 +325,4 @@ myrmdir(char * pathname)
     }
     return 0;
 }
+#endif
