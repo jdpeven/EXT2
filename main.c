@@ -95,6 +95,30 @@ int main(int argc, char*argv[])
         else if(strcmp(cmd, "rm") == 0){
             myrm(path);
         }
+        else if(strcmp(cmd, "open") == 0){
+
+        }
+        else if(strcmp(cmd, "close") == 0){
+
+        }
+        else if(strcmp(cmd, "read") == 0){
+
+        }
+        else if(strcmp(cmd, "write") == 0){
+
+        }
+        else if(strcmp(cmd, "lseek") == 0){
+
+        }
+        else if(strcmp(cmd, "cat") == 0){
+
+        }
+        else if(strcmp(cmd, "cp") == 0){
+
+        }
+        else if(strcmp(cmd, "mv") == 0){
+            
+        }
         else{
             printf("COMMAND NOT FOUND\n");
         }
