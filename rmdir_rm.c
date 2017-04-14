@@ -60,10 +60,10 @@ MINODE* rmChild (MINODE* parent, char* dirToRemove)
 
     printf("NAME: %s, REC: %d\n", foundDir->name, foundDir->rec_len);
     printf("SUMRL = %d\n", sumRL);
-    printf("estimated %d\n",  4*((8+strlen(foundDir->name)+4)/4));
+    printf("estimated %d\n",  4*((8+strlen(foundDir->name)+3)/4));
 
     //check to see if the rec_len > ideal length. If so, it is the last dirent
-    if (foundDir->rec_len > 4*((8+strlen(foundDir->name)+4)/4))
+    if (foundDir->rec_len > 4*((8+strlen(foundDir->name)+3)/4))
     {
         printf("number of blocks %d\n", parent->INODE.i_blocks);
         //increasing the 2nd to last dir's rec_len by the last dir's rec_len
@@ -71,7 +71,7 @@ MINODE* rmChild (MINODE* parent, char* dirToRemove)
         printf("number of blocks %d\n", parent->INODE.i_blocks);
         printf("prevdir: NAME: %s, rec_len: %d\n", prevDir->name, prevDir->rec_len);
     }
-    else if (foundDir->rec_len == 4*((8+strlen(foundDir->name)+4)/4))
+    else if (foundDir->rec_len == 4*((8+strlen(foundDir->name)+3)/4))
     {
         printf("Removing from the middle\n");
         //Storing the rec_len of our dir, we will add it to the final dirent
@@ -80,7 +80,7 @@ MINODE* rmChild (MINODE* parent, char* dirToRemove)
         printf("\nGoing through dirs...\n");
         nextDir = (DIR*)cp;
         printf("reclen: %d name: %s\n", nextDir->rec_len, nextDir->name);
-        while(nextDir->rec_len == 4*((8+strlen(nextDir->name)+4)/4))
+        while(nextDir->rec_len == 4*((8+strlen(nextDir->name)+3)/4))
         {
             //cp = (DIR*)(cp + nextDir->rec_len);
             nextDir = (DIR*)(cp += nextDir->rec_len);
@@ -105,10 +105,11 @@ MINODE* rmChild (MINODE* parent, char* dirToRemove)
         curDir = ((DIR*)(finalcp+sumRL));
         nextDir = ((DIR*)(finalcp+adhelp));
         //printf("current dir: name: %s recLen: %d\n", curDir->name, curDir->rec_len);
-        while (nextDir->rec_len == 4*((8+strlen(((DIR*)(finalcp+adhelp))->name)+4)/4))
+        while (nextDir->rec_len <= 4*((8+strlen(((DIR*)(finalcp+adhelp))->name)+3)/4))
         {  
             printf("current dir: name: [%s] recLen: %d\n", curDir->name, curDir->rec_len);
-            printf("next dir: name: [%s] recLen: %d\n\n", nextDir->name, nextDir->rec_len);
+            //printf("next dir: name: [%s] recLen: %d\n\n", nextDir->name, nextDir->rec_len);
+            printf("hello");
             curDir->inode = nextDir->inode;
             curDir->rec_len = nextDir->rec_len;
             curDir->name_len = nextDir->name_len;
@@ -119,8 +120,10 @@ MINODE* rmChild (MINODE* parent, char* dirToRemove)
             curDir = ((DIR*)(finalcp+sumRL+curDir->rec_len));
             nextDir = ((DIR*)(finalcp+adhelp));
         }
-        printf("OUT current dir: name: [%s] recLen: %d\n", curDir->name, curDir->rec_len);
-        printf("next dir: name: [%s] recLen: %d\n", nextDir->name, nextDir->rec_len);
+        //printf("next dir: %d, equation: %d\n", nextDir->rec_len, 4*((8+strlen(nextDir->name)+3)/4));
+        //printf("next dir-> %s, size = %d\n", nextDir->name, strlen(nextDir->name));
+        //printf("OUT current dir: name: [%s] recLen: %d\n", curDir->name, curDir->rec_len);
+        //printf("next dir: name: [%s] recLen: %d\n", nextDir->name, nextDir->rec_len);
         curDir->inode = nextDir->inode;
         curDir->rec_len = nextDir->rec_len + removedRL;
         curDir->name_len = nextDir->name_len;
