@@ -10,10 +10,10 @@
 #include "statFile.c"
 #include "iget_iput_getino.c"
 #include "mkdir_creat.c"
-#include "rmdir_rm.c"
 #include "link_unlink.c"
 #include "symlink_readlink.c"
 #include "touch.c"
+#include "rm.c"
 
 int main(int argc, char*argv[])
 {
@@ -91,6 +91,9 @@ int main(int argc, char*argv[])
         }
         else if(strcmp(cmd, "rmdir") == 0){
             myrmdir(path);
+        }
+        else if(strcmp(cmd, "rm") == 0){
+            myrm(path);
         }
         else{
             printf("COMMAND NOT FOUND\n");
