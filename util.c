@@ -344,13 +344,15 @@ SampleRun: tuncate(root)
 int truncate(MINODE *mip)
 {
     int i;
-    for(i = 0; i < 15; i++)
+    for(i = 0; i < 12; i++)//maybe 13, looking for direct blocks
     {
         if(mip->INODE.i_block[i] != 0)
         {
             bdealloc(mip->dev, mip->INODE.i_block[i]);
+            mip->INODE.i_block[i] = 0;
         }
     }
+    //dealloc indirect blocks somehow..
 }
 
 #endif

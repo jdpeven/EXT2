@@ -47,7 +47,7 @@ typedef struct proc{
   int          pid;
   int          uid;
   MINODE      *cwd;
-  OFT         *fd[NFD];         
+  OFT         *fd[NFD];     //16       
 }PROC;
 
 #endif

@@ -14,6 +14,7 @@
 #include "symlink_readlink.c"
 #include "touch.c"
 #include "rm.c"
+#include "open_close_lseek.c"
 
 int main(int argc, char*argv[])
 {
@@ -96,7 +97,7 @@ int main(int argc, char*argv[])
             myrm(path);
         }
         else if(strcmp(cmd, "open") == 0){
-
+            openFile(path, path2);
         }
         else if(strcmp(cmd, "close") == 0){
 
