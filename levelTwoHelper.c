@@ -10,7 +10,7 @@
 void pfd()
 {
     int i = 0;
-    printf("=============  pid = %d ==========\n");
+    printf("=============  pid = %d ==========\n", running->pid);
     printf("fd  mode  count  offset  [dev, ino]");
     for(i = 0; i < NFD; i++)
     {
@@ -21,7 +21,7 @@ void pfd()
     }
 }
 
-//Finds the first open spot and returns it. Maybe not totally necessary
+//Finds the first open spot and returns the index. Maybe not totally necessary
 int fdAlloc()
 {
     int i;

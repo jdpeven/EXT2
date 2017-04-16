@@ -59,11 +59,12 @@ int openFile(char * pathname, char * type)
     running->fd[newEntry]->mptr = mip;
 
     switch(mode){
-        case 0:
+        case 0://reading
             running->fd[newEntry]->offset = 0;
             break;
         case 1:
             truncate(running->fd[newEntry]->mptr);
+            running->fd[newEntry]->offset = 0;
             break;
         case 2:
             running->fd[newEntry]->offset = 0;
@@ -97,7 +98,7 @@ int openFile(char * pathname, char * type)
     }
 
     running->fd[newEntry]->mptr->dirty = 1;
-
+    //IPUT mip????
     return newEntry;
 }
 
