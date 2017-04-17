@@ -37,6 +37,59 @@ int fdAlloc()
     return -1;
 }
 
+dup(char * strFD)
+{
+    int fd;
+    int newIndex;
+    fd = atoi(strFD);
+
+    if(fd > NFD || fd < 0){
+        printf("fd #[%d] not in range\n", fd);
+        return 0;
+    }
+    if(running->fd[fd] == NULL){
+        printf("fd #[%d] has not been allocated\n", fd);
+        return 0;
+    }
+
+    newIndex = fdAlloc();
+    running->fd[newIndex] = running->fd[fd];
+    running->fd[fd]->refCount++;
+  /*verify fd is an opened descriptor;
+  duplicates (copy) fd[fd] into FIRST empty fd[ ] slot;
+  increment OFT's refCount by 1;*/
+}
+
+dup2(char * strFD, char * strGD)
+{
+    int fd, gd;
+    fd = atoi(strFD);
+    gd = atoi(strGD);
+
+    if(fd > NFD || fd < 0){
+        printf("fd #[%d] not in range\n", fd);
+        return 0;
+    }
+    if(running->fd[fd] == NULL){
+        printf("fd #[%d] has not been allocated\n", fd);
+        return 0;
+    }
+    if(gd > NFD || gd < 0){
+        printf("gd #[%d] not in range\n", gd);
+        return 0;
+    }
+    if(running->fd[gd] == NULL){
+        printf("gd #[%d] has not been allocated\n", gd);
+        return 0;
+    }
+
+    closeFile(strGD);
+    running->fd[gd] = running->fd[fd];
+  /*CLOSE gd fisrt if it's already opened;
+  duplicates fd[fd] into fd[gd]; */
+}
+
+
 
 
 #endif
