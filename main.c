@@ -110,7 +110,7 @@ int main(int argc, char*argv[])
 
         }
         else if(strcmp(cmd, "lseek") == 0){
-
+            mylseek(path, path2);
         }
         else if(strcmp(cmd, "cat") == 0){
 

@@ -137,5 +137,37 @@ int closeFile(char * strFD)
     return 0;
 }
 
+int mylseek(char * strFD, char * pos)
+{
+    int fd, position;
+    int originalPosition;
+
+    fd = atoi(strFD);
+    position = atoi(pos);
+
+    if(fd > NFD || fd < 0){
+        printf("fd #[%d] not in range\n", fd);
+        return 0;
+    }
+    if(running->fd[fd] == NULL){
+        printf("fd #[%d] has not been allocated\n", fd);
+        return 0;
+    }
+
+    if(position < 0 || position > running->fd[fd]->mptr->INODE.i_size)
+    {
+        printf("Index [%d] not in range\n", position);
+        return 0;
+    }
+    originalPosition = running->fd[fd]->offset;
+    running->fd[fd]->offset = position;
+    printf("FD #[%d] offset changed from %d to %d\n", fd, originalPosition, position);
+    return originalPosition;
+
+  //From fd, find the OFT entry. 
+  //change OFT entry's offset to position but make sure NOT to over run either end
+  //of the file.
+  //return originalPosition
+}
 
 #endif
