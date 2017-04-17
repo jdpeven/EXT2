@@ -15,7 +15,7 @@ void pfd()
     for(i = 0; i < NFD; i++)
     {
         if(running->fd[i] == NULL)
-            break;
+            continue;
         printf("%d    %d     %d       %d       [%d, %d]\n", i, running->fd[i]->mode, running->fd[i]->refCount, 
                 running->fd[i]->offset, running->fd[i]->mptr->dev, running->fd[i]->mptr->ino);
     }
