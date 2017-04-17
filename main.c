@@ -15,6 +15,7 @@
 #include "touch.c"
 #include "rm.c"
 #include "open_close_lseek.c"
+#include "levelTwoHelper.c"
 
 int main(int argc, char*argv[])
 {
@@ -100,7 +101,7 @@ int main(int argc, char*argv[])
             openFile(path, path2);
         }
         else if(strcmp(cmd, "close") == 0){
-
+            closeFile(path);
         }
         else if(strcmp(cmd, "read") == 0){
 
@@ -119,6 +120,9 @@ int main(int argc, char*argv[])
         }
         else if(strcmp(cmd, "mv") == 0){
             
+        }
+        else if(strcmp(cmd, "pfd") == 0){
+            pfd();
         }
         else{
             printf("COMMAND NOT FOUND\n");

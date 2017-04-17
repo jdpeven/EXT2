@@ -75,13 +75,13 @@ int mount_root()
     proc[1].cwd = iget(dev, 2);             //p1
 
     //Allocates OFT for each proc and sets it's mode to -1
-    OFT * tempOFT = malloc(sizeof(OFT));
-    tempOFT->mode = -1;
+    /*OFT * tempOFT = malloc(sizeof(OFT));
+    tempOFT->mode = -1;*/
     for(i = 0; i < NFD; i++)    //Each entry in the table
     {
         for(j = 0; j < 4; j++)  //Each proc
         {
-            proc[j].fd[i] = tempOFT;
+            proc[j].fd[i] = NULL;
         }
     }
 

@@ -11,12 +11,12 @@ void pfd()
 {
     int i = 0;
     printf("=============  pid = %d ==========\n", running->pid);
-    printf("fd  mode  count  offset  [dev, ino]");
+    printf("fd  mode  count  offset  [dev, ino]\n");
     for(i = 0; i < NFD; i++)
     {
-        if(running->fd[i]->mode > 3 || running->fd[i]->mode < 0)
+        if(running->fd[i] == NULL)
             break;
-        printf("%d  %d  %d     %d    [%d, %d]", i, running->fd[i]->mode, running->fd[i]->refCount, 
+        printf("%d    %d     %d       %d       [%d, %d]\n", i, running->fd[i]->mode, running->fd[i]->refCount, 
                 running->fd[i]->offset, running->fd[i]->mptr->dev, running->fd[i]->mptr->ino);
     }
 }
@@ -27,7 +27,7 @@ int fdAlloc()
     int i;
     for(i = 0; i < NFD; i++)
     {
-        if(running->fd[i]->mode > 3 || running->fd[i]->mode < 0) //unused
+        if(running->fd[i] == NULL) //unused
         {
             printf("Index #[%d] is free\n", i);
             return i;

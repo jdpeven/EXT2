@@ -53,24 +53,25 @@ int openFile(char * pathname, char * type)
     }
     //PERMISSIONS CHECKING
 
+    OFT *newFD = malloc(sizeof(OFT));
     newEntry = fdAlloc();
-    running->fd[newEntry]->mode = mode;
-    running->fd[newEntry]->refCount = 1;
-    running->fd[newEntry]->mptr = mip;
+    newFD->mode = mode;
+    newFD->refCount = 1;
+    newFD->mptr = mip;
 
     switch(mode){
         case 0://reading
-            running->fd[newEntry]->offset = 0;
+            newFD->offset = 0;
             break;
         case 1:
-            truncate(running->fd[newEntry]->mptr);
-            running->fd[newEntry]->offset = 0;
+            truncate(newFD->mptr);
+            newFD->offset = 0;
             break;
         case 2:
-            running->fd[newEntry]->offset = 0;
+            newFD->offset = 0;
             break;
         case 3:
-            running->fd[newEntry]->offset = mip->INODE.i_size;
+            newFD->offset = mip->INODE.i_size;
             break;
         default:
             printf("Invalid mode\n");
@@ -78,28 +79,62 @@ int openFile(char * pathname, char * type)
     }
     switch(mode){
         case 0:
-            running->fd[newEntry]->mptr->INODE.i_atime = time(0L);
+            newFD->mptr->INODE.i_atime = time(0L);
             break;
         case 1:
-            running->fd[newEntry]->mptr->INODE.i_atime = time(0L);
-            running->fd[newEntry]->mptr->INODE.i_mtime = time(0L);
+            newFD->mptr->INODE.i_atime = time(0L);
+            newFD->mptr->INODE.i_mtime = time(0L);
             break;
         case 2:
-            running->fd[newEntry]->mptr->INODE.i_atime = time(0L);
-            running->fd[newEntry]->mptr->INODE.i_mtime = time(0L);
+            newFD->mptr->INODE.i_atime = time(0L);
+            newFD->mptr->INODE.i_mtime = time(0L);
             break;
         case 3:
-            running->fd[newEntry]->mptr->INODE.i_atime = time(0L);
-            running->fd[newEntry]->mptr->INODE.i_mtime = time(0L);
+            newFD->mptr->INODE.i_atime = time(0L);
+            newFD->mptr->INODE.i_mtime = time(0L);
             break;
         default:
             printf("Invalid mode\n");
             return -1;
     }
 
-    running->fd[newEntry]->mptr->dirty = 1;
+    newFD->mptr->dirty = 1;
+    running->fd[newEntry] = newFD;
     //IPUT mip????
     return newEntry;
+}
+
+int closeFile(char * strFD)
+{
+    OFT *oftp;
+    MINODE *mip;
+    int fd;
+
+    fd = atoi(strFD);
+
+    if(fd > NFD || fd < 0){
+        printf("fd #[%d] not in range\n", fd);
+        return 0;
+    }
+    if(running->fd[fd] == NULL){
+        printf("fd #[%d] has not been allocated\n", fd);
+        return 0;
+    }
+    oftp = running->fd[fd];
+    running->fd[fd] = NULL;
+    oftp->refCount--;
+
+    if(oftp->refCount > 0){         //still being referenced
+        printf("This is still being referenced\n");
+        return 0;
+    }
+
+    printf("Wrote back fd #[%d]\n", fd);
+    //otherwise we need to write it back
+    mip = oftp->mptr;
+    iput(mip);                      //puts it back
+
+    return 0;
 }
 
 

@@ -38,7 +38,7 @@ typedef struct minode{
 typedef struct oft{             //open file descriptors
   int  mode;                    //Permissions?
   int  refCount;
-  MINODE *mptr;                 //pointer to the referenced inode?
+  MINODE *mptr;                 //pointer to the referenced minode
   int  offset;                  //This will be changed with lseek
 }OFT;
 
