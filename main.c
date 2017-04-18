@@ -16,6 +16,7 @@
 #include "rm.c"
 #include "open_close_lseek.c"
 #include "levelTwoHelper.c"
+#include "write_cp_mv.c"
 
 int main(int argc, char*argv[])
 {
@@ -107,7 +108,7 @@ int main(int argc, char*argv[])
 
         }
         else if(strcmp(cmd, "write") == 0){
-
+            writeFile();
         }
         else if(strcmp(cmd, "lseek") == 0){
             mylseek(path, path2);
