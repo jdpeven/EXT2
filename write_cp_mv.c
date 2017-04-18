@@ -54,10 +54,24 @@ int mywrite(int fd, char buf[], int nbytes)
 
     mip = oftp->mptr;
 
+    switch(oftp->mode)              //for determining how to change the size
+    {
+        case 1:                     //write
+            mip->INODE.i_size = nbytes;
+            break;
+        case 2:                     //readwrite. SHOULD BE SAME AS WRITE???
+            mip->INODE.i_size = nbytes;
+            break;
+        case 3:                     //append
+            mip->INODE.i_size += nbytes;        //different!
+            break;
+    }
+    
+
     if(lbk < 12)            //writing to direct blocks
     {
-        if(mip->INODE.i_block[lbk] == 0)
-            mip->INODE.i_block[lbk] = balloc(mip->dev);
+        if(mip->INODE.i_block[lbk] == 0)                //incase you need to start a new block
+            mip->INODE.i_block[lbk] = balloc(mip->dev); //allocates a new one
         blk = mip->INODE.i_block[lbk];                  //blk is now the newly allocated block
     }
     else if(lbk == 12)      //indirect
@@ -68,10 +82,12 @@ int mywrite(int fd, char buf[], int nbytes)
     {
 
     }
+    printf("Need to write %d bytes to i_block[%d] = BNUM [%d] at startByte [%d]\n", nbytes, lbk, blk, startByte);
 
     while(nbytes > 0)
     {
         get_block(mip->dev, blk, wbuf);             //wbuf now holds this block. Might or might not be empty
+        //VERY VERY IMPORTANT
         memset(&wbuf[startByte], 0, BLKSIZE - startByte);                   //clearing it out
         cp = wbuf + startByte;
         cq = buf;

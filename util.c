@@ -390,9 +390,15 @@ int truncate(MINODE *mip)
             return;     
     }
     if((mip->INODE.i_block[12] != 0)) //indirect blocks
+    {
         indirectBlockDealloc(mip, mip->INODE.i_block[12]);                  //added the second argument so I can call it from doubleBlockDealloc
+        mip->INODE.i_block[12] = 0;
+    }
     if((mip->INODE.i_block[13] != 0))
+    {
         doubleBlockDealloc(mip);
+        mip->INODE.i_block[13] = 0;
+    }
 }
 
 

@@ -109,7 +109,34 @@ int closeFile(char * strFD)
     OFT *oftp;
     MINODE *mip;
     int fd;
+    int i;
 
+    if(strcmp(strFD, "") == 0)
+    {
+        printf("No fd provided, closing all open files\n");
+        for(i = 0; i < NFD; i++)
+        {
+            if(running->fd[i] != NULL)
+            {
+                oftp = running->fd[i];
+                running->fd[i] = NULL;
+                oftp->refCount--;
+
+                if(oftp->refCount > 0){         //still being referenced
+                    printf("This is still being referenced\n");
+                    continue;                       //change from earlier
+                }
+
+                printf("Wrote back fd #[%d]\n", i);
+                //otherwise we need to write it back
+                mip = oftp->mptr;
+                iput(mip);                      //puts it back
+            }
+        }
+        return 0;                               //done and needs to return
+    }
+
+    //otherwise there was an argument passed in
     fd = atoi(strFD);
 
     if(fd > NFD || fd < 0){
