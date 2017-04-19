@@ -12,6 +12,7 @@ int mychmod(char * path, char * path2)
 	int ino, dev;
 	MINODE * mip = malloc(sizeof(MINODE));
 
+
 	strcpy(filepath, path);
 	if (strlen(path2) == 0)
 	{

@@ -94,7 +94,7 @@ int main(int argc, char*argv[])
             touch(path);
         }
         else if(strcmp(cmd, "chmod") == 0){
-            chmod(path, path2);
+            mychmod(path, path2);
         }
         else if(strcmp(cmd, "rmdir") == 0){
             myrmdir(path);
