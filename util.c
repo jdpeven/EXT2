@@ -332,6 +332,41 @@ int nameToIno(MINODE * mip, char * name)
     }
 }
 
+void doubleBlockDealloc(MINODE *mip)
+{
+    char block[BLKSIZE];
+    char tempbuff[4];
+    int blk = 1;
+    int * intp;
+    get_block(mip->dev, mip->INODE.i_block[13], block);
+
+    intp = &block;
+
+    while(*intp > 0){
+        indirectBlockDealloc(mip, *intp);
+        intp+=1;                      // the number may be off
+    }
+    return;
+}
+
+
+void indirectBlockDealloc(MINODE *mip, int blocknum)
+{
+    char block[BLKSIZE];
+    char tempbuff[4];
+    int blk = 1;
+    int * intp;
+    get_block(mip->dev, blocknum, block);
+    //printf("%s", block);
+
+    intp = &block;
+
+    while(*intp > 0){
+        bdealloc(mip->dev, *intp);
+        intp+=1;                      // the number may be off
+    }
+    return;
+}
 
 /*
 Name: truncate
@@ -344,13 +379,28 @@ SampleRun: tuncate(root)
 int truncate(MINODE *mip)
 {
     int i;
-    for(i = 0; i < 15; i++)
+    for(i = 0; i < 12; i++)//maybe 13, looking for direct blocks
     {
         if(mip->INODE.i_block[i] != 0)
         {
             bdealloc(mip->dev, mip->INODE.i_block[i]);
+            mip->INODE.i_block[i] = 0;
         }
+        else                    // Because it's sequential, once you hit one 0, you know you're done
+            return;     
+    }
+    if((mip->INODE.i_block[12] != 0)) //indirect blocks
+    {
+        indirectBlockDealloc(mip, mip->INODE.i_block[12]);                  //added the second argument so I can call it from doubleBlockDealloc
+        mip->INODE.i_block[12] = 0;
+    }
+    if((mip->INODE.i_block[13] != 0))
+    {
+        doubleBlockDealloc(mip);
+        mip->INODE.i_block[13] = 0;
     }
 }
+
+
 
 #endif

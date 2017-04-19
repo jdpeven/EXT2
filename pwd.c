@@ -35,12 +35,16 @@ void ipwd(MINODE * mip)
    char * myname = malloc(sizeof(char) * 128);
    int parentIno, selfIno, nameLen;
    int index = 0;
-   char ** stack = (char*)malloc(16*sizeof(char *));          //assuming path wont have more that 16 elements
+   char stack[16][100];
+   int len;
+   //char * stack[] = {"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""};
+   //char ** stack = (char*)malloc(16*sizeof(char *));          //assuming path wont have more that 16 elements
    //char myname[128];
    while(1)
    {
         if((mip->dev == root->dev) && (mip->ino == root->ino)){
-           strcpy(stack + index,"/");
+           strcpy(stack[index], "/");
+           //strcpy(stack + index,"/");
            break;
         }
         parentIno = nameToIno(mip, "..");
@@ -48,7 +52,10 @@ void ipwd(MINODE * mip)
         parent = iget(mip->dev,parentIno);
         //rpwd(parent);
         inoToName(parent, selfIno, &myname);
-        strncpy(stack+index, myname, strlen(myname));
+        strncpy(stack[index], myname, strlen(myname));
+        len = strlen(myname);
+        stack[index][len] = '/0';
+        //strncpy(stack+index, myname, strlen(myname));
         iput(parent);
         //iput(parent);                   //no idea if this is what i need to do
         mip = parent;
@@ -58,7 +65,18 @@ void ipwd(MINODE * mip)
    index--;
    for( ; index >= 0; index --)          //index > 0 because stack[0] == '/'
    {
-        printf("%s/", stack + index);
+        //len = strlen(stack[index]);
+        len = strlen(stack[index]);
+        for(i = 0; i < len; i++)
+        {
+                if((stack[index][i] > 'a' && stack[index][i] < 'z') || ((stack[index][i] > 'A' && stack[index][i] < 'Z')))
+                //if(stack[index][i] != '/0')
+                        putchar(stack[index][i]);
+                else
+                        break;
+        }
+        putchar('/');
+        //printf("%s/", stack[index]);
    }
    iput(parent);
 }

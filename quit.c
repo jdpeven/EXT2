@@ -12,6 +12,7 @@ int quit()
             dirty++;
         }
     }
+    closeFile();                        //This will close all open fd
     printf("Wrote %d dirty files\n", dirty);
     return 0;
 }
