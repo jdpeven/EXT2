@@ -17,6 +17,7 @@
 #include "open_close_lseek.c"
 #include "levelTwoHelper.c"
 #include "write_cp_mv.c"
+#include "chmod.c"
 
 int main(int argc, char*argv[])
 {
@@ -91,6 +92,9 @@ int main(int argc, char*argv[])
         }
         else if(strcmp(cmd, "touch") == 0){
             touch(path);
+        }
+        else if(strcmp(cmd, "chmod") == 0){
+            chmod(path, path2);
         }
         else if(strcmp(cmd, "rmdir") == 0){
             myrmdir(path);
