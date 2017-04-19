@@ -70,6 +70,7 @@ void ipwd(MINODE * mip)
         for(i = 0; i < len; i++)
         {
                 if((stack[index][i] > 'a' && stack[index][i] < 'z') || ((stack[index][i] > 'A' && stack[index][i] < 'Z')))
+                //if(stack[index][i] != '/0')
                         putchar(stack[index][i]);
                 else
                         break;
