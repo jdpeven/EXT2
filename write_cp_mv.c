@@ -44,9 +44,12 @@ int mywrite(int fd, char buf[], int nbytes)
     OFT * oftp;
     MINODE * mip;
     int lbk, startByte, blk;
-    char wbuf[BLKSIZE];
+    char wbuf[BLKSIZE], directbuf[BLKSIZE], doublebuf[BLKSIZE];
     char * cp, *cq;
     int remain;
+    int indirectOffset;
+    int doubleOffset;
+    int * intp;
 
     oftp = running->fd[fd];
     lbk = oftp->offset / BLKSIZE;
@@ -67,25 +70,44 @@ int mywrite(int fd, char buf[], int nbytes)
             break;
     }
     
-
-    if(lbk < 12)            //writing to direct blocks
-    {
-        if(mip->INODE.i_block[lbk] == 0)                //incase you need to start a new block
-            mip->INODE.i_block[lbk] = balloc(mip->dev); //allocates a new one
-        blk = mip->INODE.i_block[lbk];                  //blk is now the newly allocated block
-    }
-    else if(lbk == 12)      //indirect
-    {
-
-    }
-    else                    //double indirect
-    {
-
-    }
-    printf("Need to write %d bytes to i_block[%d] = BNUM [%d] at startByte [%d]\n", nbytes, lbk, blk, startByte);
-
+    
     while(nbytes > 0)
     {
+        //What's important to remember is that lbk is which actual block we want, but we only
+        //have the first 12 easily. So the first if statement is pretty, then the next two aren't
+
+        if(lbk < 12)            //writing to direct blocks
+        {
+            if(mip->INODE.i_block[lbk] == 0)                //incase you need to start a new block
+                mip->INODE.i_block[lbk] = balloc(mip->dev); //allocates a new one
+            blk = mip->INODE.i_block[lbk];                  //blk is now the newly allocated block
+        }
+        else if(lbk >= 12 && lbk < 268)      //indirect 268 = 256 + 12
+        {
+            printf("Fucking indirect blocks, need block #[%d]\n", lbk);
+            indirectOffset = lbk - 12;                  //this will be the block in the indirect block
+            get_block(mip->dev, mip->INODE.i_block[12], directbuf);         //gets the indirect block into directbuf
+            intp = &directbuf;                          //points to the start of the buffer
+            intp += indirectOffset;                     //moving it to the offset
+            blk = *intp;                                //now the block has the ACTUAL block that is necessary
+        }
+        else                    //double indirect
+        {
+            printf("Fucking double indirect blocks, need block #[%d]\n", lbk);
+            doubleOffset = (lbk - 12 - 256) / 256;
+            indirectOffset = (lbk - 12 - 256) % 256;
+            get_block(mip->dev, mip->INODE.i_block[13], doublebuf);
+            intp = &doublebuf;
+            intp += doubleOffset;
+            get_block(mip->dev, *intp, directbuf);
+            intp = &directbuf;
+            intp += indirectOffset;
+            blk = *intp;
+        }
+        printf("Need to write %d bytes to i_block[%d] = BNUM [%d] at startByte [%d]\n", nbytes, lbk, blk, startByte);
+
+        //NOW FOR THE REAL STUFF
+
         get_block(mip->dev, blk, wbuf);             //wbuf now holds this block. Might or might not be empty
         //VERY VERY IMPORTANT
         memset(&wbuf[startByte], 0, BLKSIZE - startByte);                   //clearing it out
@@ -109,21 +131,6 @@ int mywrite(int fd, char buf[], int nbytes)
         //This is in case you need to write to more than one block
         startByte = 0;              //going to start on a new block
         lbk++;                      //if we were doing block 3, now it's block 4
-        if(lbk < 12)            //writing to direct blocks
-        {
-            if(mip->INODE.i_block[lbk] == 0)
-                mip->INODE.i_block[lbk] = balloc(mip->dev);
-            blk = mip->INODE.i_block[lbk];                  //blk is now the newly allocated block
-        }
-        else if(lbk == 12)      //indirect
-        {
-
-        }
-        else                    //double indirect
-        {
-
-        }
-        //now blk is the block number of the next block to write to
     }
 
 }
