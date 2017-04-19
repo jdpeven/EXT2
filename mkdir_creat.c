@@ -43,6 +43,8 @@ enterChild(MINODE * pmip, int ino, char * basename)
     int parentBlockNum = 0;
     char bbuf[BLKSIZE], sbuf[BLKSIZE];
     char * cp;
+    int foundFlag = 0;
+    int newBlock;
 
     printf("Starting enterChild with name %s\n", basename);
 
@@ -77,11 +79,20 @@ enterChild(MINODE * pmip, int ino, char * basename)
                                                                             //what it needs AND our new file, then we need to allocate a new
                                                                             //dirblock
                 {
+                    foundFlag = 1;
                     printf("Need to allocate new dir block\n");
-                    break;
+                    //break;
                     //TODO
-                    //that
+                    newBlock = balloc(running->cwd->dev);
+                    parentBlockNum++;
+                    pmip->INODE.i_block[parentBlockNum] = newBlock;
+                    get_block(pmip->dev, pmip->INODE.i_block[parentBlockNum],bbuf);
+
+                    dp = (DIR *)bbuf;
+                    cp = bbuf;
+                    remainLength = BLKSIZE;
                 }
+                foundFlag = 1;
                 //otherwise it will fit into this block
                 remainLength = dp->rec_len - (4*((8+dp->name_len+3)/4));
                 dp->rec_len = (4*((8+dp->name_len+3)/4));
@@ -91,6 +102,21 @@ enterChild(MINODE * pmip, int ino, char * basename)
                 break;
             }
         }
+        if(foundFlag == 0)
+        {
+            printf("There was not space found in this block\n");
+            printf("Need to allocate a new block\n");
+            newBlock = balloc(running->cwd->dev);
+            printf("New block allocated will be at #[%d]\n", newBlock);
+            parentBlockNum++;
+            pmip->INODE.i_block[parentBlockNum] = newBlock;
+            get_block(pmip->dev, pmip->INODE.i_block[parentBlockNum],bbuf);
+            dp = (DIR *)bbuf;
+            cp = bbuf;
+            remainLength = BLKSIZE;
+
+        }
+
     }
     //else, first entry in datablock, dp is already pointing to the right location
     strcpy(dp->name, basename);
