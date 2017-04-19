@@ -45,11 +45,11 @@ void decompose(char * input, char ** output, int * count, char * delimeter)
     }
     *count = i;
     output[i] = NULL;
-    printf("%s decomposed into: [", input);
-    for(i = 0; i < *count; i++){
+    //printf("%s decomposed into: [", input);
+    /*for(i = 0; i < *count; i++){
         printf("%s][", output[i]);
     }
-    printf("'/0']\n");
+    printf("'/0']\n");*/
 }
 
 
@@ -80,18 +80,18 @@ int search(MINODE *mip, char *name)
         while(cp < &dbuf[BLKSIZE]){
             strncpy(sbuf, dp->name, dp->name_len);                  //similar to strcpy but will stop based on third argument
             sbuf[dp->name_len] = 0;
-            printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
+            //printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
             if(strcmp(name, sbuf) == 0){
                 ino = dp->inode;
             }
             cp += dp->rec_len;
             dp = (DIR *)cp;
         }
-        if(ino){
+        /*if(ino){
             printf("Found '%s' with Ino [%d]\n", name, ino);
         }
         else
-            printf("Did not find '%s'\n", name);
+            printf("Did not find '%s'\n", name);*/
         return ino;
     }
 }

@@ -99,10 +99,10 @@ int main(int argc, char*argv[])
             myrm(path);
         }
         else if(strcmp(cmd, "open") == 0){
-            openFile(path, path2);
+              openFile(path, path2);
         }
         else if(strcmp(cmd, "close") == 0){
-            closeFile(path);
+              closeFile(path);
         }
         else if(strcmp(cmd, "read") == 0){
 
