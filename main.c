@@ -121,10 +121,10 @@ int main(int argc, char*argv[])
 
         }
         else if(strcmp(cmd, "cp") == 0){
-
+            
         }
         else if(strcmp(cmd, "mv") == 0){
-            
+            mymv(path, path2);
         }
         else if(strcmp(cmd, "pfd") == 0){
             pfd();

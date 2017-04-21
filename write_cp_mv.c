@@ -84,7 +84,7 @@ int mywrite(int fd, char buf[], int nbytes)
         }
         else if(lbk >= 12 && lbk < 268)      //indirect 268 = 256 + 12
         {
-            printf("Fucking indirect blocks, need block #[%d]\n", lbk);
+            printf("Indirect blocks, need block #[%d]\n", lbk);
             indirectOffset = lbk - 12;                  //this will be the block in the indirect block
             get_block(mip->dev, mip->INODE.i_block[12], directbuf);         //gets the indirect block into directbuf
             intp = &directbuf;                          //points to the start of the buffer
@@ -93,7 +93,7 @@ int mywrite(int fd, char buf[], int nbytes)
         }
         else                    //double indirect
         {
-            printf("Fucking double indirect blocks, need block #[%d]\n", lbk);
+            printf("Double indirect blocks, need block #[%d]\n", lbk);
             doubleOffset = (lbk - 12 - 256) / 256;
             indirectOffset = (lbk - 12 - 256) % 256;
             get_block(mip->dev, mip->INODE.i_block[13], doublebuf);
@@ -133,6 +133,44 @@ int mywrite(int fd, char buf[], int nbytes)
         lbk++;                      //if we were doing block 3, now it's block 4
     }
 
+}
+
+int mymv(char * src, char * dest)
+{
+    int srcino,destino;
+    int srcdev,destdev;
+
+    if(strcmp(src, "") == 0 || strcmp(dest, "") == 0 || strcmp(src, dest) == 0)
+    {
+        printf("Error on inputs\n");
+        return 0;
+    }
+
+    if(src[0] == '/')           //absolute
+        srcdev = root->dev;
+    else
+        srcdev = running->cwd->dev;
+
+    if(dest[0] == '/')           //absolute
+        destdev = root->dev;
+    else
+        destdev = running->cwd->dev;
+
+    srcino = getino(&srcdev,src);
+    if(srcino == 0)
+    {
+        printf("Source file does not exist\n");
+        return 0;
+    }
+    if(srcdev == destdev)
+    {
+        mylink(src, dest);
+        unlink(src);
+    }
+    else
+    {
+        //Problem for level three
+    }
 }
 
 #endif
