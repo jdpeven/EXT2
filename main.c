@@ -44,6 +44,7 @@ int main(int argc, char*argv[])
         printf("P0 running: input command [ls,cd,stat,pwd,mkdir,creat,link,unlink,symlink,readlink,touch,quit]: ");
         fgets(command, 128, stdin);
         
+
         command[strcspn(command, "\n")] = 0;        //removes /n
         
         sscanf(command, "%s %s %s %s", cmd, path, path2);
@@ -121,7 +122,7 @@ int main(int argc, char*argv[])
 
         }
         else if(strcmp(cmd, "cp") == 0){
-            
+            mycp(path, path2);
         }
         else if(strcmp(cmd, "mv") == 0){
             mymv(path, path2);

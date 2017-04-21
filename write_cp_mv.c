@@ -6,6 +6,8 @@
 #include "allocate_deallocate.c"
 #include "type.h"
 #include "levelTwoHelper.c"
+#include "open_close_lseek.c"
+#include "mkdir_creat.c"
 
 int writeFile()
 {
@@ -171,6 +173,55 @@ int mymv(char * src, char * dest)
     {
         //Problem for level three
     }
+}
+
+int mycp(char * src, char * dest)
+{
+    int srcino,destino;
+    int srcdev,destdev;
+    MINODE * srcminode;
+    int fd, gd;
+    char buf[BLKSIZE];
+    int n;
+
+    if(src[0] == '/')           //absolute
+        srcdev = root->dev;
+    else
+        srcdev = running->cwd->dev;
+
+    if(dest[0] == '/')           //absolute
+        destdev = root->dev;
+    else
+        destdev = running->cwd->dev;
+
+    srcino = getino(&srcdev,src);
+    if(srcino == 0)
+    {
+        printf("Source file does not exist\n");
+        return 0;
+    }
+
+    //srcminode = iget(srcdev,srcino);
+    fd = openFile(src, "r");
+
+    destino = getino(&destdev,dest);
+    if(destino == 0)
+    {
+        printf("Destination file does not exist yet, creating\n");
+        mymkdirCreat(dest, "creat");
+        printf("File created successfully\n");
+    }
+    destino = getino(&destdev, dest); //now it should exists
+
+    gd = openFile(dest, "w");
+
+    /*while(n = read(fd, buf, BLKSIZE))
+    {
+        write(gd, buf, n);
+    }*/
+    closeFile(src);
+    closeFile(dest);
+    //iput(srcminode);  
 }
 
 #endif
