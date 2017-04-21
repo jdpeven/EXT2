@@ -9,8 +9,11 @@
 int myread (char* filename, char* bytesToRead)
 {
 	MINODE *mip;
-	int i, inoToFind = 0;
+	int i, inoToFind = 0, curfd = -1;
+	char buf[BLKSIZE];
+	int btoread = atoi(bytesToRead);
 
+	strcpy(buf, "");
 	inoToFind = getino(&(running->cwd->dev), filename);
 	printf("we are looking for ino #%d\n", inoToFind);
 
@@ -20,14 +23,37 @@ int myread (char* filename, char* bytesToRead)
 		return;
 	}
 
-	for (i = 0; i < 16; i++)
+	i = 0;
+	while (i < 16)
 	{
 		if (running->fd[i]->mptr->ino == inoToFind)
 		{
-			printf("going into fd %d\n", i);
-			return;
+			printf("Reading from fd %d\n", i);
+			mip = running->fd[i]->mptr;
+			curfd = i;
+			break;
 		}
+		i++;
 	}
+	if (curfd == -1)
+	{
+		printf("No fd was found with the name [%s], try opening that file\n", filename);
+	}
+
+	printf("i_blocks: %d\n", mip->INODE.i_blocks);
+	i = 0;
+	while (mip->INODE.i_block[i] != 0)
+	{
+		read_block(mip->dev, mip->INODE.i_block[i], buf, btoread);
+		printf("Read %d bytes\n%s\n", btoread, buf);
+		buf[0] = 0;
+		i++;
+	}
+}
+
+int read_block(int fd, char buf[ ], int size)
+{
+
 }
 
 #endif
