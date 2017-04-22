@@ -45,7 +45,9 @@ int myrmdir(char * pathname)
     int cdev, cino;
     int pdev, pino;
     MINODE * pmip, *cmip;
-    char * pathSacrifice;
+    char pathSacrifice[128];
+    int basenameIndex;
+    char * bname[128];
 
     strcpy(pathSacrifice, pathname);
 
@@ -107,7 +109,11 @@ int myrmdir(char * pathname)
     }
     pmip = iget(pdev,pino);
 
-    rm_child(pmip, basename(pathname));
+    decompose(pathname, bname, &basenameIndex, "/");
+
+    printf("Now removing %s from the parent\n", bname[basenameIndex-1]);
+
+    rm_child(pmip, bname[basenameIndex-1]);
 
     pmip->INODE.i_links_count--;
     pmip->INODE.i_atime = time(0L);
@@ -127,9 +133,10 @@ int rm_child(MINODE *pmip, char *name)
     char * cq;      //to find the second to last entry
     DIR * dq;       //to find the second to last entry
     int found = 0;
+    int removedLen; //for when we remove the entry from the middle
     while(blk < 12 && found == 0)             //can assume only direct blocks
     {
-        get_block(pmip->dev, blk, buf);
+        get_block(pmip->dev, pmip->INODE.i_block[blk], buf);
         cp = &buf;
         dp = (DIR *)cp;
         while(cp < &buf[BLKSIZE])
@@ -147,33 +154,39 @@ int rm_child(MINODE *pmip, char *name)
                 dp = (DIR *)cp;
             }
         }
+        blk++;
     }
+
+    blk--; //dumb off by one error
     //now blk is the block of the entry
     //cp is the pointer to the beginning of the entry
     //dp is the pointer to the DIR entry
     //sbuf is the name of the dir
-
+    ////testing = 4*((8+dp->name_len + 3)/4);
     if(dp->rec_len == BLKSIZE)
         //The only entry
     {
         bdealloc(pmip->dev, pmip->INODE.i_block[blk]);   //deeallocating the block
+        pmip->INODE.i_block[blk] = 0;
         pmip->INODE.i_size--;                            //decreasing the size
     }
-    else if(dp->rec_len == 4*((8+dp->rec_len +3)/4))
+    else if(dp->rec_len == 4*((8+dp->name_len +3)/4))
         //In the middle
     {
+        removedLen = dp->rec_len;
         mymemcpy(cp, cp+dp->rec_len, buf);
         cq = &buf;
         dq = (DIR *)cq;
-        while(dq->rec_len == 4*((8+dq->rec_len + 3)/4))
+        while(dq->rec_len == 4*((8+dq->name_len + 3)/4))
         {
             cq += dq->rec_len;
             dq = (DIR*)cq;
         }
         //now cq/dq are referencing the last entry
-        dq->rec_len+=dp->rec_len;
+        dq->rec_len+=removedLen;
     }
-    else if(dp->rec_len > 4*((8+dp->rec_len +3)/4))
+    
+    else if(dp->rec_len > 4*((8+dp->name_len + 3)/4))
         //last entry in the set
     {
         //Need to find the SECOND to last entry
@@ -187,7 +200,7 @@ int rm_child(MINODE *pmip, char *name)
         //now cq/dq are the second to last entries of the list
         dq->rec_len += dp->rec_len;             //This should write over the last entry
     }
-    put_block(pmip->dev, blk, buf);
+    put_block(pmip->dev, pmip->INODE.i_block[blk], buf);
 }
 
 int mymemcpy(char * src, char * dest, char * arr)

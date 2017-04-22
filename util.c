@@ -83,17 +83,22 @@ int search(MINODE *mip, char *name)
             //printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
             if(strcmp(name, sbuf) == 0){
                 ino = dp->inode;
+                break;
             }
             cp += dp->rec_len;
             dp = (DIR *)cp;
         }
+        if(ino != 0)        //it was found on this iteration, no need to continue
+            break;
+        if(mip->INODE.i_block[i+1] == 0)       //it wasn't found on this iteration and there are no more blocks
+            return 0;                           //this will (has) segfault if it goes to the next iteration
         /*if(ino){
             printf("Found '%s' with Ino [%d]\n", name, ino);
         }
         else
             printf("Did not find '%s'\n", name);*/
-        return ino;
     }
+    return ino;
 }
 
 /*
