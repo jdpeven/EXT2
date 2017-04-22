@@ -101,7 +101,7 @@ int main(int argc, char*argv[])
             myrmdir(path);
         }
         else if(strcmp(cmd, "rm") == 0){
-            myrm(path);
+            //myrm(path);
         }
         else if(strcmp(cmd, "open") == 0){
               openFile(path, path2);
