@@ -30,12 +30,13 @@ int emptyDir(MINODE *mip)
     {
         strncpy(sbuf, dp->name, dp->name_len);
         sbuf[dp->name_len] = 0;
-        if(strcmp(sbuf, ".") != 0 || strcmp(sbuf, "..") != 0)
+        if(strcmp(sbuf, ".") != 0 && strcmp(sbuf, "..") != 0)
         {
             return 0;
         }
+        cp+=dp->rec_len;
+        dp = (DIR *)cp;
     }
-
     return 1;
 }
 
@@ -83,14 +84,17 @@ int myrmdir(char * pathname)
         return 0;
     }
 
-    if(emptyDir(cmip))
+    if(!emptyDir(cmip))
     {
         printf("Cannot rmdir a directory that isn't empty\n");
         return 0;
     }
 
-    //TODO
-    //check for busy
+    if (inodeToRemove->refCount > 1)
+    {
+        printf("# DIR is busy\n");
+        return -1;
+    }
 
     truncate(cmip);
     idealloc(cdev, cino);
@@ -113,7 +117,7 @@ int myrmdir(char * pathname)
 
     printf("Now removing %s from the parent\n", bname[basenameIndex-1]);
 
-    rm_child(pmip, bname[basenameIndex-1]);
+    rmChild(pmip, bname[basenameIndex-1]);
 
     pmip->INODE.i_links_count--;
     pmip->INODE.i_atime = time(0L);
@@ -123,7 +127,7 @@ int myrmdir(char * pathname)
     return 0;
 }
 
-int rm_child(MINODE *pmip, char *name)
+int rmChild(MINODE *pmip, char *name)
 {
     char buf[BLKSIZE];
     char sbuf[BLKSIZE];

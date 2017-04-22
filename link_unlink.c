@@ -140,7 +140,7 @@ int unlink(char * filename)
     mip = iget(ndev, nino);
     pmip = iget(pdev, pino);
 
-    //////rmChild(pmip, basename(filename));
+    rmChild(pmip, basename(filename));
     //rm_child(pmip, mip->ino, basename(filename))  //needs to be added once rmdir is done
     pmip->dirty = 1;
     iput(pmip);
