@@ -9,8 +9,10 @@
 int myread (char* filename, char* bytesToRead)
 {
 	MINODE *mip;
+
 	int i, inoToFind = 0, curfd = -1, bytesRead;
 	char *buf;
+
 	int btoread = atoi(bytesToRead);
 
 	strcpy(buf, "");
@@ -44,11 +46,14 @@ int myread (char* filename, char* bytesToRead)
 	i = 0;
 	while (mip->INODE.i_block[i] != 0)
 	{
+
 		bytesRead = read_block(curfd, buf, btoread);
 		printf("Read:\n%s\n", buf);
+
 		i++;
 	}
 }
+
 
 int read_block(int fd, char *buf, int nbytes)
 {
