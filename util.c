@@ -45,11 +45,11 @@ void decompose(char * input, char ** output, int * count, char * delimeter)
     }
     *count = i;
     output[i] = NULL;
-    printf("%s decomposed into: [", input);
-    for(i = 0; i < *count; i++){
+    //printf("%s decomposed into: [", input);
+    /*for(i = 0; i < *count; i++){
         printf("%s][", output[i]);
     }
-    printf("'/0']\n");
+    printf("'/0']\n");*/
 }
 
 
@@ -80,18 +80,18 @@ int search(MINODE *mip, char *name)
         while(cp < &dbuf[BLKSIZE]){
             strncpy(sbuf, dp->name, dp->name_len);                  //similar to strcpy but will stop based on third argument
             sbuf[dp->name_len] = 0;
-            printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
+            //printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
             if(strcmp(name, sbuf) == 0){
                 ino = dp->inode;
             }
             cp += dp->rec_len;
             dp = (DIR *)cp;
         }
-        if(ino){
+        /*if(ino){
             printf("Found '%s' with Ino [%d]\n", name, ino);
         }
         else
-            printf("Did not find '%s'\n", name);
+            printf("Did not find '%s'\n", name);*/
         return ino;
     }
 }
@@ -332,6 +332,41 @@ int nameToIno(MINODE * mip, char * name)
     }
 }
 
+void doubleBlockDealloc(MINODE *mip)
+{
+    char block[BLKSIZE];
+    char tempbuff[4];
+    int blk = 1;
+    int * intp;
+    get_block(mip->dev, mip->INODE.i_block[13], block);
+
+    intp = &block;
+
+    while(*intp > 0){
+        indirectBlockDealloc(mip, *intp);
+        intp+=1;                      // the number may be off
+    }
+    return;
+}
+
+
+void indirectBlockDealloc(MINODE *mip, int blocknum)
+{
+    char block[BLKSIZE];
+    char tempbuff[4];
+    int blk = 1;
+    int * intp;
+    get_block(mip->dev, blocknum, block);
+    //printf("%s", block);
+
+    intp = &block;
+
+    while(*intp > 0){
+        bdealloc(mip->dev, *intp);
+        intp+=1;                      // the number may be off
+    }
+    return;
+}
 
 /*
 Name: truncate
@@ -344,13 +379,28 @@ SampleRun: tuncate(root)
 int truncate(MINODE *mip)
 {
     int i;
-    for(i = 0; i < 15; i++)
+    for(i = 0; i < 12; i++)//maybe 13, looking for direct blocks
     {
         if(mip->INODE.i_block[i] != 0)
         {
             bdealloc(mip->dev, mip->INODE.i_block[i]);
+            mip->INODE.i_block[i] = 0;
         }
+        else                    // Because it's sequential, once you hit one 0, you know you're done
+            return;     
+    }
+    if((mip->INODE.i_block[12] != 0)) //indirect blocks
+    {
+        indirectBlockDealloc(mip, mip->INODE.i_block[12]);                  //added the second argument so I can call it from doubleBlockDealloc
+        mip->INODE.i_block[12] = 0;
+    }
+    if((mip->INODE.i_block[13] != 0))
+    {
+        doubleBlockDealloc(mip);
+        mip->INODE.i_block[13] = 0;
     }
 }
+
+
 
 #endif

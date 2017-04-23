@@ -11,7 +11,23 @@
 void printPermissions(int ino)
 {
     MINODE * mip = iget(running->cwd->dev, ino);
-    printf( (S_ISDIR(mip->INODE.i_mode)) ? "d" : "-");
+    //printf( (S_ISDIR(mip->INODE.i_mode)) ? "d" : "-");
+    if (S_ISDIR(mip->INODE.i_mode))
+    {
+        printf("d");
+    }
+    else if (S_ISREG(mip->INODE.i_mode))
+    {
+        printf("-");
+    }
+    else if (S_ISLNK(mip->INODE.i_mode))
+    {
+        printf("l");
+    }
+    else
+    {
+        printf("-");
+    }
     printf( (mip->INODE.i_mode & S_IRUSR) ? "r" : "-");
     printf( (mip->INODE.i_mode & S_IWUSR) ? "w" : "-");
     printf( (mip->INODE.i_mode & S_IXUSR) ? "x" : "-");
@@ -28,10 +44,11 @@ void printPermissions(int ino)
 int ls (char * pathname)
 {
     int inodeToFind, block0, i;
-    char* cp;
-    char dbuf[BLKSIZE], sbuf[BLKSIZE];
+    char* cp, * linkpath;
+    char dbuf[BLKSIZE], sbuf[BLKSIZE], linkname[60];
     INODE* ip;
     DIR* dp;
+    DIR* linkdp;
     MINODE * temp;                              //will be set to the MINODE from pathname
     //printf("This is being ls-ed\n");
     if(strcmp(pathname, "")==0){                //ls this file
@@ -68,8 +85,18 @@ int ls (char * pathname)
             ip = iget(dev, dp->inode);
 
             printPermissions(dp->inode);
-            printf("   %d   %.13s\t%d\t%d\t%s\n", ip->i_links_count, 
-                ctime(&ip->i_ctime), ip->i_size, dp->rec_len, sbuf);
+
+            if (S_ISLNK(ip->i_mode))
+            {
+                readlinkUtil(sbuf, linkname);
+                strcat(sbuf," -> ");
+                strcat(sbuf, linkname);
+            }
+
+            printf("   %d   %.13s\t%d\t%d\t%d\t%s\n", ip->i_links_count, 
+                ctime(&ip->i_ctime), ip->i_size, dp->rec_len, dp->inode,
+                sbuf);
+
             cp += dp->rec_len;
             dp = (DIR*)cp;
             iput(ip);
@@ -85,41 +112,50 @@ int ls (char * pathname)
 }
 
 
-/*
-int main(int argc, char **argv)
+int readlinkUtil(char * filename, char * buffer)
 {
-    if(argc != 2)    
-        return 1;
- 
-    struct stat fileStat;
-    if(stat(argv[1],&fileStat) < 0)    
-        return 1;
- 
-    printf("Information for %s\n",argv[1]);
-    printf("---------------------------\n");
-    printf("File Size: \t\t%d bytes\n",fileStat.st_size);
-    printf("Number of Links: \t%d\n",fileStat.st_nlink);
-    printf("File inode: \t\t%d\n",fileStat.st_ino);
-    printf("Ctime: \t\t%s\n", ctime(&fileStat.st_ctime));
- 
-    printf("st_mode: %x\n", fileStat.st_mode);
-    printf("File Permissions: \t");
-    printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
-    printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
-    printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
-    printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
-    printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
-    printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
-    printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
-    printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
-    printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
-    printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
-    printf("\n\n");
- 
-    printf("The file %s a symbolic link\n", (S_ISLNK(fileStat.st_mode)) ? "is" : "is not");
- 
-    return 0;
+    int dev, ino;
+    MINODE * mip = malloc(sizeof(MINODE));
+    if(strlen(filename) == 0){
+        //printf("Filename not provided\n");
+        return;
+    }
+    //printf("readlink filename = %s\n", filename);
+
+    if(filename[0] == '/')                       //absolute path
+    {
+        dev = root->dev;
+        ino = getino(&dev, filename);               //will get the ino of the first argument
+    }
+    else
+    {
+        dev = running->cwd->dev;
+        ino = getino(&dev, filename);               //will get the ino of the first argument
+    }
+    if(ino == 0)                       //file not found
+    {
+        //printf("file not found\n");
+        return -1;
+    }
+    //printf("file Ino = %d\n", ino);
+
+    mip = iget(dev,ino);
+
+    if(mip->INODE.i_mode != 0xa1ff){                //not a symlink file
+        //printf("File provided is not a symlink file\n");
+        iput(mip);
+        return 0;
+    }
+
+    //2. copy target filename in INODE.i_block into a buffer;
+    strcpy(buffer, (char *)mip->INODE.i_block);
+    //3. return strlen((char *)mip ->INODE.i_block);
+
+    /*free(omip);
+    free(nmip);
+    free(pmip);*/
+    iput(mip);
+    return(strlen((char *)mip->INODE.i_block));
 }
-*/
 
 #endif
