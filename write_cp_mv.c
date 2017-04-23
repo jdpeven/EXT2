@@ -200,8 +200,7 @@ int mycp(char * src, char * dest)
         printf("Source file does not exist\n");
         return 0;
     }
-
-    //srcminode = iget(srcdev,srcino);
+    
     fd = openFile(src, "r");
 
     destino = getino(&destdev,dest);
@@ -220,8 +219,7 @@ int mycp(char * src, char * dest)
         write(gd, buf, n);
     }*/
     closeFile(src);
-    closeFile(dest);
-    //iput(srcminode);  
+    closeFile(dest); 
 }
 
 #endif
