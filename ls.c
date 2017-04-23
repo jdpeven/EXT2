@@ -20,9 +20,13 @@ void printPermissions(int ino)
     {
         printf("-");
     }
-    else
+    else if (S_ISLNK(mip->INODE.i_mode))
     {
         printf("l");
+    }
+    else
+    {
+        printf("-");
     }
     printf( (mip->INODE.i_mode & S_IRUSR) ? "r" : "-");
     printf( (mip->INODE.i_mode & S_IWUSR) ? "w" : "-");

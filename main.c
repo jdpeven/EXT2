@@ -18,13 +18,14 @@
 #include "levelTwoHelper.c"
 #include "write_cp_mv.c"
 #include "chmod.c"
+#include "read.c"
 
 int main(int argc, char*argv[])
 {
     int cmdIndex, error;
     char linkName[60];
     int linkSize = 0;
-    system("./shcopy.sh");            //sh copy syscall
+    system("./shcopy");            //sh copy syscall
 
     init();
     printf("Initialization complete\n");
@@ -110,8 +111,8 @@ int main(int argc, char*argv[])
               closeFile(path);
         }
         else if(strcmp(cmd, "read") == 0){
-
-        }
+            myread(path, path2);
+        }   
         else if(strcmp(cmd, "write") == 0){
             writeFile();
         }
