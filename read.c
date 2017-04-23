@@ -10,8 +10,7 @@ int myread (char* filename, char* bytesToRead)
 {
 	MINODE *mip;
 	int i, inoToFind = 0, curfd = -1, bytesRead;
-	//char buf[BLKSIZE];
-	char* buf;
+	char *buf;
 	int btoread = atoi(bytesToRead);
 
 	strcpy(buf, "");
@@ -45,8 +44,8 @@ int myread (char* filename, char* bytesToRead)
 	i = 0;
 	while (mip->INODE.i_block[i] != 0)
 	{
-		bytesRead = read_block(curfd, mip->INODE.i_block[i], buf, btoread);
-		printf("Read %d bytes\n%s\n", bytesRead, buf);
+		bytesRead = read_block(curfd, buf, btoread);
+		printf("Read:\n%s\n", buf);
 		i++;
 	}
 }
@@ -54,10 +53,11 @@ int myread (char* filename, char* bytesToRead)
 int read_block(int fd, char *buf, int nbytes)
 {
 	int offset, mode, refCount, avil, lbk, startByte, blk, remain, bytesRead = 0;
-	char *cq = buf, *readbuf, *cp;
+	char *cq, readbuf[BLKSIZE], *cp;
 
 	printf("entered read_block\n");
 
+	cq = buf;
 	offset = running->fd[fd]->offset;
 	mode = running->fd[fd]->mode;
 	refCount = running->fd[fd]->refCount;
@@ -89,15 +89,12 @@ int read_block(int fd, char *buf, int nbytes)
 		}
 
 		get_block(running->fd[fd]->mptr->dev, blk, readbuf);
-		printf("block got got\n");
 
 		cp = readbuf + startByte;
 		remain = BLKSIZE - startByte;
 		while (remain > 0)
 		{
-			printf("remain = %d\n", remain);
 			*cq++ = *cp++;
-			printf("not asdfk;lahj\n");
 			running->fd[fd]->offset++;
 			bytesRead++;
 			avil--;
@@ -109,7 +106,10 @@ int read_block(int fd, char *buf, int nbytes)
 			}
 		}
 	}
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 	printf("read_block: read %d char from fd %d\n", bytesRead, fd);
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	*cq++ = 0;
 	return bytesRead;
 }
 
