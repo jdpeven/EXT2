@@ -123,12 +123,15 @@ int mywrite(int fd, char buf[], int nbytes)
             nbytes--;
             remain--;
             oftp->offset++;
-            if(oftp->offset > mip->INODE.i_size)            //I don't get this
-                mip->INODE.i_size++;
             if(nbytes <= 0)
                 break;
         }
         put_block(mip->dev, blk, wbuf);
+
+        if(nbytes > 0){                  //there are more bytes to be written, so we'll need to incriment the size
+            printf("Need to extend into the next block, incrimenting INODE size\n");
+            oftp->mptr->INODE.i_size++;
+        }
 
         //This is in case you need to write to more than one block
         startByte = 0;              //going to start on a new block
