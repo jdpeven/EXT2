@@ -19,6 +19,7 @@
 #include "write_cp_mv.c"
 #include "chmod.c"
 #include "read.c"
+#include "cat.c"
 
 int main(int argc, char*argv[])
 {
@@ -119,7 +120,8 @@ int main(int argc, char*argv[])
             mylseek(path, path2);
         }
         else if(strcmp(cmd, "cat") == 0){
-
+            mycat(path);
+            printf("made it\n");
         }
         else if(strcmp(cmd, "cp") == 0){
             mycp(path, path2);

@@ -110,7 +110,6 @@ int read_block(int fd, char *buf, int nbytes)
 		while (remain > 0)
 		{
 			*cq++ = *cp++;
-			running->fd[fd]->offset++;
 			bytesRead++;
 			avil--;
 			nbytes--;
@@ -125,7 +124,6 @@ int read_block(int fd, char *buf, int nbytes)
 		printf("%s", buf);
 		strcpy(buf, "");
 		cq = buf;
-		//printf("emtpy??? %s\n", buf);
 		offset += BLKSIZE;
 	}
 	

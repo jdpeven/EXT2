@@ -77,6 +77,7 @@ int ls (char * pathname)
         get_block(temp->dev, block0, dbuf);
         dp = (DIR*)dbuf;
         cp = dbuf;
+
         while (cp < &dbuf[BLKSIZE])
         {
             //printPermissions(dp->inode); NOT WORKING idk why.
@@ -89,6 +90,7 @@ int ls (char * pathname)
             if (S_ISLNK(ip->i_mode))
             {
                 readlinkUtil(sbuf, linkname);
+                printf("nice\n");
                 strcat(sbuf," -> ");
                 strcat(sbuf, linkname);
             }
