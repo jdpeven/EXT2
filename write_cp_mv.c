@@ -52,24 +52,25 @@ int mywrite(int fd, char buf[], int nbytes)
     int indirectOffset;
     int doubleOffset;
     int * intp;
+    char firstHalf[BLKSIZE], secondHalf[BLKSIZE];
 
     oftp = running->fd[fd];
     lbk = oftp->offset / BLKSIZE;
     startByte = oftp->offset % BLKSIZE;
-
+    
     mip = oftp->mptr;
 
     switch(oftp->mode)              //for determining how to change the size
     {
         case 1:                     //write
-            mip->INODE.i_size = nbytes;
+            mip->INODE.i_size = 0;
             break;
         case 2:                     //readwrite. SHOULD BE SAME AS WRITE???
-            mip->INODE.i_size = nbytes;
+            mip->INODE.i_size = 0;
             break;
-        case 3:                     //append
+        /*case 3:                     //append
             mip->INODE.i_size += nbytes;        //different!
-            break;
+            break;*/
     }
     
     
@@ -80,9 +81,7 @@ int mywrite(int fd, char buf[], int nbytes)
 
         if(lbk < 12)            //writing to direct blocks
         {
-            if(mip->INODE.i_block[lbk] == 0)                //incase you need to start a new block
-                mip->INODE.i_block[lbk] = balloc(mip->dev); //allocates a new one
-            blk = mip->INODE.i_block[lbk];                  //blk is now the newly allocated block
+            blk = mip->INODE.i_block[lbk];                  //blk is now the block at that offset
         }
         else if(lbk >= 12 && lbk < 268)      //indirect 268 = 256 + 12
         {
@@ -106,6 +105,12 @@ int mywrite(int fd, char buf[], int nbytes)
             intp += indirectOffset;
             blk = *intp;
         }
+        if(blk == 0)
+        {
+            printf("The required block has not been allocated yet\n");
+            blk = increaseSize(lbk, mip);
+            printf("lbk [%d] has been allocated to blk [%d]\n", lbk, blk);
+        }
         printf("Need to write %d bytes to i_block[%d] = BNUM [%d] at startByte [%d]\n", nbytes, lbk, blk, startByte);
 
         //NOW FOR THE REAL STUFF
@@ -117,27 +122,29 @@ int mywrite(int fd, char buf[], int nbytes)
         cq = buf;
         remain = BLKSIZE - startByte;
 
-        while(remain > 0){
-            *cp = *cq;
-            cp++; cq++;
-            nbytes--;
-            remain--;
-            oftp->offset++;
-            if(nbytes <= 0)
-                break;
+        if(nbytes < remain)         //copying less bytes than there is room available
+        {
+            strcat(wbuf, buf);
+            oftp->offset += nbytes;
+            oftp->mptr->INODE.i_size+=nbytes;
+            put_block(mip->dev, blk, wbuf);
+            break;
         }
+        //now otherwise we need to copy only the first part over
+        strncpy(firstHalf, buf, remain);//now firstHalf has the first part of the message
+        firstHalf[remain] = '\0';       //MAYBE MAYBE MAYBE
+        strcat(wbuf, firstHalf);        //first half is added to the buf
+        nbytes -= remain;
+        memcpy(secondHalf, &buf[remain], nbytes);
+        strncpy(buf, secondHalf, nbytes);
+        buf[nbytes] = '\0';
+        oftp->mptr->INODE.i_size+=remain;
+        oftp->offset+=remain;           //oftp->offset should be a multiple of 1024 now
+        startByte = 0;                  //for the next set of writing
+        lbk++;                          //dealing with the next block
+
         put_block(mip->dev, blk, wbuf);
-
-        if(nbytes > 0){                  //there are more bytes to be written, so we'll need to incriment the size
-            printf("Need to extend into the next block, incrimenting INODE size\n");
-            oftp->mptr->INODE.i_size++;
-        }
-
-        //This is in case you need to write to more than one block
-        startByte = 0;              //going to start on a new block
-        lbk++;                      //if we were doing block 3, now it's block 4
     }
-
 }
 
 int mymv(char * src, char * dest)
@@ -217,10 +224,10 @@ int mycp(char * src, char * dest)
 
     gd = openFile(dest, "w");
 
-    /*while(n = read(fd, buf, BLKSIZE))
+    while(n = read_block(fd, buf, BLKSIZE))
     {
-        write(gd, buf, n);
-    }*/
+        mywrite(gd, buf, n);
+    }
     closeFile(src);
     closeFile(dest); 
 }

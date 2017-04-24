@@ -448,9 +448,9 @@ int myrmdir(char * pathname)
     pmip->dirty = 1;
     iput(pmip);
     return 0;
-}
+}*/
 
-int rmChild(MINODE *pmip, char *name)
+int jrmChild(MINODE *pmip, char *name)
 {
     char buf[BLKSIZE];
     char sbuf[BLKSIZE];
@@ -538,7 +538,7 @@ int mymemcpy(char * src, char * dest, char * arr)
         src++;
         dest++;
     }
-}*/
+}
 
 
 

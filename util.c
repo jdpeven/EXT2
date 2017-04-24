@@ -405,6 +405,61 @@ int truncate(MINODE *mip)
         mip->INODE.i_block[13] = 0;
     }
 }
+//an issue to address later would be what if we need a new indirect/double indirect block
+
+int increaseSize(int lbk, MINODE *mip)
+{
+    int indirectOffset;
+    int doubleOffset;
+    int *intp, * indirIntp;
+    char doublebuf[BLKSIZE];
+    char directbuf[BLKSIZE];
+
+    int newBlock = balloc(mip->dev);
+    if(lbk < 12)            //writing to direct blocks
+    {
+        mip->INODE.i_block[lbk] = newBlock; //allocates a new one
+    }
+    else if(lbk >= 12 && lbk < 268)      //indirect 268 = 256 + 12
+    {
+        indirectOffset = lbk - 12;                  //this will be the block in the indirect block
+        if(mip->INODE.i_block[12] == 0)
+        {
+            printf("Need to allocate an indirect block\n");
+            mip->INODE.i_block[12] = balloc(mip->dev);
+        }
+        get_block(mip->dev, mip->INODE.i_block[12], directbuf);         //gets the indirect block into directbuf
+        intp = &directbuf;                          //points to the start of the buffer
+        intp += indirectOffset;                     //moving it to the offset
+        *intp = newBlock;                     //now the block has the ACTUAL block that is necessary
+        put_block(mip->dev, mip->INODE.i_block[12], directbuf);
+    }
+    else                    //double indirect
+    {
+        doubleOffset = (lbk - 12 - 256) / 256;
+        indirectOffset = (lbk - 12 - 256) % 256;
+        if(mip->INODE.i_block[13] == 0)
+        {
+            printf("Need to allocate a double indirect block\n");
+            mip->INODE.i_block[13] = balloc(mip->dev);
+        }
+        get_block(mip->dev, mip->INODE.i_block[13], doublebuf);
+        intp = &doublebuf;
+        intp += doubleOffset;
+        if(*intp == 0)
+        {
+            printf("In the double indirect block, this indirect block has not been allocated\n");
+            *intp = balloc(mip->dev);
+        }
+        get_block(mip->dev, *intp, directbuf);
+        indirIntp = &directbuf;
+        indirIntp += indirectOffset;
+        *indirIntp = newBlock;
+        put_block(mip->dev, *intp, directbuf);
+        put_block(mip->dev, mip->INODE.i_block[13], doublebuf);
+    }
+    return newBlock;
+}
 
 
 
