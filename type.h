@@ -39,6 +39,7 @@ typedef struct minode{
 typedef struct mount{
   char name[128];
   MINODE *mntroot;
+  MINODE *mntloc;
   int ninodes;
   int nblocks;
   int bmap;
