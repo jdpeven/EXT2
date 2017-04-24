@@ -161,7 +161,7 @@ int getino(int *dev, char *pathname)
     MINODE *mip;                        //This will be the "current" inode for traversal
 
     ////printf("getino: dev = %d pathname=%s\n",*dev, pathname);
-    printf("Dev = %d\n",*dev);
+    //printf("Dev = %d\n",*dev);
     //printf("pls no crash\n");
     if (strcmp(pathname, "/")==0){
         ////printf("Searching for root, returning 2\n");

@@ -17,7 +17,7 @@ int myread (char* filename, char* bytesToRead)
 
 	strcpy(buf, "");
 	inoToFind = getino(&(running->cwd->dev), filename);
-	printf("we are looking for ino #%d\n", inoToFind);
+	//printf("we are looking for ino #%d\n", inoToFind);
 
 	if (running->fd[0] == NULL)
 	{
@@ -30,7 +30,7 @@ int myread (char* filename, char* bytesToRead)
 	{
 		if (running->fd[i]->mptr->ino == inoToFind)
 		{
-			printf("Reading from fd %d\n", i);
+			//printf("Reading from fd %d\n", i);
 			mip = running->fd[i]->mptr;
 			curfd = i;
 			break;
@@ -42,14 +42,15 @@ int myread (char* filename, char* bytesToRead)
 		printf("No fd was found with the name [%s], try opening that file\n", filename);
 	}
 
-	printf("i_blocks: %d\n", mip->INODE.i_blocks);
+	bytesRead = read_block(curfd, buf, btoread);
+	printf("%s\n", buf);
+	printf("~~~~~~~~~~~~~~/TXT~~~~~~~~~~~~~\n");
+	printf("%d BYTES READ %d\n", i, bytesRead);
+	
+	//I DONT KNOW WHY but it crashes if I remove this while...
 	i = 0;
 	while (mip->INODE.i_block[i] != 0)
 	{
-
-		bytesRead = read_block(curfd, buf, btoread);
-		printf("Read:\n%s\n", buf);
-
 		i++;
 	}
 }
@@ -60,7 +61,7 @@ int read_block(int fd, char *buf, int nbytes)
 	int offset, mode, refCount, avil, lbk, startByte, blk, remain, bytesRead = 0;
 	char *cq, readbuf[BLKSIZE], *cp;
 
-	printf("entered read_block\n");
+	//printf("entered read_block\n");
 
 	cq = buf;
 	offset = running->fd[fd]->offset;
@@ -68,28 +69,26 @@ int read_block(int fd, char *buf, int nbytes)
 	refCount = running->fd[fd]->refCount;
 	avil = running->fd[fd]->mptr->INODE.i_size - offset;
 
-	printf("offset: %d\nmode: %d\nrefCount: %d\navil: %d\n", offset, mode, refCount, avil);
+	//printf("offset: %d\nmode: %d\nrefCount: %d\navil: %d\nnbytes: %d\n", offset, mode, refCount, avil, nbytes);
+
+	lbk = offset / BLKSIZE;
+	startByte = offset % BLKSIZE;
 
 	while (nbytes && avil)
 	{
-		lbk = offset / BLKSIZE;
-		startByte = offset % BLKSIZE;
-
-		printf("lbk = %d\nstartByte = %d\n", lbk, startByte);
-
 		if (lbk < 12)
 		{
-			printf("reading from a DIRECT block\n");
+			printf("> reading from a DIRECT block: %d\n", lbk);
 			blk = running->fd[fd]->mptr->INODE.i_block[lbk];
 		}
 		else if (lbk >= 12 && lbk < 256 + 12)
 		{
-			printf("reading from a INDIRECT block\n");
+			printf("> reading from a INDIRECT block\n");
 			//indirect
 		}
 		else
 		{
-			printf("reading from a 2xINDIRECT block\n");
+			printf("> reading from a 2xINDIRECT block\n");
 			//2x indirect
 		}
 
@@ -110,10 +109,12 @@ int read_block(int fd, char *buf, int nbytes)
 				break;
 			}
 		}
+		lbk++;
 	}
-	printf("~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-	printf("read_block: read %d char from fd %d\n", bytesRead, fd);
-	printf("~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf("~~~~~~~~~~~~~~INFO~~~~~~~~~~~~~\n");
+	printf("read_block: %d bytes | fd: %d\n", bytesRead, fd);
+	printf("~~~~~~~~~~~~~~TEXT~~~~~~~~~~~~~\n");
+	
 	*cq++ = 0;
 	return bytesRead;
 }
