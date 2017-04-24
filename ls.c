@@ -90,7 +90,7 @@ int ls (char * pathname)
             if (S_ISLNK(ip->i_mode))
             {
                 readlinkUtil(sbuf, linkname);
-                printf("nice\n");
+                //printf("nice\n");
                 strcat(sbuf," -> ");
                 strcat(sbuf, linkname);
             }

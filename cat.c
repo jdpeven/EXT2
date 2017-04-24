@@ -29,6 +29,7 @@ int mycat (char* path)
 	myread(path, buf);
 
 	closeFile(fdbuf);
+	printf("fuck\n");
 	return 1;
 }
 
