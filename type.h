@@ -35,10 +35,11 @@ typedef struct minode{
   struct mntable *mptr;
 }MINODE;
 
+
 typedef struct oft{             //open file descriptors
   int  mode;                    //Permissions?
   int  refCount;
-  MINODE *mptr;                 //pointer to the referenced inode?
+  MINODE *mptr;                 //pointer to the referenced minode
   int  offset;                  //This will be changed with lseek
 }OFT;
 
@@ -47,7 +48,7 @@ typedef struct proc{
   int          pid;
   int          uid;
   MINODE      *cwd;
-  OFT         *fd[NFD];         
+  OFT         *fd[NFD];     //16       
 }PROC;
 
 #endif

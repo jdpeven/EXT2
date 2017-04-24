@@ -14,13 +14,18 @@
 #include "symlink_readlink.c"
 #include "touch.c"
 #include "rm.c"
+#include "open_close_lseek.c"
+#include "levelTwoHelper.c"
+#include "write_cp_mv.c"
+#include "chmod.c"
+#include "read.c"
 
 int main(int argc, char*argv[])
 {
     int cmdIndex, error;
     char linkName[60];
     int linkSize = 0;
-    system("./shcopy.sh");            //sh copy syscall
+    system("./shcopy");            //sh copy syscall
 
     init();
     printf("Initialization complete\n");
@@ -89,35 +94,41 @@ int main(int argc, char*argv[])
         else if(strcmp(cmd, "touch") == 0){
             touch(path);
         }
+        else if(strcmp(cmd, "chmod") == 0){
+            mychmod(path, path2);
+        }
         else if(strcmp(cmd, "rmdir") == 0){
             myrmdir(path);
         }
         else if(strcmp(cmd, "rm") == 0){
-            myrm(path);
+            //myrm(path);
         }
         else if(strcmp(cmd, "open") == 0){
-
+              openFile(path, path2);
         }
         else if(strcmp(cmd, "close") == 0){
-
+              closeFile(path);
         }
         else if(strcmp(cmd, "read") == 0){
-
-        }
+            myread(path, path2);
+        }   
         else if(strcmp(cmd, "write") == 0){
-
+            writeFile();
         }
         else if(strcmp(cmd, "lseek") == 0){
-
+            mylseek(path, path2);
         }
         else if(strcmp(cmd, "cat") == 0){
 
         }
         else if(strcmp(cmd, "cp") == 0){
-
+            mycp(path, path2);
         }
         else if(strcmp(cmd, "mv") == 0){
-            
+            mymv(path, path2);
+        }
+        else if(strcmp(cmd, "pfd") == 0){
+            pfd();
         }
         else{
             printf("COMMAND NOT FOUND\n");

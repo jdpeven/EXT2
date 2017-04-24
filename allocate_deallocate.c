@@ -32,23 +32,23 @@ int ialloc()
   return 0;
 }
 
-int balloc()
+int balloc(int dev)
 {
   int  i;
   char buf[BLKSIZE];
 
   // read inode_bitmap block
-  get_block(running->cwd->dev, bmap, buf);
+  get_block(dev, bmap, buf);
   //printf("The file we're messing with is %d\n", fd);
 
   for (i=0; i < nblocks; i++){
     if (tst_bit(buf, i)==0){                        
        set_bit(buf,i);                              //say that it isn't empty anymore
-       decFreeBlocks(running->cwd->dev);                          //tell the fd that there is one less free inode
+       decFreeBlocks(dev);                          //tell the fd that there is one less free inode
                                                     //This function will get the superBlock/GroupDescriptor and decriment free inodes count in both
                                                     //function is in helpers.c
       
-       put_block(running->cwd->dev, bmap, buf);                //dev = fd, imapNum = gp->bg_inode_bitmap, buf = new edited imap 
+       put_block(dev, bmap, buf);                //dev = fd, imapNum = gp->bg_inode_bitmap, buf = new edited imap 
        return i+1;                                  
     }
   }

@@ -8,7 +8,7 @@
 #include "ls.c"
 #include "rmdir_rm.c"
 
-
+/*
 krm (MINODE* parent, char* dirToRemove, int inoToRemove)
 {
     int uid = running->uid;
@@ -19,11 +19,11 @@ krm (MINODE* parent, char* dirToRemove, int inoToRemove)
     printf("# Entering krm\n");
 
     //Permission check LEVEL 3
-    /*if (uid < 0 || uid != euid)                 
+    if (uid < 0 || uid != euid)                 
     {
         printf("# Incorrect priveledges\n");
         return -1;
-    }*/
+    }
 
     inodeToRemove = iget(running->cwd->dev, inoToRemove);
 
@@ -158,5 +158,5 @@ myrm(char * pathname)
         printf("># FILE successfuly removed!\n");
     }
     return 0;
-}
+}*/
 #endif
