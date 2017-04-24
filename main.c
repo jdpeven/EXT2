@@ -45,7 +45,6 @@ int main(int argc, char*argv[])
         printf("P0 running: input command [ls,cd,stat,pwd,mkdir,creat,link,unlink,symlink,readlink,touch,quit]: ");
         fgets(command, 128, stdin);
         
-
         command[strcspn(command, "\n")] = 0;        //removes /n
         
         sscanf(command, "%s %s %s %s", cmd, path, path2);

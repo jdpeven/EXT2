@@ -140,7 +140,7 @@ int unlink(char * filename)
     mip = iget(ndev, nino);
     pmip = iget(pdev, pino);
 
-    rmChild(pmip, basename(filename));
+    jrmChild(pmip, basename(filename));
     //rm_child(pmip, mip->ino, basename(filename))  //needs to be added once rmdir is done
     pmip->dirty = 1;
     iput(pmip);
@@ -151,6 +151,7 @@ int unlink(char * filename)
     {
         mip->dirty = 1;
         iput(mip);
+        return;
     }
     //(4) if it's not a symbolic link
     if(!S_ISLNK(mip->INODE.i_mode)){                //if it is just a normal file                 

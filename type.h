@@ -35,6 +35,10 @@ typedef struct minode{
   struct mntable *mptr;
 }MINODE;
 
+typedef struct mntable{
+  
+}
+
 typedef struct oft{             //open file descriptors
   int  mode;                    //Permissions?
   int  refCount;
