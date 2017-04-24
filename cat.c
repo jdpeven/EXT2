@@ -28,7 +28,7 @@ int mycat (char* path)
 
 	myread(path, buf);
 
-	closeFile("0");
+	closeFile(fdbuf);
 	return 1;
 }
 
