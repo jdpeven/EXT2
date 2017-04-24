@@ -104,7 +104,7 @@ int read_block(int fd, char *buf, int nbytes)
 			avil--;
 			nbytes--;
 			remain--;
-			if (bytesRead % 1024 == 0)	//char* is at its limit! need to flush
+			if (bytesRead % 8192 == 0)	//char* is at its limit! need to flush
 			{
 				printf("%s\n", cq);
 				*cq = 0;
