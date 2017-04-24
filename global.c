@@ -14,6 +14,7 @@
 MINODE minode[NMINODE];
 MINODE *root;
 PROC   proc[NPROC], *running;
+MOUNT *mnttable[NMOUNT];
 
 int dev;                        //init
 int nblocks;                    //init

@@ -25,6 +25,7 @@ DIR   *dp;
 #define NMINODE      100                
 #define NFD           16                //Max number of opened files allowed
 #define NPROC          4                //Max number of running Processes allowed
+#define NMOUNT        10                //randomly chose 10
 
 typedef struct minode{
   INODE INODE;                         
@@ -32,8 +33,19 @@ typedef struct minode{
   int refCount;                         //initialized to 0
   int dirty;
   int mounted;
-  struct mntable *mptr;
+  struct MOUNT *mptr;
 }MINODE;
+
+typedef struct mount{
+  char name[128];
+  MINODE *mntroot;
+  int ninodes;
+  int nblocks;
+  int bmap;
+  int imap;
+  int inode_start;
+  int dev;
+}MOUNT;
 
 
 typedef struct oft{             //open file descriptors

@@ -19,6 +19,7 @@
 #include "write_cp_mv.c"
 #include "chmod.c"
 #include "read.c"
+#include "mount_unmount.c"
 
 int main(int argc, char*argv[])
 {
@@ -129,6 +130,14 @@ int main(int argc, char*argv[])
         }
         else if(strcmp(cmd, "pfd") == 0){
             pfd();
+        }
+        else if(strcmp(cmd, "mount") == 0)
+        {
+            mymount(path, path2);
+        }
+        else if(strcmp(cmd, "unmount") == 0)
+        {
+            myunmount(path);
         }
         else{
             printf("COMMAND NOT FOUND\n");
