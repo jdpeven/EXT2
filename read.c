@@ -60,6 +60,9 @@ int read_block(int fd, char *buf, int nbytes)
 {
 	int offset, mode, refCount, avil, lbk, startByte, blk, remain, bytesRead = 0;
 	char *cq, readbuf[BLKSIZE], *cp;
+	int indirectOffset, doubleOffset;
+	char directbuf[BLKSIZE], doublebuf[BLKSIZE];
+	int *intp;
 
 	//printf("entered read_block\n");
 
@@ -81,16 +84,45 @@ int read_block(int fd, char *buf, int nbytes)
 			printf("> reading from a DIRECT block: %d\n", lbk);
 			blk = running->fd[fd]->mptr->INODE.i_block[lbk];
 		}
-		else if (lbk >= 12 && lbk < 256 + 12)
+		else if(lbk >= 12 && lbk < 268)      //indirect 268 = 256 + 12	
+        {
+            printf("Indirect blocks, need block #[%d]\n", lbk);
+            indirectOffset = lbk - 12;                  //this will be the block in the indirect block
+            get_block(running->fd[fd]->mptr->dev, running->fd[fd]->mptr->INODE.i_block[12], directbuf);         //gets the indirect block into directbuf
+            intp = &directbuf;                          //points to the start of the buffer
+            intp += indirectOffset;                     //moving it to the offset
+            blk = *intp;                                //now the block has the ACTUAL block that is necessary
+        }
+        else                    //double indirect
+        {
+            printf("Fucking double indirect blocks, need block #[%d]\n", lbk);
+            doubleOffset = (lbk - 12 - 256) / 256;
+            indirectOffset = (lbk - 12 - 256) % 256;
+            get_block(running->fd[fd]->mptr->dev, running->fd[fd]->mptr->INODE.i_block[13], doublebuf);
+            intp = &doublebuf;
+            intp += doubleOffset;
+            get_block(running->fd[fd]->mptr->dev, *intp, directbuf);
+            intp = &directbuf;
+            intp += indirectOffset;
+            blk = *intp;
+        }
+
+
+
+
+
+
+		/*else if (lbk >= 12 && lbk < 256 + 12)
 		{
 			printf("> reading from a INDIRECT block\n");
+
 			//indirect
 		}
 		else
 		{
 			printf("> reading from a 2xINDIRECT block\n");
 			//2x indirect
-		}
+		}*/
 
 		get_block(running->fd[fd]->mptr->dev, blk, readbuf);
 
