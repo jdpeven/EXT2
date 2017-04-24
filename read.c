@@ -104,16 +104,22 @@ int read_block(int fd, char *buf, int nbytes)
 			avil--;
 			nbytes--;
 			remain--;
+			if (bytesRead % 1024 == 0)	//char* is at its limit! need to flush
+			{
+				printf("%s\n", cq);
+				*cq = 0;
+			}
 			if (nbytes <= 0 || avil <= 0)
 			{
 				break;
 			}
 		}
 		lbk++;
+		*cq = 0;
 	}
-	printf("~~~~~~~~~~~~~~INFO~~~~~~~~~~~~~\n");
-	printf("read_block: %d bytes | fd: %d\n", bytesRead, fd);
-	printf("~~~~~~~~~~~~~~TEXT~~~~~~~~~~~~~\n");
+	//printf("~~~~~~~~~~~~~~INFO~~~~~~~~~~~~~\n");
+	//printf("read_block: %d bytes | fd: %d\n", bytesRead, fd);
+	//printf("~~~~~~~~~~~~~~TEXT~~~~~~~~~~~~~\n");
 	
 	*cq++ = 0;
 	return bytesRead;
