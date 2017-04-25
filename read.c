@@ -10,20 +10,27 @@ int myread (char* filename, char* bytesToRead)
 {
 	MINODE *mip;
 	int i, inoToFind = 0, curfd = -1, bytesRead;
-	char *buf;
-	int btoread = atoi(bytesToRead);
+	char buf[BLKSIZE];
+	int btoread; 
 
 	strcpy(buf, "");
 	inoToFind = getino(&(running->cwd->dev), filename);
 
-	if (running->fd[0] == NULL)
+	/*if (running->fd[0] == NULL)
 	{
 		printf("No fd's have been allocated, try opening a file...\n");
 		return;
+	}*/
+	if(strcmp(filename, "") == 0 || strcmp(bytesToRead, "") == 0)
+	{
+		printf("Invalid number of arguments\n");
+		return 0;
 	}
 
+	btoread = atoi(bytesToRead);
+
 	i = 0;
-	while (i < 16)
+	while (i < NFD)
 	{
 		if (running->fd[i]->mptr->ino == inoToFind)
 		{
@@ -39,12 +46,12 @@ int myread (char* filename, char* bytesToRead)
 		printf("No fd was found with the name [%s], try opening that file\n", filename);
 	}
 
-	printf("~~~~~~~~~~~~~~TEXT~~~~~~~~~~~~~\n");
+	//printf("~~~~~~~~~~~~~~TEXT~~~~~~~~~~~~~\n");
 	bytesRead = read_block(curfd, buf, btoread);
-	printf("~~~~~~~~~~~~~~/TXT~~~~~~~~~~~~~\n");
-	printf("~~~~~~~~~~~~~~INFO~~~~~~~~~~~~~\n");
+	//printf("~~~~~~~~~~~~~~/TXT~~~~~~~~~~~~~\n");
+	//printf("~~~~~~~~~~~~~~INFO~~~~~~~~~~~~~\n");
 	printf("BYTES READ %d\n", bytesRead);
-	printf("~~~~~~~~~~~~~~/NFO~~~~~~~~~~~~~\n");
+	//printf("~~~~~~~~~~~~~~/NFO~~~~~~~~~~~~~\n");
 	
 	//I DONT KNOW WHY but it crashes if I remove this while...
 	i = 0;
@@ -63,6 +70,8 @@ int read_block(int fd, char *buf, int nbytes)
 	int indirectOffset, doubleOffset;
 	char directbuf[BLKSIZE], doublebuf[BLKSIZE];
 	int *intp;
+	int originalLength;
+	memset(&buf[0], 0, BLKSIZE);
 
 	cq = buf;
 	offset = running->fd[fd]->offset;
@@ -107,6 +116,30 @@ int read_block(int fd, char *buf, int nbytes)
 
 		cp = readbuf + startByte;
 		remain = BLKSIZE - startByte;
+		originalLength = strlen(buf);		//This will come into play when we have to read in from two seperate
+											//blocks. The first time we just strcpy, the second we need to stringcat
+
+		if(nbytes <= remain)		//There are more bytes remaining in this block
+		{							//than we need to read. 
+			strcat(buf, readbuf);   //copies the whole thing over
+			buf[nbytes+originalLength] = '\0';		//0's out everything after the number of bytes we want
+			bytesRead += strlen(readbuf);
+			avil -= bytesRead;		//Jackson doesn't totally get this
+			nbytes = 0;
+			running->fd[fd]->offset += bytesRead;
+			offset += bytesRead;				//changed from BLKSIZE because the offset only changes by how many bytes were actually read
+			break;
+		}
+		else						//will need to read from 2 blocks
+		{	//there are more bytes to read than left in they block
+			strncat(buf, readbuf, remain);
+			buf[remain] = '\0';
+			nbytes -=remain;
+			avil -= remain; 		//again, not totally clear
+			lbk++;
+		}
+
+		/*
 		while (remain > 0)
 		{
 			*cq++ = *cp++;
@@ -116,19 +149,19 @@ int read_block(int fd, char *buf, int nbytes)
 			remain--;
 			if (nbytes <= 0 || avil <= 0)
 			{
-				*cq++ = 0;
+				*++cq = 0;
 				break;
 			}
-		}
+		}*/
 
-		printf("%s", buf);
-		strcpy(buf, "");
-		cq = buf;
-		offset += BLKSIZE;
+		//printf("%s", buf);				//this should only be for cat
+		//strcpy(buf, "");					//not sure why it was written over
+		//cq = buf;
+		
 	}
 	
-	*cq++ = 0;
-	printf("\n");
+	//*++cq = 0;								//maybemaybemaybe
+	//printf("\n");
 	return bytesRead;
 }
 
