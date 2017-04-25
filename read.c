@@ -9,6 +9,198 @@
 int myread (char* filename, char* bytesToRead)
 {
 	MINODE *mip;
+	int i, inoToFind = 0, curfd = -1, bytesRead;
+	char buf[BLKSIZE];
+	int btoread; 
+
+	strcpy(buf, "");
+	inoToFind = getino(&(running->cwd->dev), filename);
+
+	/*if (running->fd[0] == NULL)
+	{
+		printf("No fd's have been allocated, try opening a file...\n");
+		return;
+	}*/
+	if(strcmp(filename, "") == 0 || strcmp(bytesToRead, "") == 0)
+	{
+		printf("Invalid number of arguments\n");
+		return 0;
+	}
+
+	btoread = atoi(bytesToRead);
+
+	i = 0;
+	while (i < NFD)
+	{
+		if (running->fd[i]->mptr->ino == inoToFind)
+		{
+			//printf("Reading from fd %d\n", i);
+			mip = running->fd[i]->mptr;
+			curfd = i;
+			break;
+		}
+		i++;
+	}
+	if (curfd == -1)
+	{
+		printf("No fd was found with the name [%s], try opening that file\n", filename);
+	}
+
+	//printf("~~~~~~~~~~~~~~TEXT~~~~~~~~~~~~~\n");
+	bytesRead = read_block(curfd, buf, btoread);
+	//printf("~~~~~~~~~~~~~~/TXT~~~~~~~~~~~~~\n");
+	//printf("~~~~~~~~~~~~~~INFO~~~~~~~~~~~~~\n");
+	printf("BYTES READ %d\n", bytesRead);
+	//printf("~~~~~~~~~~~~~~/NFO~~~~~~~~~~~~~\n");
+	
+	//I DONT KNOW WHY but it crashes if I remove this while...
+	i = 0;
+	while (mip->INODE.i_block[i] != 0)
+	{
+		i++;
+	}
+	return 0;
+}
+
+
+int read_block(int fd, char *buf, int nbytes)
+{
+	int offset, mode, refCount, avil, lbk, startByte, blk, remain, bytesRead = 0;
+	char *cq, readbuf[BLKSIZE], *cp;
+	int indirectOffset, doubleOffset;
+	char directbuf[BLKSIZE], doublebuf[BLKSIZE];
+	int *intp;
+	int originalLength;
+	memset(&buf[0], 0, BLKSIZE);
+
+	cq = buf;
+	offset = running->fd[fd]->offset;
+	mode = running->fd[fd]->mode;
+	refCount = running->fd[fd]->refCount;
+	avil = running->fd[fd]->mptr->INODE.i_size - offset;
+
+	while (nbytes && avil)
+	{
+		lbk = offset / BLKSIZE;
+		startByte = offset % BLKSIZE;
+
+		if (lbk < 12)
+		{
+			blk = running->fd[fd]->mptr->INODE.i_block[lbk];
+		}
+		else if (lbk >= 12 && lbk < 256 + 12)
+		{
+			indirectOffset = lbk - 12;
+			get_block(running->fd[fd]->mptr->dev,
+				running->fd[fd]->mptr->INODE.i_block[12], directbuf);
+			intp = &directbuf;
+			intp += indirectOffset;
+			blk = *intp;
+		}
+		else
+		{
+			doubleOffset = (lbk - 12 - 256) / 256;
+			indirectOffset = (lbk - 12 - 256) % 256;
+			get_block(running->fd[fd]->mptr->dev,
+				running->fd[fd]->mptr->INODE.i_block[13], doublebuf);
+			intp = &doublebuf;
+			intp += doubleOffset;
+			get_block(running->fd[fd]->mptr->dev, *intp, directbuf);
+			intp = &directbuf;
+			intp += indirectOffset;
+			blk = *intp;
+		}
+
+		//printf("bock: %d\n%d\n", blk, running->fd[fd]->mptr->INODE.i_block[12]);
+		get_block(running->fd[fd]->mptr->dev, blk, readbuf);
+
+		cp = readbuf + startByte;
+		remain = BLKSIZE - startByte;
+		originalLength = strlen(buf);		//This will come into play when we have to read in from two seperate
+											//blocks. The first time we just strcpy, the second we need to stringcat
+
+		if(nbytes <= remain)		//There are more bytes remaining in this block
+		{							//than we need to read. 
+			strcat(buf, readbuf);   //copies the whole thing over
+			buf[nbytes+originalLength] = '\0';		//0's out everything after the number of bytes we want
+			bytesRead += strlen(readbuf);
+			avil -= bytesRead;		//Jackson doesn't totally get this
+			nbytes = 0;
+			running->fd[fd]->offset += bytesRead;
+			offset += bytesRead;				//changed from BLKSIZE because the offset only changes by how many bytes were actually read
+			break;
+		}
+		else						//will need to read from 2 blocks
+		{	//there are more bytes to read than left in they block
+			strncat(buf, readbuf, remain);
+			buf[remain] = '\0';
+			nbytes -=remain;
+			avil -= remain; 		//again, not totally clear
+			lbk++;
+		}
+
+		/*
+		while (remain > 0)
+		{
+			*cq++ = *cp++;
+			bytesRead++;
+			avil--;
+			nbytes--;
+			remain--;
+			if (nbytes <= 0 || avil <= 0)
+			{
+				*++cq = 0;
+				break;
+			}
+		}*/
+
+		//printf("%s", buf);				//this should only be for cat
+		//strcpy(buf, "");					//not sure why it was written over
+		//cq = buf;
+		
+	}
+	
+	//*++cq = 0;								//maybemaybemaybe
+	//printf("\n");
+	return bytesRead;
+}
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*#ifndef READ_C
+#define READ_C
+
+#include "global.c"
+#include "util.c"
+#include "type.h"
+#include "iget_iput_getino.c"
+
+int myread (char* filename, char* bytesToRead)
+{
+	MINODE *mip;
 
 	int i, inoToFind = 0, curfd = -1, bytesRead;
 	char *buf;
@@ -84,35 +276,7 @@ int read_block(int fd, char *buf, int nbytes)
 			printf("> reading from a DIRECT block: %d\n", lbk);
 			blk = running->fd[fd]->mptr->INODE.i_block[lbk];
 		}
-		else if(lbk >= 12 && lbk < 268)      //indirect 268 = 256 + 12	
-        {
-            printf("Indirect blocks, need block #[%d]\n", lbk);
-            indirectOffset = lbk - 12;                  //this will be the block in the indirect block
-            get_block(running->fd[fd]->mptr->dev, running->fd[fd]->mptr->INODE.i_block[12], directbuf);         //gets the indirect block into directbuf
-            intp = &directbuf;                          //points to the start of the buffer
-            intp += indirectOffset;                     //moving it to the offset
-            blk = *intp;                                //now the block has the ACTUAL block that is necessary
-        }
-        else                    //double indirect
-        {
-            printf("Fucking double indirect blocks, need block #[%d]\n", lbk);
-            doubleOffset = (lbk - 12 - 256) / 256;
-            indirectOffset = (lbk - 12 - 256) % 256;
-            get_block(running->fd[fd]->mptr->dev, running->fd[fd]->mptr->INODE.i_block[13], doublebuf);
-            intp = &doublebuf;
-            intp += doubleOffset;
-            get_block(running->fd[fd]->mptr->dev, *intp, directbuf);
-            intp = &directbuf;
-            intp += indirectOffset;
-            blk = *intp;
-        }
-
-
-
-
-
-
-		/*else if (lbk >= 12 && lbk < 256 + 12)
+		else if (lbk >= 12 && lbk < 256 + 12)
 		{
 			printf("> reading from a INDIRECT block\n");
 
@@ -122,7 +286,7 @@ int read_block(int fd, char *buf, int nbytes)
 		{
 			printf("> reading from a 2xINDIRECT block\n");
 			//2x indirect
-		}*/
+		}
 
 		get_block(running->fd[fd]->mptr->dev, blk, readbuf);
 
@@ -151,7 +315,8 @@ int read_block(int fd, char *buf, int nbytes)
 	return bytesRead;
 }
 
-#endif
+#endif*/
+
 
 //working on indirect stuff idk what he really wants here. Need to ask jackson
 /*#ifndef READ_C
