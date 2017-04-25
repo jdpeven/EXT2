@@ -240,16 +240,16 @@ int mymkdirCreat(char * pathname, char * type)
             strcat(shortPath, decomp[i]);
             strcat(shortPath, "/");
         }                                               //shortPath = "/a/b/". I don't think the trailing "/" will matter
-        parentIno = getino(&(running->cwd->dev), shortPath);
+        parentIno = getino(&(running->cwd->dev), shortPath);    //getting the parentIno, passing in the dev value, and the parents path
         
-        if(parentIno <= 0){
+        if(parentIno <= 0){                                     //if parentIno <= 0 we didn't find it in getino()
             printf("Parent directory not found\n");
             return -1;
         }
-        parent = iget(running->cwd->dev, parentIno);
+        parent = iget(running->cwd->dev, parentIno);            //now with the inode number we can get the parent MINODE
     }
 
-    if(S_ISREG(parent->INODE.i_mode)){                      
+    if(S_ISREG(parent->INODE.i_mode)){                  //check to make sure we found a dir and not a file, since a parent file is impossible
         printf("Cannot %s in non-dir file\n", type);
         return -1;
     }
@@ -273,9 +273,9 @@ int mymkdirCreat(char * pathname, char * type)
         kcreat(parent, newDirName);
     }
 
-    parent->INODE.i_atime = time(0L);                               //Touched by an angel
+    parent->INODE.i_atime = time(0L);                               //Touched by an angel <- wat
     parent->dirty = 1;
-    iput(parent);
+    iput(parent);                       //put the altered inode back into its block, overwriting the old space.
     return 0;
 }
 
