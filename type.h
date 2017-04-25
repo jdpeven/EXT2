@@ -27,13 +27,14 @@ DIR   *dp;
 #define NPROC          4                //Max number of running Processes allowed
 #define NMOUNT        10                //randomly chose 10
 
+
 typedef struct minode{
   INODE INODE;                         
   int dev, ino;
   int refCount;                         //initialized to 0
   int dirty;
   int mounted;
-  struct MOUNT *mptr;
+  struct mount *mptr;                   //took me so long to find out
 }MINODE;
 
 typedef struct mount{

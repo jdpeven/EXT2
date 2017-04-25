@@ -18,7 +18,7 @@ MINODE *root;				//pointer to the root minode
 PROC   proc[NPROC], *running;	//array of processes, and pointer to running process
 
 
-int dev;                        //init
+//int dev;                        //init
 int nblocks;                    //init
 int ninodes;                    //init
 int bmap;                       //init

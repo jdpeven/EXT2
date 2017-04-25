@@ -54,7 +54,10 @@ mymount(char * mountpoint, char * filesys)
         return 0;
     }
     mip->mounted = 1;
-    mip->mptr = newMT;
+    mip->mptr = &(*newMT);
+    newMT->mntloc = mip;
+    newMT->mntroot->mptr = &(*newMT);           //VERY VERY VERY IMPORTANT linking back to itself
+    printf("Filesys %s mounted successfully onto %s mountpoint\n", filesys, mountpoint);
 }
 
 pmount()
@@ -74,15 +77,26 @@ pmount()
 myunmount(char * filesys)
 {
     int i;
+    MINODE* mip;
     if(strcmp(filesys, "") == 0)
     {
         printf("name not provided\n");
         return 0;
     }
-    /*for(i = 0; i < NMOUNT; i++)
+    for(i = 0; i < NMOUNT; i++)
     {
-
-    }*/
+        if(strcmp(filesys, mnttable[i]->name) == 0)         //found it
+        {
+            mip = mnttable[i]->mntloc;
+            mip->mounted = 0;
+            mip->mptr = NULL;
+            free(mnttable[i]);
+            mnttable[i] = NULL;
+            printf("Diskimage %s was unmount from mnttable[%d]\n", filesys, i);
+            return;
+        }
+    }
+    printf("Filesys %s not found\n", filesys);
 }
 
 
@@ -131,12 +145,13 @@ void addMountEntry(char * filesys, MOUNT ** newMTptr)
     newroot->mounted = 0;  
 
     (*newMTptr)->mntroot = newroot;
+    //(*newMTptr)->mntloc = malloc(sizeof(MINODE));
 
     for(i = 0; i < NMOUNT; i++)
     {
         if(mnttable[i] == NULL)
         {
-            printf("New entry put at mnttable[%d]", i);
+            printf("New entry put at mnttable[%d]\n", i);
             mnttable[i] = (*newMTptr);
             return;
         }

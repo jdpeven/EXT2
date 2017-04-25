@@ -121,7 +121,9 @@ MINODE * iget(int dev, int ino)
             mip->refCount = 1;
             mip->dev = dev;
             mip->ino = ino;  // assing to (dev, ino)
-            mip->dirty = mip->mounted = mip->mptr = 0;
+            mip->dirty = mip->mounted;
+            mip->mptr = malloc(sizeof(MOUNT));
+            //mip->mptr = NULL;
             // get INODE of ino into buf[ ]      
             blk  = (ino-1)/8 + inode_start;  // iblock = Inodes start block #
             disp = (ino-1) % 8;
@@ -159,6 +161,7 @@ int getino(int *dev, char *pathname)
     char *name[80];
     INODE *ip;
     MINODE *mip;                        //This will be the "current" inode for traversal
+    MINODE *jtest = root;
 
     ////printf("getino: dev = %d pathname=%s\n",*dev, pathname);
     //printf("Dev = %d\n",*dev);
@@ -193,6 +196,14 @@ int getino(int *dev, char *pathname)
         ////printf("===========================================\n");
         ////printf("getino: i=%d name[%d]=%s\n", i, i, name[i]);
     
+        //LEVEL 3
+        if(mip->mounted == 1)
+        {
+            mip = mip->mptr->mntroot;
+            *dev = mip->dev;        //changing the device
+        }
+        //END LEVEL 3
+
         ino = search(mip, name[i]);
 
         if (ino==0){
@@ -202,7 +213,18 @@ int getino(int *dev, char *pathname)
         }
         iput(mip);                                              //This is the "close parenthesis" of the iget from the check 4 lines above the for loop
         mip = iget(*dev, ino);                                  //This is the open parenthesis for the next loops of the for so the iput will put back this one
+    
     }
+
+    //LEVEL 3
+    if(mip->mounted == 1)
+    {
+        mip = mip->mptr->mntroot;
+        *dev = mip->dev;        //changing the device
+        ino = mip->ino;
+    }
+    //END LEVEL 3
+
     iput(mip);                          //MAYBE MAYBE MAYBE
     return ino;
 }

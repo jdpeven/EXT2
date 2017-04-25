@@ -127,7 +127,7 @@ int unlink(char * filename)
         return -1;
     }
 
-    mip = iget(dev, nino);               //now mip has the file you want
+    mip = iget(ndev, nino);               //now mip has the file you want
 
     if(S_ISDIR(mip->INODE.i_mode)){                      
         printf("Cannot unlink a dir\n");

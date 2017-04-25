@@ -26,7 +26,7 @@ childls(MINODE * mip)
         //printPermissions(dp->inode); NOT WORKING idk why.
         strncpy(sbuf, ddp->name, ddp->name_len);
         sbuf[ddp->name_len] = 0;
-        ip = iget(dev, ddp->inode);
+        ip = iget(mip->dev, ddp->inode);
 
         printPermissions(ddp->inode);
         printf("   %d   %.13s\t%d\t%s\n", ip->i_links_count, 
