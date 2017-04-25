@@ -31,7 +31,7 @@ int main(int argc, char*argv[])
     init();
     printf("Initialization complete\n");
     if(argc < 1)       //"a.out diskimage"
-        devName = argv[1];
+        devName = argv[1];  //null
     mount_root();       //devName is a global so it doesn't need to be passed in
 
     //Loop for commands
