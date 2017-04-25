@@ -456,6 +456,23 @@ int increaseSize(int lbk, MINODE *mip)
     return newBlock;
 }
 
+fork(char * index)
+{
+    int ind;
+
+    if(strcmp(index, "") == 0)
+    {
+        printf("Invalid index provided\n");
+    }
+    ind = atoi(index);
+    if(ind < 0 || ind > 3)
+    {
+        printf("index not in range\n");
+    }
+    running = &proc[ind];
+    printf("running changed to proc[%d]\n", ind);
+}
+
 
 
 #endif

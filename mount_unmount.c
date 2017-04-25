@@ -93,6 +93,7 @@ myunmount(char * filesys)
             free(mnttable[i]);
             mnttable[i] = NULL;
             printf("Diskimage %s was unmount from mnttable[%d]\n", filesys, i);
+            iput(mip);//because it was iget during the mounting
             return;
         }
     }

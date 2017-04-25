@@ -142,6 +142,10 @@ int main(int argc, char*argv[])
         {
             myunmount(path);
         }
+        else if(strcmp(cmd, "fork") == 0)
+        {
+            fork(path);
+        }
         else{
             printf("COMMAND NOT FOUND\n");
         }
