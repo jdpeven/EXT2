@@ -10,20 +10,27 @@ int myread (char* filename, char* bytesToRead)
 {
 	MINODE *mip;
 	int i, inoToFind = 0, curfd = -1, bytesRead;
-	char *buf;
-	int btoread = atoi(bytesToRead);
+	char buf[BLKSIZE];
+	int btoread; 
 
 	strcpy(buf, "");
 	inoToFind = getino(&(running->cwd->dev), filename);
 
-	if (running->fd[0] == NULL)
+	/*if (running->fd[0] == NULL)
 	{
 		printf("No fd's have been allocated, try opening a file...\n");
 		return;
+	}*/
+	if(strcmp(filename, "") == 0 || strcmp(bytesToRead, "") == 0)
+	{
+		printf("Invalid number of arguments\n");
+		return 0;
 	}
 
+	btoread = atoi(bytesToRead);
+
 	i = 0;
-	while (i < 16)
+	while (i < NFD)
 	{
 		if (running->fd[i]->mptr->ino == inoToFind)
 		{
@@ -47,11 +54,11 @@ int myread (char* filename, char* bytesToRead)
 	printf("~~~~~~~~~~~~~~/NFO~~~~~~~~~~~~~\n");
 	
 	//I DONT KNOW WHY but it crashes if I remove this while...
-	i = 0;
+	/*i = 0;
 	while (mip->INODE.i_block[i] != 0)
 	{
 		i++;
-	}
+	}*/
 	return 0;
 }
 
@@ -121,10 +128,10 @@ int read_block(int fd, char *buf, int nbytes)
 			}
 		}
 
-		printf("%s", buf);
-		strcpy(buf, "");
+		//printf("%s", buf);				//this should only be for cat
+		//strcpy(buf, "");					//not sure why it was written over
 		cq = buf;
-		offset += BLKSIZE;
+		offset += bytesRead;				//changed from BLKSIZE
 	}
 	
 	*cq++ = 0;
