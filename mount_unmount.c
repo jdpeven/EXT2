@@ -140,7 +140,7 @@ void addMountEntry(char * filesys, MOUNT ** newMTptr)
     newroot = iget(newDev, 2);
     newroot->dev = newDev;        
     newroot->ino = 2;          
-    newroot->refCount = 1;             
+    newroot->refCount = 2;                  //so it doesn't get overwritten       
     newroot->dirty = 0;        
     newroot->mounted = 0;  
 

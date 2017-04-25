@@ -18,8 +18,6 @@ int chdir(char * pathname)
 
     if(strcmp(pathname, "..") == 0){
         //LEVEL3
-        //int m = mnttable[0]->mntloc->dev;
-        //int m = running->cwd->mptr->mntloc->dev;
         if(2 == nameToIno(running->cwd, ".") && running->cwd->dev != root->dev)
         //if you're at A root, but not THE root
         {

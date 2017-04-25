@@ -47,13 +47,17 @@ void ipwd(MINODE * mip)
            //strcpy(stack + index,"/");
            break;
         }
+        if(2 == nameToIno(mip, ".") && mip->dev != root->dev)
+        {
+           ipwd(mip->mptr->mntloc);
+           break;
+        }
         parentIno = nameToIno(mip, "..");
         selfIno = nameToIno(mip, ".");
         parent = iget(mip->dev,parentIno);
         //rpwd(parent);
-        inoToName(parent, selfIno, &myname);
+        inoToName(parent, selfIno, &myname, &len);
         strncpy(stack[index], myname, strlen(myname));
-        len = strlen(myname);
         stack[index][len] = '/0';
         //strncpy(stack+index, myname, strlen(myname));
         iput(parent);
@@ -69,7 +73,8 @@ void ipwd(MINODE * mip)
         len = strlen(stack[index]);
         for(i = 0; i < len; i++)
         {
-                if((stack[index][i] > 'a' && stack[index][i] < 'z') || ((stack[index][i] > 'A' && stack[index][i] < 'Z')))
+                if((stack[index][i] >= 'a' && stack[index][i] < 'z') || 
+                        ((stack[index][i] >= 'A' && stack[index][i] <= 'Z')))
                 //if(stack[index][i] != '/0')
                         putchar(stack[index][i]);
                 else
