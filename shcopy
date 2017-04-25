@@ -1,4 +1,5 @@
 #!/bin/bash
 echo "Creating new diskimage"
 cp ./backup/diskimage ./
+cp ./backup/mydisk ./
 echo "Done creating new diskimage"
