@@ -12,10 +12,10 @@
 int mycat (char* path)
 {
 	int ino, size, fd;
-	MINODE *mip = malloc(sizeof(MINODE));
+	MINODE *mip;// = malloc(sizeof(MINODE));
 	char buf[20], fdbuf[2];
 	char readbuf[BLKSIZE];
-	int n;
+	int n, total = 0;
 
 	ino = getino(&(running->cwd->dev), path);
 	mip = iget(running->cwd->dev, ino);
@@ -25,15 +25,17 @@ int mycat (char* path)
 	snprintf(fdbuf, 2, "%d", fd);
 
 	printf("fd = %d\n", fd);
-	snprintf(buf, 20, "%d", size);
-	printf("File size: %s\n", buf);
-
+	//snprintf(buf, 20, "%d", size);
+	//printf("File size: %s\n", buf);
+	printf("========================================\n");
 	while(n = read_block(fd, readbuf, BLKSIZE))
     {
-        printf(readbuf);
+        printf("%s", readbuf);
+		total+=n;
     }
-
-	myread(path, buf);
+	printf("\n========================================\n");
+	printf("Printed %d bytes\n", total);
+	//myread(path, buf);
 
 	closeFile(fdbuf);
 	//printf("fuck\n");

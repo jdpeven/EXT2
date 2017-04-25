@@ -4,6 +4,6 @@
     "version": "0.1.0",
     "command": "gcc",
     "isShellCommand": true,
-    "args": ["-m32","-w", "-g","main.c"],
+    "args": ["-m32","-w", "-g","-fno-stack-protector", "main.c"],
     "showOutput": "always"
 }

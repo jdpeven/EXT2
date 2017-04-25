@@ -61,7 +61,7 @@ int mywrite(int fd, char buf[], int nbytes)
     
     mip = oftp->mptr;
 
-    switch(oftp->mode)              //for determining how to change the size
+    /*switch(oftp->mode)              //for determining how to change the size
     {
         case 1:                     //write
             mip->INODE.i_size = 0;
@@ -69,10 +69,7 @@ int mywrite(int fd, char buf[], int nbytes)
         case 2:                     //readwrite. SHOULD BE SAME AS WRITE???
             mip->INODE.i_size = 0;
             break;
-        /*case 3:                     //append
-            mip->INODE.i_size += nbytes;        //different!
-            break;*/
-    }
+    }*/
     
     
     while(nbytes > 0)
@@ -123,7 +120,7 @@ int mywrite(int fd, char buf[], int nbytes)
         cq = buf;
         remain = BLKSIZE - startByte;
 
-        if(nbytes < remain)         //copying less bytes than there is room available
+        if(nbytes <= remain)         //copying less bytes than there is room available
         {
             strcat(wbuf, buf);
             oftp->offset += nbytes;
@@ -194,6 +191,13 @@ int mycp(char * src, char * dest)
     int fd, gd;
     char buf[BLKSIZE];
     int n;
+    char sourceFDstring[2], destFDstring[2];
+    
+    if(strcmp(src, "") == 0 || strcmp(dest, "") == 0)
+    {
+        printf("Incorrect number of pathnames provided\n");
+        return 0;
+    }
 
     if(src[0] == '/')           //absolute
         srcdev = root->dev;
@@ -229,8 +233,12 @@ int mycp(char * src, char * dest)
     {
         mywrite(gd, buf, n);
     }
-    closeFile(src);
-    closeFile(dest); 
+
+    sprintf(sourceFDstring, "%d", fd);
+    sprintf(destFDstring, "%d", gd);
+    
+    closeFile(sourceFDstring);
+    closeFile(destFDstring); 
 }
 
 #endif

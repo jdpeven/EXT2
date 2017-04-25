@@ -121,7 +121,7 @@ int main(int argc, char*argv[])
         }
         else if(strcmp(cmd, "cat") == 0){
             mycat(path);
-            printf("made it\n");
+            //printf("made it\n");
         }
         else if(strcmp(cmd, "cp") == 0){
             mycp(path, path2);
