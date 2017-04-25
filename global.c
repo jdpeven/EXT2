@@ -11,10 +11,12 @@
 
 #include "type.h"
 
-MINODE minode[NMINODE];
-MINODE *root;
-PROC   proc[NPROC], *running;
+
 MOUNT *mnttable[NMOUNT];
+MINODE minode[NMINODE];		//minode array
+MINODE *root;				//pointer to the root minode
+PROC   proc[NPROC], *running;	//array of processes, and pointer to running process
+
 
 int dev;                        //init
 int nblocks;                    //init

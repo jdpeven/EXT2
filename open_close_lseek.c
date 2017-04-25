@@ -65,6 +65,7 @@ int openFile(char * pathname, char * type)
             break;
         case 1:
             truncate(newFD->mptr);
+            mip->INODE.i_size = 0;      //because it will be overwritten
             newFD->offset = 0;
             break;
         case 2:

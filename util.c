@@ -37,14 +37,14 @@ void decompose(char * input, char ** output, int * count, char * delimeter)
     int i;
     token = strtok(input, delimeter);
     i = 0;
-    while(token != NULL)
+    while(token != NULL)    //breaking down an input string based on a given delimeter. Stored within output pointer to char array.
     {
         output[i] = token;
         token = strtok(NULL, delimeter);
         i++;
     }
     *count = i;
-    output[i] = NULL;
+    output[i] = NULL;       //setting last position in array to null
     //printf("%s decomposed into: [", input);
     /*for(i = 0; i < *count; i++){
         printf("%s][", output[i]);
@@ -61,7 +61,7 @@ Return: int - found inode value
 Description: will search through the given inode for the name, and return the names inode
 SampleRun: int ino = search(cwd, "X");
 */
-int search(MINODE *mip, char *name)
+int search(MINODE *mip, char *name) //Given a minode, and a name, we look for a file name within the minode, returns the ino
 {
     char* cp;
     int block0;
@@ -72,33 +72,27 @@ int search(MINODE *mip, char *name)
 
     //printf("Searching for %s in dir %s", name, mip->INODE.name);
 
-    for(i = 0; i < 12; i++){            //might be deep in the file
-        block0 = mip->INODE.i_block[i];
-        get_block(mip->dev, block0, dbuf);
-        dp = (DIR*)dbuf;
-        cp = dbuf;
-        while(cp < &dbuf[BLKSIZE]){
-            strncpy(sbuf, dp->name, dp->name_len);                  //similar to strcpy but will stop based on third argument
-            sbuf[dp->name_len] = 0;
-            //printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
-            if(strcmp(name, sbuf) == 0){
-                ino = dp->inode;
-                break;
+    for(i = 0; i < 12; i++){                        //looping through all blocks if necessary (only 12 since DIR)
+        block0 = mip->INODE.i_block[i];             //setting block 0 to the i'th block. Will be a DIRECT block in this case
+        get_block(mip->dev, block0, dbuf);          //getting the block indicated by block0 and putting it into dbuf
+        dp = (DIR*)dbuf;                            //casting dbuf as a dirent
+        cp = dbuf;                                  //assigning our char pointer to the beginning of dbuf
+        while(cp < &dbuf[BLKSIZE]){                 //we loop while we are not at the end of dbuf, which is BLKSIZE
+            strncpy(sbuf, dp->name, dp->name_len);  //cpy name_len amount of the dirs name into sbuf.
+            sbuf[dp->name_len] = 0;                 //setting the final char in sbuf to 0 so we don't have garbage output
+            if(strcmp(name, sbuf) == 0){            //enter if name and sbuf are the same (WE FOUND IT!)
+                ino = dp->inode;                    //set our inode number to the dirs inode.
+                break;                              //exit the while
             }
-            cp += dp->rec_len;
-            dp = (DIR *)cp;
+            cp += dp->rec_len;                      //if we still have not found it, we increment cp by the length of the current dir
+            dp = (DIR *)cp;                         //we are now at a new dir in cp, so we have to recast dp
         }
-        if(ino != 0)        //it was found on this iteration, no need to continue
+        if(ino != 0)                                //if we have found an ino, then we break the for loop
             break;
-        if(mip->INODE.i_block[i+1] == 0)       //it wasn't found on this iteration and there are no more blocks
-            return 0;                           //this will (has) segfault if it goes to the next iteration
-        /*if(ino){
-            printf("Found '%s' with Ino [%d]\n", name, ino);
-        }
-        else
-            printf("Did not find '%s'\n", name);*/
+        if(mip->INODE.i_block[i+1] == 0)            //otherwise, if the next block is empty, return 0. NOT FOUND.
+            return 0;                           
     }
-    return ino;
+    return ino;                                     //return the inode number.
 }
 
 /*
@@ -114,8 +108,8 @@ SampleRun: get_block(dev, 2, buf)
 
 int get_block(int fd, int blk, char buf[ ])
 {
-  lseek(fd, (long)blk*BLKSIZE, 0);
-  read(fd, buf, BLKSIZE);  
+  lseek(fd, (long)blk*BLKSIZE, 0);          //moving fd to the beginning of the file that we want
+  read(fd, buf, BLKSIZE);                   //reading in the block of the the fd file into buf
 }
 
 /*
@@ -131,8 +125,8 @@ SampleRun: put_block(dev, 2, buf)
 
 int put_block(int fd, int blk, char buf[ ])
 {
-    lseek(fd, (long)blk*BLKSIZE, 0);
-    write(fd, buf, BLKSIZE);
+    lseek(fd, (long)blk*BLKSIZE, 0);        //moving fd to the position we want to put our block
+    write(fd, buf, BLKSIZE);                //writing at fd for BLKSIZE bytes
 }
 
 

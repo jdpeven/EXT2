@@ -10,21 +10,17 @@ int ialloc()
 {
   int  i;
   char buf[BLKSIZE];
-  get_block(running->cwd->dev, imap, buf);
+  get_block(running->cwd->dev, imap, buf);          //reading in the inode bitmap block
 
   for (i=0; i < ninodes; i++){
     if (tst_bit(buf, i)==0){                        //find an empty inode
        set_bit(buf,i);                              //say that it isn't empty anymore
-       decFreeInodes(running->cwd->dev);                          //tell the fd that there is one less free inode
+       decFreeInodes(running->cwd->dev);            //tell the fd that there is one less free inode
                                                     //This function will get the superBlock/GroupDescriptor and decriment free inodes count in both
                                                     //function is in helpers.c
       
-       put_block(running->cwd->dev, imap, buf);                //dev = fd, imapNum = gp->bg_inode_bitmap, buf = new edited imap 
+       put_block(running->cwd->dev, imap, buf);     //dev = fd, imapNum = gp->bg_inode_bitmap, buf = new edited imap 
        
-       //get_block(fd, imapNum, buf);               //we're getting the bitmap we just "put"
-       //printBitMap(buf);    
-       
-       //printf("Availabe INodes: %d\n", getAvailINode()); //This should be on less than before
        return i+1;                                  
     }
   }
