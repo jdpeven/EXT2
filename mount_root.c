@@ -3,7 +3,7 @@
 #include "util.c"
 
 
-int super()
+int super(int dev)
 {
     char buf[BLKSIZE];              //creating a new buf of blksize aka 1024
     get_block(dev, 1, buf);         //getting the block with our dev (global int) that we found in mount_root()
@@ -23,7 +23,7 @@ int isEXT2()
     }
 }
 
-int gd()
+int gd(int dev)
 {
     char buf[BLKSIZE];                  //new buf
     get_block(dev, 2, buf);             //get the block of the GD
@@ -49,14 +49,15 @@ int mount_root()
           P1.cwd = iget(dev, 2);
     */
     int i, j;
+    int dev;
 
     dev = open(devName, O_RDWR);    //opening our file, here devName is diskimage
     if(dev < 0){
         printf("Error in opening file\n");
         return -1;
     }
-    super();    //calling super function. This gets our sp pointer, num of blocks, num of inodes, and checks for EXT2 validity
-    gd();       //calling gd function. Gets our gp pointer, and some global vars.
+    super(dev);    //calling super function. This gets our sp pointer, num of blocks, num of inodes, and checks for EXT2 validity
+    gd(dev);       //calling gd function. Gets our gp pointer, and some global vars.
     printf("mount : %s  mounted on /\n", devName);
     printf("nblocks = %d  bfree = %d   ninodes = %d\n", sp->s_blocks_count, gp->bg_free_blocks_count, sp->s_inodes_count);
     

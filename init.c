@@ -22,6 +22,11 @@ int init()
 
     MINODE temp;      //creating new empty minode since refcount is 0 they will be seen as empty
     temp.refCount = 0;
+
+    for(i = 0; i < NMOUNT; i++)
+    {
+      mnttable[i] = NULL;
+    }
     for(i = 0; i < NMINODE; i ++) //assigning every (100) minode to temp
     {
       minode[i] = temp;           //This shouldn't matter that they're all the same, because

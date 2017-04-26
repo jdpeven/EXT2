@@ -51,6 +51,8 @@ int ls (char * pathname)
     DIR* linkdp;
     MINODE * temp;                              //will be set to the MINODE from pathname
     //printf("This is being ls-ed\n");
+    int dev;
+    
     if(strcmp(pathname, "")==0){                //ls this file
         temp = iget(running->cwd->dev, running->cwd->ino);
     }
@@ -83,7 +85,7 @@ int ls (char * pathname)
             //printPermissions(dp->inode); NOT WORKING idk why.
             strncpy(sbuf, dp->name, dp->name_len);
             sbuf[dp->name_len] = 0;
-            ip = iget(dev, dp->inode);
+            ip = iget(running->cwd->dev, dp->inode);        //dev to running->cwd->dev
 
             printPermissions(dp->inode);
 

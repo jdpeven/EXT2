@@ -9,7 +9,7 @@
 
 
 
-DIR* openDir (char* nameOfDir, MINODE* curINODE)
+/*DIR* openDir (char* nameOfDir, MINODE* curINODE)
 {
     DIR* foundDir = malloc(sizeof(DIR));
     char blockBuf[BLKSIZE];
@@ -175,11 +175,11 @@ krmdir (MINODE* parent, char* dirToRemove, int inoToRemove)
     printf("# Entering krmdir\n");
 
     //Permission check LEVEL 3
-    /*if (uid < 0 || uid != euid)                 
+    if (uid < 0 || uid != euid)                 
     {
         printf("# Incorrect priveledges\n");
         return -1;
-    }*/
+    }
 
     inodeToRemove = iget(running->cwd->dev, inoToRemove);
 
@@ -326,11 +326,11 @@ myrmdir(char * pathname)
         printf("># DIR successfuly removed!\n");
     }
     return 0;
-}
+}*/
 
 
 
-/*
+
 //will search through the directory to see if it's empty
 int emptyDir(MINODE *mip)
 {
@@ -406,6 +406,11 @@ int myrmdir(char * pathname)
         printf("Cannot rmdir a directory that isn't empty\n");
         return 0;
     }
+    if(cmip->INODE.i_uid != running->uid)
+    {
+        printf("Invalid permissions. uid = %d, INODE.i_uid = %d\n",running->uid,cmip->INODE.i_uid);
+        return 0;
+    }
 
     if(!emptyDir(cmip))
     {
@@ -413,7 +418,7 @@ int myrmdir(char * pathname)
         return 0;
     }
 
-    if (inodeToRemove->refCount > 1)
+    if (cmip->refCount > 1)
     {
         printf("# DIR is busy\n");
         return -1;
@@ -448,9 +453,9 @@ int myrmdir(char * pathname)
     pmip->dirty = 1;
     iput(pmip);
     return 0;
-}*/
+}
 
-int jrmChild(MINODE *pmip, char *name)
+int rmChild(MINODE *pmip, char *name)
 {
     char buf[BLKSIZE];
     char sbuf[BLKSIZE];

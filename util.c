@@ -178,7 +178,7 @@ void printMinode(MINODE* mip)
     printf("mounted = %d\n",mip->mounted);
 }
 
-char * inoToName(MINODE*mip, int childIno, char **childname)
+char * inoToName(MINODE*mip, int childIno, char **childname, int *len)
 {
     char* cp;
     int block0;
@@ -200,6 +200,7 @@ char * inoToName(MINODE*mip, int childIno, char **childname)
             //printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
             if(dp->inode == childIno){
                 strncpy(*childname, dp->name, dp->name_len);
+                *len = dp->name_len;
                 //strcat(*childname, "\n");
                 //*childname[dp->name_len] = 0;
                 return;
@@ -453,6 +454,23 @@ int increaseSize(int lbk, MINODE *mip)
         put_block(mip->dev, mip->INODE.i_block[13], doublebuf);
     }
     return newBlock;
+}
+
+fork(char * index)
+{
+    int ind;
+
+    if(strcmp(index, "") == 0)
+    {
+        printf("Invalid index provided\n");
+    }
+    ind = atoi(index);
+    if(ind < 0 || ind > 3)
+    {
+        printf("index not in range\n");
+    }
+    running = &proc[ind];
+    printf("running changed to proc[%d]\n", ind);
 }
 
 

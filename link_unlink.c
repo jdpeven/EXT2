@@ -127,11 +127,17 @@ int unlink(char * filename)
         return -1;
     }
 
-    mip = iget(dev, nino);               //now mip has the file you want
+    mip = iget(ndev, nino);               //now mip has the file you want
 
     if(S_ISDIR(mip->INODE.i_mode)){                      
         printf("Cannot unlink a dir\n");
         return -1;
+    }
+
+    if(mip->INODE.i_uid != running->uid)
+    {
+        printf("Invalid permissions. uid = %d, INODE.i_uid = %d\n",running->uid,mip->INODE.i_uid);
+        return 0;
     }
 
     printf("Ready to unlink [%s]\n", filename);
@@ -140,7 +146,7 @@ int unlink(char * filename)
     mip = iget(ndev, nino);
     pmip = iget(pdev, pino);
 
-    jrmChild(pmip, basename(filename));
+    rmChild(pmip, basename(filename));
     //rm_child(pmip, mip->ino, basename(filename))  //needs to be added once rmdir is done
     pmip->dirty = 1;
     iput(pmip);

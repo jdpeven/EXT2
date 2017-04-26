@@ -62,17 +62,45 @@ int openFile(char * pathname, char * type)
     switch(mode){
         case 0://reading
             newFD->offset = 0;
+            if(running->uid !=0 && !(mip->INODE.i_mode & (1<<8)))
+            //not super use, and the file's read permission is false
+            {
+                printf("Invalid permissions\n");
+                iput(mip);
+                free(newFD);
+            }
             break;
         case 1:
             truncate(newFD->mptr);
             mip->INODE.i_size = 0;      //because it will be overwritten
             newFD->offset = 0;
+            if(running->uid !=0 && !(mip->INODE.i_mode & (1<<7)))
+            //not super use, and the file's read permission is false
+            {
+                printf("Invalid permissions\n");
+                iput(mip);
+                free(newFD);
+            }
             break;
         case 2:
             newFD->offset = 0;
+            if(running->uid !=0 && !(mip->INODE.i_mode & (1<<8)) && !(mip->INODE.i_mode & (1<<7)))
+            //not super use, and the file's read/write permission is false
+            {
+                printf("Invalid permissions\n");
+                iput(mip);
+                free(newFD);
+            }
             break;
         case 3:
             newFD->offset = mip->INODE.i_size;
+            if(running->uid !=0 && !(mip->INODE.i_mode & (1<<7)))
+            //not super use, and the file's write permission is false
+            {
+                printf("Invalid permissions\n");
+                iput(mip);
+                free(newFD);
+            }
             break;
         default:
             printf("Invalid mode\n");
