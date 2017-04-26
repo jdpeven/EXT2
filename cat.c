@@ -17,7 +17,18 @@ int mycat (char* path)
 	char readbuf[BLKSIZE];
 	int n, total = 0;
 
+	if(strcmp(path, "") == 0)
+	{
+		printf("Filename not provided\n");
+		return 0;
+	}
+
 	ino = getino(&(running->cwd->dev), path);
+	if(ino == 0)
+	{
+		printf("Invalid path\n");
+		return 0;
+	}
 	mip = iget(running->cwd->dev, ino);
 	size = mip->INODE.i_size;
 
