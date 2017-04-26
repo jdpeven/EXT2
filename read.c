@@ -9,7 +9,7 @@
 int myread (char* strFD, char* bytesToRead)
 {
 	MINODE *mip;
-	int i, inoToFind = 0, curfd = -1, bytesRead;
+	int i, inoToFind = 0, curfd = -1, bytesRead, total = 0, amtToRead = BLKSIZE;
 	char buf[BLKSIZE];
 	int btoread; 
 	int intFD;
@@ -58,15 +58,24 @@ int myread (char* strFD, char* bytesToRead)
 	{
 		printf("No fd was found with the name [%s], try opening that file\n", filename);
 	}*/
-
-	//printf("~~~~~~~~~~~~~~TEXT~~~~~~~~~~~~~\n");
-	bytesRead = read_block(intFD, buf, btoread);
-	//printf("~~~~~~~~~~~~~~/TXT~~~~~~~~~~~~~\n");
-	//printf("~~~~~~~~~~~~~~INFO~~~~~~~~~~~~~\n");
-	printf("BYTES READ %d\n", bytesRead);
-	printf("%s\n", buf);
-	//printf("~~~~~~~~~~~~~~/NFO~~~~~~~~~~~~~\n");
+	if (btoread < 1024)
+	{
+		amtToRead = btoread;
+	}
 	
+	printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	while (bytesRead = read_block(intFD, buf, amtToRead))
+	{
+		printf("%s\n", buf);
+		total += bytesRead;
+		if (btoread - total < 1024)
+		{
+			amtToRead = btoread - total;
+		}
+	}
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf("BYTES READ %d\n", total);
+
 	//I DONT KNOW WHY but it crashes if I remove this while...
 	i = 0;
 	while (mip->INODE.i_block[i] != 0)
