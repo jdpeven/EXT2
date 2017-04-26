@@ -38,16 +38,6 @@ int gd(int dev)
 
 int mount_root()
 {
-    /*
-    open device for RW (get a file descriptor dev for the opened device)
-      read SUPER block to verify it's an EXT2 FS
-   
-      root = iget(dev, 2);     //get root inode 
-    
-      Let cwd of both P0 and P1 point at the root minode (refCount=3)
-          P0.cwd = iget(dev, 2); 
-          P1.cwd = iget(dev, 2);
-    */
     int i, j;
     int dev;
 
@@ -76,9 +66,6 @@ int mount_root()
     proc[0].cwd = iget(dev, 2);             //setting cwd of p0 and p1 to the root.
     proc[1].cwd = iget(dev, 2);             //p1
 
-    //Allocates OFT for each proc and sets it's mode to -1
-    /*OFT * tempOFT = malloc(sizeof(OFT));
-    tempOFT->mode = -1;*/
     for(i = 0; i < NFD; i++)    //Each entry in the table
     {
         for(j = 0; j < 4; j++)  //Each proc

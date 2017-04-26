@@ -150,18 +150,6 @@ int main(int argc, char*argv[])
         else{
             printf("COMMAND NOT FOUND\n");
         }
-
-        /*cmdIndex = findCmd(command);
-        if(cmdIndex == -1)
-            {printf("Invalid command\n");}
-        else
-            {error = fptr[cmdIndex](path);}*/
-
-        //Get commands
-        //Use sscanf to break it into cmd an pathname
-        //use function pointers to call the specific functions
-        //if there is a path, decompose it using decompose()
-        //execute (usually by forking a child)
     }
 
     //printf("Hello\n");

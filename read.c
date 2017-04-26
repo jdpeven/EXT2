@@ -42,22 +42,7 @@ int myread (char* strFD, char* bytesToRead)
 		return;
 	}
 	mip = running->fd[intFD]->mptr;
-	/*
-	while (i < NFD)
-	{
-		if (running->fd[i]->mptr->ino == inoToFind)
-		{
-			//printf("Reading from fd %d\n", i);
-			mip = running->fd[i]->mptr;
-			curfd = i;
-			break;
-		}
-		i++;
-	}
-	if (curfd == -1)
-	{
-		printf("No fd was found with the name [%s], try opening that file\n", filename);
-	}*/
+	
 	if (btoread < 1024)
 	{
 		amtToRead = btoread;
@@ -144,7 +129,7 @@ int read_block(int fd, char *buf, int nbytes)
 
 		if(nbytes <= remain)		//There are more bytes remaining in this block
 		{							//than we need to read. 
-			strcat(buf, readbuf);   //copies the whole thing over
+			strcat(buf, cp);   //copies the whole thing over starting from cp
 			buf[nbytes+originalLength] = '\0';		//0's out everything after the number of bytes we want
 			bytesRead += strlen(buf);
 			avil -= bytesRead;		//Jackson doesn't totally get this

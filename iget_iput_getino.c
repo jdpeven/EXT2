@@ -42,28 +42,6 @@ int iput(MINODE *mip)  // dispose of a minode[] pointed by mip
 
     put_block(mip->dev, blk, ibuf);
 
-    /*
-    (1). mip->refCount--;
- 
-    (2). if (mip->refCount > 0) return;
-        if (!mip->dirty)       return;
- 
-    (3).   write INODE back to disk 
-
-    printf("iput: dev=%d ino=%d\n", mip->dev, mip->ino); 
-
-    Use mip->ino to compute 
-
-        blk containing this INODE
-        disp of INODE in blk
-
-        get_block(mip->dev, block, buf);
-
-        ip = (INODE *)buf + disp;
-        *ip = mip->INODE;
-
-        put_block(mip->dev, block, buf);
-    */
     return 0;
 }
 
@@ -80,20 +58,6 @@ SampleRun:
 */
 MINODE * iget(int dev, int ino)
 {
-    /*search minode[] for an item with same (dev, ino)
-    if(found){
-       mip->refCount++;
-       return mip
-    }
-    search minode[] array for an item pointed by mip whose refCount == 0;
-        This means that you can rewrite over ones that aren't in use anymore
-    mip->refCount = 1; //makr it in Useful
-    Assign it to (dev, ino);
-    initialize dirty = 0; mounted = 0; mountPtr = 0;
-    Use mailman to load it into memory, then copy it to mip
-    return mip;
-
-    */
     int i, blk, disp;
     char buf[BLKSIZE];
     MINODE *mip;
@@ -117,17 +81,13 @@ MINODE * iget(int dev, int ino)
         mip = &minode[i];
         if (mip->refCount == 0)
         {
-            ////printf("allocating NEW minode[%d] for [%d %d]\n", i, dev, ino);
             mip->refCount = 1;
             mip->dev = dev;
             mip->ino = ino;  // assing to (dev, ino)
             mip->dirty = mip->mounted;
-            mip->mptr = malloc(sizeof(MOUNT));
-            //mip->mptr = NULL;
-            // get INODE of ino into buf[ ]      
+            mip->mptr = malloc(sizeof(MOUNT));  
             blk  = (ino-1)/8 + inode_start;  // iblock = Inodes start block #
             disp = (ino-1) % 8;
-            //printf("iget: ino=%d blk=%d disp=%d\n", ino, blk, disp);
             get_block(dev, blk, buf);
             ip = (INODE *)buf + disp;
             // copy INODE to mp->INODE
@@ -163,39 +123,22 @@ int getino(int *dev, char *pathname)
     MINODE *mip;                        //This will be the "current" inode for traversal
     MINODE *jtest = root;
 
-    ////printf("getino: dev = %d pathname=%s\n",*dev, pathname);
-    //printf("Dev = %d\n",*dev);
-    //printf("pls no crash\n");
     if (strcmp(pathname, "/")==0){
         ////printf("Searching for root, returning 2\n");
         return 2;
     }
 
-    if (pathname[0]=='/'){               //absolute pathname
-        ////printf("Absolute pathname, mip = root\n");
+    if (pathname[0]=='/'){
         mip = iget(*dev, 2);            //Set the mip to the root
     }
     else{
-        ////printf("Relative to CWD, getting its MINODE\n");
-        ////printf("CWD: dev = %d, ino = %d\n", running->cwd->dev, running->cwd->ino);
         mip = iget(running->cwd->dev, running->cwd->ino);       //Gets cwd's MINODE
     }
-    
-    //buff = 
 
-    strcpy(buff, pathname);  
-    //printf("buff = %s\n", buff);                  
+    strcpy(buff, pathname);                   
     decompose(buff, name, &n, "/");                              //JP changed n->&n
-    //printf("pls no crash\n");
-    /*for(i = 0; i < n; i++)
-    {
-        printf("%d: %s", i, name[i]);
-    }*/
 
     for (i=0; i < n; i++){
-        ////printf("===========================================\n");
-        ////printf("getino: i=%d name[%d]=%s\n", i, i, name[i]);
-    
         //LEVEL 3
         if(mip->mounted == 1)
         {

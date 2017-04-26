@@ -44,11 +44,8 @@ int mycat (char* path)
     }
 	printf("\n========================================\n");
 	printf("Printed %d bytes\n", total);
-	//myread(path, buf);
-
 	
 	closeFile(nice);
-	//printf("fuck\n");
 	return 1;
 }
 
