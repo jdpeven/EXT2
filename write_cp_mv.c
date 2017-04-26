@@ -13,7 +13,7 @@
 int writeFile()
 {
     int fd;
-    char input[BLKSIZE];
+    char input[BLKSIZE*12];
     int nlen;
 
     printf("Printing open fd\n");
@@ -60,17 +60,6 @@ int mywrite(int fd, char buf[], int nbytes)
     startByte = oftp->offset % BLKSIZE;
     
     mip = oftp->mptr;
-
-    /*switch(oftp->mode)              //for determining how to change the size
-    {
-        case 1:                     //write
-            mip->INODE.i_size = 0;
-            break;
-        case 2:                     //readwrite. SHOULD BE SAME AS WRITE???
-            mip->INODE.i_size = 0;
-            break;
-    }*/
-    
     
     while(nbytes > 0)
     {

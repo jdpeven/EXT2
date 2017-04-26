@@ -52,7 +52,8 @@ void ipwd(MINODE * mip)
            ipwd(mip->mptr->mntloc);
            break;
         }
-        parentIno = nameToIno(mip, "..");
+        //parentIno = nameToIno(mip, "..");
+        parentIno = getino(&(running->cwd->dev), "..");
         selfIno = nameToIno(mip, ".");
         parent = iget(mip->dev,parentIno);
         //rpwd(parent);
