@@ -53,24 +53,6 @@ int chdir(char * pathname)
         running->cwd = iget(root->dev, 2);
         return 0;
     }
-    /*
-    if(pathname[0] == '/'){                  //absolute path
-        printf("Absolute pathname, running->cwd = root\n");
-        temp = iget(root->dev, root->ino);
-        iput(root);                                         //will just decriment the refCount
-        //copyMinodeptr(root, &temp);
-        //temp = root;
-        //memcpy(&(*temp), &(*root), sizeof(MINODE));
-        //*running->cwd = *root;
-    }
-    else{
-        temp = iget(running->cwd->dev, running->cwd->ino);
-        iput(running->cwd);                                 //will just decriment the refCount
-    }
-        //temp = running->cwd;
-    printf("Now printing temps details\n");
-    printMinode(temp);
-    */
 
     printf("Attempting to CD into %s\n", pathname);
     dev = running->cwd->dev;                //this might change
@@ -96,16 +78,4 @@ int chdir(char * pathname)
     running->cwd = temp;                            //(3)                      
     printf("running->cwd = %s\n", pathname);
     return 0;
-    /*
-    (1) Get inode of pathname into a minode             done
-    (2) verify it is a DIR
-    (3) Change running proc pwd to that pathname
-    (4) iput(old cwd);
-
-    if (no pathname)
-         cd to root;
-      else
-         cd to pathname;
-    */
-    
 }
