@@ -15,13 +15,7 @@ int myread (char* strFD, char* bytesToRead)
 	int intFD;
 
 	strcpy(buf, "");
-	//inoToFind = getino(&(running->cwd->dev), filename);
 
-	/*if (running->fd[0] == NULL)
-	{
-		printf("No fd's have been allocated, try opening a file...\n");
-		return;
-	}*/
 	if(strcmp(strFD, "") == 0 || strcmp(bytesToRead, "") == 0)
 	{
 		printf("Invalid number of arguments\n");
@@ -146,30 +140,7 @@ int read_block(int fd, char *buf, int nbytes)
 			avil -= remain; 		//again, not totally clear
 			lbk++;
 		}
-
-		/*
-		while (remain > 0)
-		{
-			*cq++ = *cp++;
-			bytesRead++;
-			avil--;
-			nbytes--;
-			remain--;
-			if (nbytes <= 0 || avil <= 0)
-			{
-				*++cq = 0;
-				break;
-			}
-		}*/
-
-		//printf("%s", buf);				//this should only be for cat
-		//strcpy(buf, "");					//not sure why it was written over
-		//cq = buf;
-		
 	}
-	
-	//*++cq = 0;								//maybemaybemaybe
-	//printf("\n");
 	return bytesRead;
 }
 

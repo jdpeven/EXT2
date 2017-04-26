@@ -223,11 +223,6 @@ int mylseek(char * strFD, char * pos)
     running->fd[fd]->offset = position;
     printf("FD #[%d] offset changed from %d to %d\n", fd, originalPosition, position);
     return originalPosition;
-
-  //From fd, find the OFT entry. 
-  //change OFT entry's offset to position but make sure NOT to over run either end
-  //of the file.
-  //return originalPosition
 }
 
 #endif

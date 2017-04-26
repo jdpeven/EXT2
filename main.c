@@ -13,7 +13,6 @@
 #include "link_unlink.c"
 #include "symlink_readlink.c"
 #include "touch.c"
-#include "rm.c"
 #include "open_close_lseek.c"
 #include "levelTwoHelper.c"
 #include "write_cp_mv.c"

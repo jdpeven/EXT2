@@ -6,15 +6,6 @@
 #include "iget_iput_getino.c"
 
 /*
-Name: 
-Args:  -  -
-       -  -
-Return: -
-Description: 
-SampleRun:
-*/
-
-/*
 Name: decompose
 Args: input - char* - for input to be decomposed
       output - char** - string array to be returned
@@ -200,20 +191,11 @@ char * inoToName(MINODE*mip, int childIno, char **childname)
             //printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
             if(dp->inode == childIno){
                 strncpy(*childname, dp->name, dp->name_len);
-                //*len = dp->name_len;
-                //strcat(*childname, "\n");
-                //*childname[dp->name_len] = 0;
                 return;
             }
             cp += dp->rec_len;
             dp = (DIR *)cp;
         }
-        /*if(ino){
-            printf("Found '%s' with Ino [%d]\n", name, ino);
-        }
-        else
-            printf("Did not find '%s'", name);
-        return ino;*/
     }
 }
 
