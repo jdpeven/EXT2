@@ -178,7 +178,7 @@ void printMinode(MINODE* mip)
     printf("mounted = %d\n",mip->mounted);
 }
 
-char * inoToName(MINODE*mip, int childIno, char **childname, int *len)
+char * inoToName(MINODE*mip, int childIno, char **childname)
 {
     char* cp;
     int block0;
@@ -200,7 +200,7 @@ char * inoToName(MINODE*mip, int childIno, char **childname, int *len)
             //printf("%4d %4d %4d %s\n", dp->inode, dp->rec_len, dp->name_len, sbuf);
             if(dp->inode == childIno){
                 strncpy(*childname, dp->name, dp->name_len);
-                *len = dp->name_len;
+                //*len = dp->name_len;
                 //strcat(*childname, "\n");
                 //*childname[dp->name_len] = 0;
                 return;

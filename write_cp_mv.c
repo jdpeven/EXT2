@@ -33,6 +33,7 @@ int writeFile()
     if(running->fd[fd]->mode == 0)
     {
         printf("Cannot write to a file open for read only\n");
+        return 0;
     }
 
     printf("Enter the string you'd like to write to the file\n");

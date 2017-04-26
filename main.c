@@ -45,7 +45,7 @@ int main(int argc, char*argv[])
         strcpy(path2, "");
         printf("\nPrinting cwd details\n");
         printMinode(running->cwd);
-        printf("P0 running: input command [ls,cd,stat,pwd,mkdir,creat,link,unlink,symlink,readlink,touch,quit]: ");
+        printf("P0 running: input command [ls,cd,stat,pwd,mkdir,creat,link,unlink,symlink,readlink,touch,quit, open, close, mount, etc]: ");
         fgets(command, 128, stdin);
         
         command[strcspn(command, "\n")] = 0;        //removes /n
@@ -60,8 +60,8 @@ int main(int argc, char*argv[])
             chdir(path);
         }
         else if(strcmp(cmd, "stat") == 0){
-            struct stat mystat;
-            statFile(path, &mystat);
+            //struct stat mystat;
+            statFile(path);
         }
         else if(strcmp(cmd, "pwd") == 0){
             pwd(path);
@@ -104,6 +104,7 @@ int main(int argc, char*argv[])
             myrmdir(path);
         }
         else if(strcmp(cmd, "rm") == 0){
+            unlink(path);
             //myrm(path);
         }
         else if(strcmp(cmd, "open") == 0){

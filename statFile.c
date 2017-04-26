@@ -2,7 +2,7 @@
 #include "util.c"
 #include "type.h"
 
-int statFile(char * pathname, struct stat *mystat)
+int statFile(char * pathname)
 {
     MINODE * temp;
     int ino;

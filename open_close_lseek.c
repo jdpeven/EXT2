@@ -68,6 +68,7 @@ int openFile(char * pathname, char * type)
                 printf("Invalid permissions\n");
                 iput(mip);
                 free(newFD);
+                return;
             }
             break;
         case 1:
@@ -80,6 +81,7 @@ int openFile(char * pathname, char * type)
                 printf("Invalid permissions\n");
                 iput(mip);
                 free(newFD);
+                return;
             }
             break;
         case 2:
@@ -90,6 +92,7 @@ int openFile(char * pathname, char * type)
                 printf("Invalid permissions\n");
                 iput(mip);
                 free(newFD);
+                return;
             }
             break;
         case 3:
@@ -100,6 +103,7 @@ int openFile(char * pathname, char * type)
                 printf("Invalid permissions\n");
                 iput(mip);
                 free(newFD);
+                return;
             }
             break;
         default:

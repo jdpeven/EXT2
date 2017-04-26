@@ -72,6 +72,14 @@ int ls (char * pathname)
         temp = iget((running->cwd->dev), inodeToFind);
     }
 
+    if(S_ISREG(temp->INODE.i_mode))
+        //regular file
+    {
+        printf("Trying to ls a file, calling stat\n");
+        statFile(pathname);
+        return 0;
+    }
+
     i = 0;
     while (temp->INODE.i_block[i] != 0)
     {

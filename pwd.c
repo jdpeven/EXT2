@@ -52,14 +52,14 @@ void ipwd(MINODE * mip)
            ipwd(mip->mptr->mntloc);
            break;
         }
-        //parentIno = nameToIno(mip, "..");
-        parentIno = getino(&(running->cwd->dev), "..");
+        parentIno = nameToIno(mip, "..");
+        //parentIno = getino(&(running->cwd->dev), "..");
         selfIno = nameToIno(mip, ".");
         parent = iget(mip->dev,parentIno);
         //rpwd(parent);
-        inoToName(parent, selfIno, &myname, &len);
+        inoToName(parent, selfIno, &myname);
         strncpy(stack[index], myname, strlen(myname));
-        stack[index][len] = '/0';
+        //stack[index][len] = '/0';
         //strncpy(stack+index, myname, strlen(myname));
         iput(parent);
         //iput(parent);                   //no idea if this is what i need to do
