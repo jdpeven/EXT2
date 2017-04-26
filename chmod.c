@@ -5,44 +5,47 @@
 #include "util.c"
 #include "type.h"
 
-int mychmod(char * path, char * path2)
+int mychmod(char * type, char * path)
 {
 	char filepath[64];
-	int newMode = 0;
+	int newmode = 0;
 	int ino, dev;
-	MINODE * mip = malloc(sizeof(MINODE));
+	int user, group, all;
+	MINODE * mip;// = malloc(sizeof(MINODE));
 
-
-	strcpy(filepath, path);
-	if (strlen(path2) == 0)
+	if(strcmp(type, "") == 0 || strcmp(path, "") == 0)
 	{
-		newMode = 0;
+		printf("Invalid number argument's provided\n");
+		return 0;
 	}
-	else
+	if(strlen(type) != 4)
 	{
-		newMode = atoi(path2);
-	}
-
-	if (strlen(filepath) == 0)
-	{
-		printf("No filename provided");
+		printf("Invalid type, must be 4 digits\n");
 		return 0;
 	}
 
-	printf("Changing the mode of <%s> to \"%d\"", filepath, newMode);
+	user = type[1] - '0';
+	group = type[2] - '0';
+	all = type[3] - '0';
+	printf("User = %d, Group = %d, All = %d\n", user, group, all);
+	
+	if(user > 7 || group > 7 || all > 7)
+	{
+		printf("Invalid input, each digit must be < 8\n");
+	}
 
-	if (filepath[0] == '/')
+	if (path[0] == '/')
 	{
 		//we have an absolute path
 		dev = root->dev;
-		ino = getino(&dev, filepath);
+		ino = getino(&dev, path);
 		mip = iget(root->dev, ino);
 	}
 	else
 	{
 		//relative path (use cwd)
 		dev = running->cwd->dev;
-		ino = getino(&dev, filepath);
+		ino = getino(&dev, path);
 		mip = iget(running->cwd->dev, ino);
 	}
 
@@ -54,7 +57,27 @@ int mychmod(char * path, char * path2)
 	printf("File INO = %d\n", ino);
 	printf("ip->mode = %d", mip->INODE.i_mode);
 
-	mip->INODE.i_mode = newMode;
+	newmode = mip->INODE.i_mode & ((-1)<<9);	//if this works it is the single greatest line of code I've every written
+	newmode |= (user << 6);
+	newmode |= (group << 3);
+	newmode |= (all);
+
+	/*
+		So I realized that when just doing the above three lines, it looked good but
+		when I tried to open the file it would break because it wasn't a dir anymore
+		I'm not sure where but I'm guessing the dir/reg bits are further down than the
+		one's for permissions. So I originally set newmode as the original mode and
+		negative one bit shifted over 9 times. -1 in two's compement is all ones, and
+		then bit shifting it over 9 times puts 9 0s before the 1s. So anything to the left
+		of the permission bits is fine, whereas everything else is cleared out. Then after 
+		that I just bit shift the permissions to the correct location and we're good to go
+	*/
+
+	printf("New mode is now %d\n", newmode);
+
+	printf("Changing the mode of <%s> to \"%d\"\n", path, newmode);
+
+	mip->INODE.i_mode = newmode;
 	mip->INODE.i_atime = time(0L);
     mip->INODE.i_ctime = time(0L);
     mip->dirty = 1;
