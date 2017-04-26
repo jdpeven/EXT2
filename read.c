@@ -6,30 +6,43 @@
 #include "type.h"
 #include "iget_iput_getino.c"
 
-int myread (char* filename, char* bytesToRead)
+int myread (char* strFD, char* bytesToRead)
 {
 	MINODE *mip;
 	int i, inoToFind = 0, curfd = -1, bytesRead;
 	char buf[BLKSIZE];
 	int btoread; 
+	int intFD;
 
 	strcpy(buf, "");
-	inoToFind = getino(&(running->cwd->dev), filename);
+	//inoToFind = getino(&(running->cwd->dev), filename);
 
 	/*if (running->fd[0] == NULL)
 	{
 		printf("No fd's have been allocated, try opening a file...\n");
 		return;
 	}*/
-	if(strcmp(filename, "") == 0 || strcmp(bytesToRead, "") == 0)
+	if(strcmp(strFD, "") == 0 || strcmp(bytesToRead, "") == 0)
 	{
 		printf("Invalid number of arguments\n");
 		return 0;
 	}
-
+	intFD = atoi(strFD);
 	btoread = atoi(bytesToRead);
 
 	i = 0;
+	if(intFD < 0 || intFD > NFD)
+	{
+		printf("Index not in range\n");
+		return 0;
+	}
+	if(running->fd[intFD] == NULL)
+	{
+		printf("FD [%d] has not been allocated yet\n", intFD);
+		return;
+	}
+	mip = running->fd[intFD]->mptr;
+	/*
 	while (i < NFD)
 	{
 		if (running->fd[i]->mptr->ino == inoToFind)
@@ -44,13 +57,14 @@ int myread (char* filename, char* bytesToRead)
 	if (curfd == -1)
 	{
 		printf("No fd was found with the name [%s], try opening that file\n", filename);
-	}
+	}*/
 
 	//printf("~~~~~~~~~~~~~~TEXT~~~~~~~~~~~~~\n");
-	bytesRead = read_block(curfd, buf, btoread);
+	bytesRead = read_block(intFD, buf, btoread);
 	//printf("~~~~~~~~~~~~~~/TXT~~~~~~~~~~~~~\n");
 	//printf("~~~~~~~~~~~~~~INFO~~~~~~~~~~~~~\n");
 	printf("BYTES READ %d\n", bytesRead);
+	printf("%s\n", buf);
 	//printf("~~~~~~~~~~~~~~/NFO~~~~~~~~~~~~~\n");
 	
 	//I DONT KNOW WHY but it crashes if I remove this while...
@@ -123,7 +137,7 @@ int read_block(int fd, char *buf, int nbytes)
 		{							//than we need to read. 
 			strcat(buf, readbuf);   //copies the whole thing over
 			buf[nbytes+originalLength] = '\0';		//0's out everything after the number of bytes we want
-			bytesRead += strlen(readbuf);
+			bytesRead += strlen(buf);
 			avil -= bytesRead;		//Jackson doesn't totally get this
 			nbytes = 0;
 			running->fd[fd]->offset += bytesRead;
