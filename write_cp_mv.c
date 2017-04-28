@@ -13,7 +13,7 @@
 int writeFile()
 {
     int fd;
-    char input[BLKSIZE];
+    char input[BLKSIZE*12];
     int nlen;
 
     printf("Printing open fd\n");
@@ -33,6 +33,7 @@ int writeFile()
     if(running->fd[fd]->mode == 0)
     {
         printf("Cannot write to a file open for read only\n");
+        return 0;
     }
 
     printf("Enter the string you'd like to write to the file\n");
@@ -60,17 +61,6 @@ int mywrite(int fd, char buf[], int nbytes)
     startByte = oftp->offset % BLKSIZE;
     
     mip = oftp->mptr;
-
-    /*switch(oftp->mode)              //for determining how to change the size
-    {
-        case 1:                     //write
-            mip->INODE.i_size = 0;
-            break;
-        case 2:                     //readwrite. SHOULD BE SAME AS WRITE???
-            mip->INODE.i_size = 0;
-            break;
-    }*/
-    
     
     while(nbytes > 0)
     {
@@ -179,10 +169,15 @@ int mymv(char * src, char * dest)
     }
     else
     {
+<<<<<<< HEAD
         printf("File are on different devices, must cp\n");
         mycp(src, dest);
         unlink(src);
         //Problem for level three
+=======
+        mycp(src, dest);
+        unlink(src);
+>>>>>>> incaseshitbreaks
     }
 }
 

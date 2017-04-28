@@ -61,7 +61,6 @@ int mychmod(char * type, char * path)
 	newmode |= (user << 6);
 	newmode |= (group << 3);
 	newmode |= (all);
-
 	/*
 		So I realized that when just doing the above three lines, it looked good but
 		when I tried to open the file it would break because it wasn't a dir anymore

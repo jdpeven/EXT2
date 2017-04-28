@@ -72,11 +72,6 @@ int symlink(char * oldFile, char * newFile)
         printf("The new file already exists\n");
         return;
     }
-    /*if(odev != ndev)
-    {
-        printf("odev = %d, ndev = %d Cannot hard link across devices\n", odev, ndev);
-        return;
-    }*/
 
     printf("Now ready to symlink ofile [%s] to nfile [%s]\n", oldFile, newFile);
 
@@ -106,20 +101,6 @@ int symlink(char * oldFile, char * newFile)
     pmip->dirty = 1;
     iput(pmip);
 }
-
-/*
-Algorithm of symlink(old_file, new_file)
-{ 
-    1. check: old_file must exist and new_file not yet exist; 
-    2. create new_file; change new_file to SLINK type;
-    3. // assume length of old_file name <= 60 chars
-        store old_file name in newfile's INODE.i_block[ ] area. mark new_file's minode dirty;
-        iput(new_file's minode);
-    4. mark new_file parent minode dirty;
-         put(new_file's parent minode);
-}
-
-*/
 
 int readlink(char * filename, char * buffer)
 {
@@ -160,9 +141,6 @@ int readlink(char * filename, char * buffer)
     strcpy(buffer, (char *)mip->INODE.i_block);
     //3. return strlen((char *)mip ->INODE.i_block);
 
-    /*free(omip);
-    free(nmip);
-    free(pmip);*/
     iput(mip);
     return(strlen((char *)mip->INODE.i_block));
 }

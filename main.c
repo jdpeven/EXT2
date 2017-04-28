@@ -13,7 +13,6 @@
 #include "link_unlink.c"
 #include "symlink_readlink.c"
 #include "touch.c"
-#include "rm.c"
 #include "open_close_lseek.c"
 #include "levelTwoHelper.c"
 #include "write_cp_mv.c"
@@ -45,7 +44,7 @@ int main(int argc, char*argv[])
         strcpy(path2, "");
         printf("\nPrinting cwd details\n");
         printMinode(running->cwd);
-        printf("P0 running: input command [ls,cd,stat,pwd,mkdir,creat,link,unlink,symlink,readlink,touch,quit]: ");
+        printf("P0 running: input command [ls,cd,stat,pwd,mkdir,creat,link,unlink,symlink,readlink,touch,quit, open, close, mount, etc]: ");
         fgets(command, 128, stdin);
         
         command[strcspn(command, "\n")] = 0;        //removes /n
@@ -60,8 +59,8 @@ int main(int argc, char*argv[])
             chdir(path);
         }
         else if(strcmp(cmd, "stat") == 0){
-            struct stat mystat;
-            statFile(path, &mystat);
+            //struct stat mystat;
+            statFile(path);
         }
         else if(strcmp(cmd, "pwd") == 0){
             pwd(path);
@@ -104,6 +103,7 @@ int main(int argc, char*argv[])
             myrmdir(path);
         }
         else if(strcmp(cmd, "rm") == 0){
+            unlink(path);
             //myrm(path);
         }
         else if(strcmp(cmd, "open") == 0){
@@ -149,18 +149,6 @@ int main(int argc, char*argv[])
         else{
             printf("COMMAND NOT FOUND\n");
         }
-
-        /*cmdIndex = findCmd(command);
-        if(cmdIndex == -1)
-            {printf("Invalid command\n");}
-        else
-            {error = fptr[cmdIndex](path);}*/
-
-        //Get commands
-        //Use sscanf to break it into cmd an pathname
-        //use function pointers to call the specific functions
-        //if there is a path, decompose it using decompose()
-        //execute (usually by forking a child)
     }
 
     //printf("Hello\n");

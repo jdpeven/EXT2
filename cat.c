@@ -13,20 +13,29 @@ int mycat (char* path)
 {
 	int ino, size, fd;
 	MINODE *mip;// = malloc(sizeof(MINODE));
-	char buf[20], fdbuf[2];
+	char buf[20], fdbuf[2], *nice;
 	char readbuf[BLKSIZE];
 	int n, total = 0;
 
+	if(strcmp(path, "") == 0)
+	{
+		printf("Filename not provided\n");
+		return 0;
+	}
+
 	ino = getino(&(running->cwd->dev), path);
+	if(ino == 0)
+	{
+		printf("Invalid path\n");
+		return 0;
+	}
 	mip = iget(running->cwd->dev, ino);
 	size = mip->INODE.i_size;
 
 	fd = openFile(path, "r");
 	snprintf(fdbuf, 2, "%d", fd);
+	strcpy(nice, fdbuf);	//fdbuf is losing its info idk why so I had to cpy it.
 
-	printf("fd = %d\n", fd);
-	//snprintf(buf, 20, "%d", size);
-	//printf("File size: %s\n", buf);
 	printf("========================================\n");
 	while(n = read_block(fd, readbuf, BLKSIZE))
     {
@@ -35,10 +44,8 @@ int mycat (char* path)
     }
 	printf("\n========================================\n");
 	printf("Printed %d bytes\n", total);
-	//myread(path, buf);
-
-	closeFile(fdbuf);
-	//printf("fuck\n");
+	
+	closeFile(nice);
 	return 1;
 }
 

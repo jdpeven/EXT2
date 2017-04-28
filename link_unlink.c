@@ -131,12 +131,14 @@ int unlink(char * filename)
 
     if(S_ISDIR(mip->INODE.i_mode)){                      
         printf("Cannot unlink a dir\n");
+        iput(mip);
         return -1;
     }
 
     if(mip->INODE.i_uid != running->uid)
     {
         printf("Invalid permissions. uid = %d, INODE.i_uid = %d\n",running->uid,mip->INODE.i_uid);
+        iput(mip);
         return 0;
     }
 
@@ -167,30 +169,5 @@ int unlink(char * filename)
     iput(mip);
     return;
 }
-
-/*
-unlink(char *filename)
-{ 
-    1. get filenmae's minode:
-        ino = getino(&dev, filename); mip = iget(dev, ino);
-        check it's a REG or SLINK file
-   2. remove basename from parent DIR
-      rm_child(pmip, mip->ino, basename);
-      pmip->dirty = 1;
-      iput(pmip);
-   3. // decrement INODE's link_count
-      mip->INODE.i_links_count--;
-      if (mip->INODE.i_links_count > 0){
-      mip->dirty = 1; iput(mip);
-}
-4. if (!SLINK file) // assume:SLINK file has no data block
-      truncate(mip); // deallocate all data blocks
-      deallocate INODE;
-      iput(mip);
-}
-
-*/
-
-
 
 #endif

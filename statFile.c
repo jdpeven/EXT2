@@ -2,7 +2,7 @@
 #include "util.c"
 #include "type.h"
 
-int statFile(char * pathname, struct stat *mystat)
+int statFile(char * pathname)
 {
     MINODE * temp;
     int ino;
@@ -14,7 +14,10 @@ int statFile(char * pathname, struct stat *mystat)
         printf("size=%d time= %s\n",running->cwd->INODE.i_size, ctime(&running->cwd->INODE.i_ctime));
         return 0;
     }
-    ino = getino(&(running->cwd->dev),pathname);
+    if(pathname[0] == '/')
+        ino = getino(&(root->dev),pathname);
+    else
+        ino = getino(&(running->cwd->dev),pathname);
     if(ino == 0)
     {
         printf("Stat could not find file/directory not found, returning\n");
