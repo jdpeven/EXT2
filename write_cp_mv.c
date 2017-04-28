@@ -169,7 +169,8 @@ int mymv(char * src, char * dest)
     }
     else
     {
-        //Problem for level three
+        mycp(src, dest);
+        unlink(src);
     }
 }
 

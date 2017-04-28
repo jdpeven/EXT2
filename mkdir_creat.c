@@ -114,9 +114,7 @@ enterChild(MINODE * pmip, int ino, char * basename)
             dp = (DIR *)bbuf;
             cp = bbuf;
             remainLength = BLKSIZE;
-
         }
-
     }
     //else, first entry in datablock, dp is already pointing to the right location
     strcpy(dp->name, basename);

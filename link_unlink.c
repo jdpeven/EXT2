@@ -131,12 +131,14 @@ int unlink(char * filename)
 
     if(S_ISDIR(mip->INODE.i_mode)){                      
         printf("Cannot unlink a dir\n");
+        iput(mip);
         return -1;
     }
 
     if(mip->INODE.i_uid != running->uid)
     {
         printf("Invalid permissions. uid = %d, INODE.i_uid = %d\n",running->uid,mip->INODE.i_uid);
+        iput(mip);
         return 0;
     }
 

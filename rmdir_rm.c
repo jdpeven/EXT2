@@ -75,28 +75,33 @@ int myrmdir(char * pathname)
     if(!S_ISDIR(cmip->INODE.i_mode))
     {
         printf("Cannot rmdir a non dir file\n");
+        iput(cmip);
         return 0;
     }
     if(cmip->INODE.i_links_count > 2)
     {
         printf("Cannot rmdir a directory that isn't empty\n");
+        iput(cmip);
         return 0;
     }
     if(cmip->INODE.i_uid != running->uid)
     {
         printf("Invalid permissions. uid = %d, INODE.i_uid = %d\n",running->uid,cmip->INODE.i_uid);
+        iput(cmip);
         return 0;
     }
 
     if(!emptyDir(cmip))
     {
         printf("Cannot rmdir a directory that isn't empty\n");
+        iput(cmip);
         return 0;
     }
 
     if (cmip->refCount > 1)
     {
         printf("# DIR is busy\n");
+        iput(cmip);
         return -1;
     }
 
