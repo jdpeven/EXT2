@@ -169,15 +169,9 @@ int mymv(char * src, char * dest)
     }
     else
     {
-<<<<<<< HEAD
         printf("File are on different devices, must cp\n");
         mycp(src, dest);
         unlink(src);
-        //Problem for level three
-=======
-        mycp(src, dest);
-        unlink(src);
->>>>>>> incaseshitbreaks
     }
 }
 
