@@ -25,7 +25,7 @@ int bmap;                       //init
 int imap;                       //init
 int inode_start;                //init
 
-char * devName = "diskimage"; //will be used as default for mounting the root
+char * devName = "./diskimages/diskimage"; //will be used as default for mounting the root
 char command[128];
 char cmd[64];
 char path[64];
