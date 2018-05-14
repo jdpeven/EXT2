@@ -1,0 +1,1 @@
+gcc -w main.c -o a.out

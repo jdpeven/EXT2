@@ -28,7 +28,7 @@ childls(MINODE * mip)
         sbuf[ddp->name_len] = 0;
         ip = iget(mip->dev, ddp->inode);
 
-        printPermissions(ddp->inode);
+        printPermissions(ddp->inode, mip->dev);
         printf("   %d   %.13s\t%d\t%s\n", ip->i_links_count, 
             ctime(&ip->i_ctime), ip->i_size, sbuf);
         cp += ddp->rec_len;

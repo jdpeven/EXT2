@@ -8,9 +8,9 @@
 #include "time.h"
 
 
-void printPermissions(int ino)
+void printPermissions(int ino, int dev)
 {
-    MINODE * mip = iget(running->cwd->dev, ino);
+    MINODE * mip = iget(dev, ino);
     //printf( (S_ISDIR(mip->INODE.i_mode)) ? "d" : "-");
     if (S_ISDIR(mip->INODE.i_mode))
     {
@@ -41,6 +41,97 @@ void printPermissions(int ino)
 }
 
 
+
+int ls (char * pathname)
+{
+    //if we ls /a/b, directory will be the MINODE for /a/b,
+    //element will be the MINODE for each entry in the directory
+    //This is important for size, links, etc
+    MINODE * directory, * element;
+    int pathIno, pathDev, elementIno;
+    int blockNum, actualBlock;
+    char buf[BLKSIZE], sbuf[BLKSIZE];
+    char * cp;
+    DIR * dp;
+    int linksCount, gid, uid, size;
+    char * createtime;
+
+    if(strcmp(pathname, "") == 0)
+    {
+        //So I can iput it later and be fine
+        pathDev = running->cwd->dev;
+        pathIno = running->cwd->ino;
+        directory = iget(pathDev, pathIno);//// running->cwd;
+    }
+    else
+    {
+        if(pathname[0] == '/')
+        {
+            pathDev = root->dev;
+            pathIno = search(root, pathname);
+        }
+        else
+        {
+            pathDev = running->cwd->dev;
+            pathIno = search(running->cwd, pathname);
+        }
+        if(pathIno == 0)                //not found
+        {
+            printf("Path not found\n");
+            return 0;
+        }
+        directory = iget(pathDev, pathIno);
+    }
+
+    if(S_ISREG(directory->INODE.i_mode))
+    {
+        printf("Trying to ls a file, calling stat\n");
+        statFile(pathname);
+        return 0;
+    }
+
+    //will iterate through the block of the inode
+    //Only [0,12) because we will assume directories do not have indirect blocks
+    for(blockNum = 0; blockNum < 12; blockNum++)
+    {
+        actualBlock = directory->INODE.i_block[blockNum];
+        if(actualBlock == 0)
+            break;
+        get_block(pathDev, actualBlock, buf);
+        dp = (DIR *)buf;
+        cp = buf;
+        
+        printf("Permissions\tLinks\tGID\tUID\tCreation Time\tSize\tRec_len\tInode\tName\n");
+        while(cp < &buf[BLKSIZE])
+        {
+            printPermissions(pathIno, pathDev);
+            //strcpy(sbuf, "");                       //clearing it out
+            strncpy(sbuf, dp->name, dp->name_len);
+            sbuf[dp->name_len] = 0;
+            element = iget(pathDev, dp->inode);
+            size = element->INODE.i_size;
+            linksCount = element->INODE.i_links_count;
+            gid = element->INODE.i_gid;
+            uid = element->INODE.i_uid;
+
+            printf("\t%d\t%d\t%d\t%.13s\t%d\t%d\t%d\t%s", linksCount, gid, uid,
+                    ctime(&(element->INODE.i_ctime)),size,dp->rec_len,dp->inode, sbuf); 
+
+            if(S_ISLNK(element->INODE.i_mode))
+            {
+                //The name of what is being linked is stored in the inode's i_block
+                printf("->%s", (char*)element->INODE.i_block);
+            }
+
+            printf("\n");
+            cp+=dp->rec_len;
+            dp = (DIR *)cp;
+            iput(element);
+        }
+    }
+}
+
+/*
 int ls (char * pathname)
 {
     int inodeToFind, block0, i;
@@ -163,11 +254,12 @@ int readlinkUtil(char * filename, char * buffer)
     strcpy(buffer, (char *)mip->INODE.i_block);
     //3. return strlen((char *)mip ->INODE.i_block);
 
-    /*free(omip);
-    free(nmip);
-    free(pmip);*/
+    //free(omip);
+    //free(nmip);
+    //free(pmip);
     iput(mip);
     return(strlen((char *)mip->INODE.i_block));
 }
+*/
 
 #endif
